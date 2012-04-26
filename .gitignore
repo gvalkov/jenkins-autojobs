@@ -2,6 +2,8 @@
 *.py[co]
 *.egg
 *.egg-info/
+*#
+.#*
 develop-eggs/
 dist/
 build/
@@ -11,3 +13,6 @@ pip-log.txt
 .coverage
 .ropeproject
 tags
+doc/_build
+tests/tmp/*
+.tox/

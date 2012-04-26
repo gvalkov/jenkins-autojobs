@@ -1,0 +1,169 @@
+$ cat config.yaml
+jenkins:  http://localhost:60888
+repo: https://github.com/mitsuhiko/flask.git
+template: flask-master
+namefmt: '{shortref}'
+overwrite: true
+enable: true
+
+ignore:
+  - 'refs/heads/.*-maintenance'
+
+refs:
+  - 'refs/heads/feature/.*'
+  - 'refs/heads/new-.*'
+
+
+# dryrun with config inheritance debugging
+$ jenkins-makejobs-git -nd config.yaml
+loading config from "/tmp/test.yaml"
+
+explicitly ignored:
+ - refs/heads/0.3-maintenance
+ - refs/heads/0.5-maintenance
+ - refs/heads/0.6-maintenance
+ - refs/heads/0.7-maintenance
+ - refs/heads/0.8-maintenance
+
+processing ref: refs/heads/feature/remove-jsonp
+. job name: feature-remove-jsonp
+. job exists: False
+. job created
+. config:
+  . re: refs/heads/feature/.*
+  . enable: enable
+  . namefmt: {shortref}
+  . template: flask-master
+  . namesep: -
+  . overwrite: True
+
+processing ref: refs/heads/new-logging
+. job name: new-logging
+. job exists: False
+. job created
+. config:
+  . re: refs/heads/new-.*
+  . enable: enable
+  . namefmt: {shortref}
+  . template: flask-master
+  . namesep: -
+  . overwrite: True
+
+processing ref: refs/heads/new-modules
+. job name: new-modules
+. job exists: False
+. job created
+. config:
+  . re: refs/heads/new-.*
+  . enable: enable
+  . namefmt: {shortref}
+  . template: flask-master
+  . namesep: -
+  . overwrite: True
+
+processing ref: refs/heads/new-request-dispatching
+. job name: new-request-dispatching
+. job exists: False
+. job created
+. config:
+  . re: refs/heads/new-.*
+  . enable: enable
+  . namefmt: {shortref}
+  . template: flask-master
+  . namesep: -
+  . overwrite: True
+
+
+$ jenkins-makejobs-git config.yaml
+loading config from "/tmp/test.yaml"
+
+explicitly ignored:
+ - refs/heads/0.3-maintenance
+ - refs/heads/0.5-maintenance
+ - refs/heads/0.6-maintenance
+ - refs/heads/0.7-maintenance
+ - refs/heads/0.8-maintenance
+
+processing ref: refs/heads/feature/remove-jsonp
+. job name: feature-remove-jsonp
+. job exists: False
+. job created
+
+processing ref: refs/heads/new-logging
+. job name: new-logging
+. job exists: False
+. job created
+
+processing ref: refs/heads/new-modules
+. job name: new-modules
+. job exists: False
+. job created
+
+processing ref: refs/heads/new-request-dispatching
+. job name: new-request-dispatching
+. job exists: False
+. job created
+
+
+# after modifying the template job
+$ jenkins-makejobs-git config.yaml
+loading config from "/tmp/test.yaml"
+
+explicitly ignored:
+ - refs/heads/0.3-maintenance
+ - refs/heads/0.5-maintenance
+ - refs/heads/0.6-maintenance
+ - refs/heads/0.7-maintenance
+ - refs/heads/0.8-maintenance
+
+processing ref: refs/heads/feature/remove-jsonp
+. job name: feature-remove-jsonp
+. job exists: True
+. job updated
+
+processing ref: refs/heads/new-logging
+. job name: new-logging
+. job exists: True
+. job updated
+
+processing ref: refs/heads/new-modules
+. job name: new-modules
+. job exists: True
+. job updated
+
+processing ref: refs/heads/new-request-dispatching
+. job name: new-request-dispatching
+. job exists: True
+. job updated
+
+
+# subsequent runs
+$ jenkins-makejobs-git config.yaml
+loading config from "/tmp/test.yaml"
+
+explicitly ignored:
+ - refs/heads/0.3-maintenance
+ - refs/heads/0.5-maintenance
+ - refs/heads/0.6-maintenance
+ - refs/heads/0.7-maintenance
+ - refs/heads/0.8-maintenance
+
+processing ref: refs/heads/feature/remove-jsonp
+. job name: feature-remove-jsonp
+. job exists: True
+. job does not need to be reconfigured
+
+processing ref: refs/heads/new-logging
+. job name: new-logging
+. job exists: True
+. job does not need to be reconfigured
+
+processing ref: refs/heads/new-modules
+. job name: new-modules
+. job exists: True
+. job does not need to be reconfigured
+
+processing ref: refs/heads/new-request-dispatching
+. job name: new-request-dispatching
+. job exists: True
+. job does not need to be reconfigured

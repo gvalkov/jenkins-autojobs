@@ -1,0 +1,58 @@
+# Jenkins location and login
+jenkins:  http://localhost:8080
+username: None  # optional
+password: None  # optional
+
+# Repository location (remote or local)
+repo: file:///tmp/project-repo/
+
+# Repository login
+scm-username: None  # optional
+scm-password: None  # optional
+
+# Job to use as a default template for new jobs
+template: new-job-template
+
+# Character with which to replace '/' in ref names
+namesep: '-'
+
+# Template string for new job names
+# The following placeholders are available:
+#   {ref}      -> expands to full ref name
+#   {shortref} -> expands to the short ref name
+#   {n}        -> nth backreference of the ref regex
+namefmt: '{shortref}'
+
+# If false, a job will never be overwritten if it exists
+# If true, a job will be overwritten if the new configration
+# differs from the old one.
+overwrite: true
+
+# State of newly created or overwritten jobs. One of:
+#   true       -> jobs will be enabled
+#   false      -> jobs will be disabled
+#   'template' -> jobs will inherit the state of their template job
+#   'sticky'   -> new jobs inherit the state of the template job -
+#                 overwritten jobs keep their previous state
+enable: 'sticky'
+
+# Literal substitute of strings in template job
+# Useful for certain plugins (eg. sidebar links)
+substitute:
+  '@@JOB_NAME@@' : '{shortref}'
+
+# List of refs to ignore (regular expressions)
+ignore:
+  - 'refs/heads/feature/.*-nobuild'
+  - 'refs/heads/scratch/.*'
+
+# Maps ref names (regular expressions) to config dictionaries that may
+# overwrite any of the previously specified options. Defaults to
+# "refs: '.*'".
+refs:
+  - 'refs/heads/release/(.*)'
+  - 'refs/heads/feature/(.*)'
+  - 'refs/heads/scratch/(.*)':
+      'template': 'scratch-template'
+      'namefmt':  'wip-{shortref}'
+      'enable':   false
