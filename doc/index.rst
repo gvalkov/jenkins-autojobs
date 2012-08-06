@@ -1,8 +1,10 @@
 Introduction
 ============
 
-.. image:: img/explanation-figure.png
+.. image:: img/explanation-figure.svg
    :align: center
+   :width: 680
+
 
 :mod:`jenkins-autojobs` are a set of scripts that automatically create
 Jenkins_ jobs from template jobs and the branches in a SCM repository.
