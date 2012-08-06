@@ -1,6 +1,3 @@
-WIP
----
-
 *jenkins-autojobs*
 ------------------
 
