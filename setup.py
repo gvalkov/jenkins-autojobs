@@ -35,6 +35,7 @@ requires = (
 scripts = (
     'jenkins-makejobs-git = jenkins_autojobs.git:main',
     'jenkins-makejobs-svn = jenkins_autojobs.svn:main',
+    'jenkins-makejobs-hg  = jenkins_autojobs.hg:main',
 )
 
 kw = {

@@ -5,7 +5,7 @@ import os, sys, time
 
 from copy import deepcopy
 from shutil import rmtree
-from tempfile import mkdtemp
+from tempfile import mkdtemp, mkstemp
 from functools import partial
 from subprocess import call, check_call
 from os.path import dirname, abspath, join as pjoin, isdir
@@ -145,6 +145,48 @@ class SvnRepo(TmpRepo):
     def rmbranch(self, name):
         cmd = ('svn', 'rm', '%s/%s' % (self.url, name), '-m', '++')
         check_call(cmd)
+
+    @contextmanager
+    def branch(self, name):
+        self.mkbranch(name)
+        yield
+        self.rmbranch(name)
+
+
+class HgRepo(TmpRepo):
+    def __init__(self, d=pjoin(here, 'tmp/repos')):
+        super(HgRepo, self).__init__()
+
+    def init(self):
+        cmd = 'hg', 'init', self.dir
+        check_call(cmd)
+
+        mkstemp(dir=self.dir)
+
+        cmd = 'hg', 'commit', '-A', '-m', "++"
+        check_call(cmd, cwd=self.dir)
+
+    def mkbranch(self, name):
+        cmd = 'hg', 'branch', name
+        check_call(cmd, cwd=self.dir)
+
+        mkstemp(dir=self.dir)
+
+        cmd = 'hg', 'commit', '-A', '-m', '++'
+        check_call(cmd, cwd=self.dir)
+
+    def rmbranch(self, name):
+        # cmd = (('hg', 'up', '-C', name),
+        #        ('hg', 'commit', '--close-branch', '-m', '++'),
+        #        ('hg', 'up', '-C', 'default'))
+
+        # for c in cmd:
+        #     print c
+        #     check_call(c, cwd=self.dir)
+
+        rmtree(self.dir)
+        self.init()
+
 
     @contextmanager
     def branch(self, name):
