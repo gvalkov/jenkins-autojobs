@@ -13,11 +13,6 @@ base_config_yaml = '''
 jenkins: {url}
 repo: {repo}
 
-trunk: file://{repo}/trunk/
-branches:
-  - {repo}/branches/
-  - {repo}/experimental/
-
 template: master-job-hg
 
 namesep: '-'
