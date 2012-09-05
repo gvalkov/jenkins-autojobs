@@ -43,6 +43,7 @@ Supported SCMs
 ===============  =============================
  git_            ``jenkins-makejobs-git``
  subversion_     ``jenkins-makejobs-svn``
+ mercurial_      ``jenkins-makejobs-hg``
 ===============  =============================
 
 All script accept the same command-line options and arguments::
@@ -119,3 +120,4 @@ License
 .. _jenkins-build-per-branch: http://entagen.github.com/jenkins-build-per-branch/
 .. _git:               https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin
 .. _subversion:        https://wiki.jenkins-ci.org/display/JENKINS/Subversion+Plugin
+.. _mercurial:         https://wiki.jenkins-ci.org/display/JENKINS/Mercurial+Plugin
