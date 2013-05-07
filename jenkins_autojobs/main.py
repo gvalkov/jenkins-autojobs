@@ -8,7 +8,10 @@ from copy import deepcopy
 from getopt import getopt
 from getpass import getpass
 from functools import partial
-from collections import OrderedDict
+try:
+	from collections import OrderedDict
+except ImportError:
+	from python26_support import OrderedDict
 
 from jenkins import Jenkins, JenkinsException
 from lxml import etree
@@ -72,7 +75,7 @@ def main(argv, create_job, list_branches,  getoptfmt='vdnr:j:u:p:y:o:UPYO', conf
     # load config, set default values and compile regexes
     if not config :
         yamlfn = args[-1]
-        print('loading config from "{}"'.format(abspath(yamlfn)))
+        print('loading config from "{path}"'.format(path=abspath(yamlfn)))
         config = yaml.load(open(yamlfn))
 
     config = c = get_default_config(config, opts)
@@ -94,11 +97,11 @@ def main(argv, create_job, list_branches,  getoptfmt='vdnr:j:u:p:y:o:UPYO', conf
         print('\n - '.join(missing)); exit(1)
 
     # convert them to etree objects of the templates' config xmls
-    templates = {i: get_job_etree(i) for i in templates}
+    templates = dict((i, get_job_etree(i)) for i in templates)
 
     # list all git refs, svn branches etc (implemented by child classes)
     branches = list_branches(config)
-
+    
     # see if some of the branches are ignored
     ignored, branches = get_ignored(branches, c['ignore'])
 

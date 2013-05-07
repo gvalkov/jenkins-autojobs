@@ -42,14 +42,22 @@ class Job(object):
                     nv = p.text.replace(k, v.format(**fmtdict))
                     p.text = nv
 
+    def canonicalize(self, xml):
+        try:
+            return etree.tostring(xml, method='c14n')
+        except ValueError:
+            # Guess the installed lxml is too old to support c14n.  Drat.
+            # Unable to canonicalize the xml, so hopefully nobody makes a non-semantic change...
+            return etree.tostring(xml)
+
     def create(self, overwrite, dryrun):
         # method='c14n' is only available in more recent versions of lxml
-        self.xml = etree.tostring(self.xml, method='c14n')
+        self.xml = self.canonicalize(self.xml)
 
         if self.exists and overwrite:
             job_config_dom = etree.fromstring(self.config)
 
-            if etree.tostring(job_config_dom, method='c14n') == self.xml:
+            if self.canonicalize(job_config_dom) == self.xml:
                 print('. job does not need to be reconfigured')
                 return
 

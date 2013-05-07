@@ -54,7 +54,7 @@ def create_job(ref, template, config, ref_config):
        :param ref_config: the effective config for this ref
     '''
 
-    print('\nprocessing ref: {}'.format(ref))
+    print('\nprocessing ref: {ref}'.format(ref=ref))
 
     # job names with '/' in them are problematic
     sanitized_ref = ref.replace('/', ref_config['namesep'])
@@ -74,14 +74,14 @@ def create_job(ref, template, config, ref_config):
 
     fmtdict['job_name'] = job_name
 
-    print('. job name: {}'.format(job.name))
-    print('. job exists: {}'.format(job.exists))
+    print('. job name: {name}'.format(name=job.name))
+    print('. job exists: {exists}'.format(exists=job.exists))
 
     try:
         scm_el = job.xml.xpath('scm[@class="hudson.plugins.git.GitSCM"]')[0]
     except IndexError:
-        msg = 'Template job {} is not configured to use Git as an SCM'
-        raise RuntimeError(msg.format(template))  #:bug:
+        msg = 'Template job {job} is not configured to use Git as an SCM'
+        raise RuntimeError(msg.format(job=template))  #:bug:
 
     # get remote name
     remote = scm_el.xpath('//hudson.plugins.git.UserRemoteConfig/name')
