@@ -100,9 +100,9 @@ def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
 def test_namefmt_groups_inherit(cfg, branch, regex, namefmt, expected):
     test_namefmt_groups_inherit.job = expected
 
-    cfg['branches'].append(os.path.join(cfg['repo'], os.path.dirname(branch)))
     cfg['namefmt'] = '.'
     cfg['refs'] = [{ regex : {'namefmt' : namefmt, }}]
+    cfg['refs'].append(os.path.join(cfg['repo'], os.path.dirname(branch)))
 
     with r.branch(branch):
         cmd(cfg)
