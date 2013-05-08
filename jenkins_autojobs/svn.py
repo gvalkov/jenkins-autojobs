@@ -49,7 +49,7 @@ def create_job(branch, template, config, branch_config):
        :param branch_config: the effective config for this branch
     '''
 
-    print('\nprocessing branch: {}'.format(branch))
+    print('\nprocessing branch: %s' % branch)
 
     # job names with '/' in them are problematic
     sanitized_branch = branch.replace('/', branch_config['namesep'])
@@ -67,14 +67,14 @@ def create_job(branch, template, config, branch_config):
 
     fmtdict['job_name'] = job_name
 
-    print('. job name: {}'.format(job.name))
-    print('. job exists: {}'.format(job.exists))
+    print('. job name: %s' % job.name)
+    print('. job exists: %s' % job.exists)
 
     try:
         scm_el = job.xml.xpath('scm[@class="hudson.scm.SubversionSCM"]')[0]
     except IndexError:
-        msg = 'Template job {} is not configured to use SVN as an SCM'
-        raise RuntimeError(msg.format(template))  #:bug:
+        msg = 'Template job %s is not configured to use SVN as an SCM'
+        raise RuntimeError(msg % template)  #:bug:
 
     # set branch
     el = scm_el.xpath('//remote')[0]

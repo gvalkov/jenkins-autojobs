@@ -75,7 +75,7 @@ def main(argv, create_job, list_branches,  getoptfmt='vdnr:j:u:p:y:o:UPYO', conf
     # load config, set default values and compile regexes
     if not config :
         yamlfn = args[-1]
-        print('loading config from "{path}"'.format(path=abspath(yamlfn)))
+        print('loading config from "%s"' % abspath(yamlfn))
         config = yaml.load(open(yamlfn))
 
     config = c = get_default_config(config, opts)
@@ -225,6 +225,6 @@ def debug_refconfig(ref_config):
     print('. config:')
     for k,v in ref_config.items():
         if k == 're':
-            print('  . {}: {}'.format(k, v.pattern))
+            print('  . %s: %s' % (k, v.pattern))
             continue
-        if v: print('  . {}: {}'.format(k, v))
+        if v: print('  . %s: %s' % (k, v))

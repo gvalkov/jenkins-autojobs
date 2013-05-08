@@ -54,7 +54,7 @@ def create_job(ref, template, config, ref_config):
        :param ref_config: the effective config for this ref
     '''
 
-    print('\nprocessing ref: {ref}'.format(ref=ref))
+    print('\nprocessing ref: %s' % ref)
 
     # job names with '/' in them are problematic
     sanitized_ref = ref.replace('/', ref_config['namesep'])
@@ -74,14 +74,14 @@ def create_job(ref, template, config, ref_config):
 
     fmtdict['job_name'] = job_name
 
-    print('. job name: {name}'.format(name=job.name))
-    print('. job exists: {exists}'.format(exists=job.exists))
+    print('. job name: %s' % job.name)
+    print('. job exists: %s' % job.exists)
 
     try:
         scm_el = job.xml.xpath('scm[@class="hudson.plugins.git.GitSCM"]')[0]
     except IndexError:
-        msg = 'Template job {job} is not configured to use Git as an SCM'
-        raise RuntimeError(msg.format(job=template))  #:bug:
+        msg = 'Template job %s is not configured to use Git as an SCM'
+        raise RuntimeError(msg % template)  #:bug:
 
     # get remote name
     remote = scm_el.xpath('//hudson.plugins.git.UserRemoteConfig/name')
@@ -90,7 +90,7 @@ def create_job(ref, template, config, ref_config):
     # set branch
     el = scm_el.xpath('//hudson.plugins.git.BranchSpec/name')[0]
     # :todo: jenkins is being very caprecious about the branchspec
-    # el.text = '{}/{}'.format(remote, shortref)  # :todo:
+    # el.text = '%s/%s' % (remote, shortref)  # :todo:
     el.text = shortref
 
     # set the branch that git plugin will locally checkout to

@@ -62,7 +62,7 @@ def create_job(ref, template, config, ref_config):
        :param ref_config: the effective config for this branch
     '''
 
-    print('\nprocessing branch: {}'.format(ref))
+    print('\nprocessing branch: %s' % ref)
 
     # job names with '/' in them are problematic
     sanitized_ref = ref.replace('/', ref_config['namesep'])
@@ -80,14 +80,14 @@ def create_job(ref, template, config, ref_config):
 
     fmtdict['job_name'] = job_name
 
-    print('. job name: {}'.format(job.name))
-    print('. job exists: {}'.format(job.exists))
+    print('. job name: %s' % job.name)
+    print('. job exists: %s' % job.exists)
 
     try:
         scm_el = job.xml.xpath('scm[@class="hudson.plugins.mercurial.MercurialSCM"]')[0]
     except IndexError:
-        msg = 'Template job {} is not configured to use Mercurial as an SCM'
-        raise RuntimeError(msg.format(template))  #:bug:
+        msg = 'Template job %s is not configured to use Mercurial as an SCM'
+        raise RuntimeError(msg % template)  #:bug:
 
     # set branch
     el = scm_el.xpath('//branch')[0]
