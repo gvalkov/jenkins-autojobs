@@ -11,7 +11,7 @@ class Job(object):
         self.xml = deepcopy(template)
 
         # this is the raw config xml of the job  :todo: naming is mixed-up
-        self.config = jenkins.get_job_config(name)
+        self.config = jenkins.job(name).config
         self.exists = bool(self.config)
 
     def set_state(self, value):
@@ -62,12 +62,13 @@ class Job(object):
                 return
 
             if not dryrun:
-                 self.jenkins.reconfig_job(self.name, self.xml)
+                job = self.jenkins.job(self.name)
+                job.config = self.xml
             print('. job updated')
 
         elif not self.exists:
             if not dryrun:
-                self.jenkins.create_job(self.name, self.xml)
+                self.jenkins.job_create(self.name, self.xml)
             print('. job created')
 
         elif not overwrite:

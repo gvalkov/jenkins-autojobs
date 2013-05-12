@@ -13,7 +13,7 @@ from contextlib import contextmanager
 
 from lxml import etree
 from pytest import raises, set_trace, mark, fail
-from jenkins import Jenkins
+from jenkins import Jenkins, JenkinsError
 
 
 here = abspath(dirname(__file__))
@@ -27,7 +27,7 @@ except ImportError:
 def teardown_module_(module, jenkins, repo):
     print('Removing all jobs ...')
     for job in jenkins.getjobs():
-        jenkins.py.delete_job(job)
+        jenkins.py.job(job).delete()
 
     # print('Stopping Jenkins ...')
     # jenkins.shutdown()
@@ -69,16 +69,17 @@ class JenkinsControl(object):
         rmtree(self.home)
 
     def createjob(self, name, configxml_fn):
-        self.py.create_job(name, open(configxml_fn).read())
+        configxml = open(configxml_fn).read().encode('utf8')
+        self.py.job_create(name, configxml)
 
     def getjobs(self):
-        return {i['name'] : i for i in self.py.get_jobs()}
+        return {i.name : i for i in self.py.jobs}
 
     def enabled(self, name):
-       return self.py.get_job_info(name)['buildable']
+       return self.py.job(name).info['buildable']
 
     def job_etree(self, job):
-        res = self.py.get_job_config(job)
+        res = self.py.job(job).config
         res = etree.fromstring(res)
         return res
 

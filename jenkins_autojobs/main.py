@@ -8,13 +8,8 @@ from copy import deepcopy
 from getopt import getopt
 from getpass import getpass
 from functools import partial
-try:
-	from collections import OrderedDict
-except ImportError:
-	from python26_support import OrderedDict
-
-from jenkins import Jenkins, JenkinsException
 from lxml import etree
+from jenkins import Jenkins, JenkinsError
 
 from jenkins_autojobs.version import version_verbose
 from jenkins_autojobs.util import *
@@ -28,6 +23,11 @@ try:
     from itertools import ifilterfalse as filterfalse
 except ImportError:
     from itertools import filterfalse
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    from python26_support import OrderedDict
 
 
 usage = '''\
@@ -84,7 +84,7 @@ def main(argv, create_job, list_branches,  getoptfmt='vdnr:j:u:p:y:o:UPYO', conf
     try:
         global jenkins
         jenkins = main.jenkins = Jenkins(c['jenkins'], c['username'], c['password'])
-    except (URLError, JenkinsException) as e:
+    except (URLError, JenkinsError) as e:
         print(e); exit(1)
 
     # get all the template names that the config refenrences
@@ -216,8 +216,8 @@ def resolveconfig(effective_config, branch):
 
 
 def get_job_etree(job):
-    res = jenkins.get_job_config(job)
-    res = etree.fromstring(res)
+    res = jenkins.job(job).config
+    res = etree.fromstring(res.encode('utf8'))
     return res
 
 
