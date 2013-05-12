@@ -103,6 +103,7 @@ Similar Projects
 ----------------
 
 * jenkins-build-per-branch_
+* jenkins-job-builder_
 
 
 License
@@ -118,6 +119,7 @@ License
 .. _`Sidebar-Link`:    https://wiki.jenkins-ci.org/display/JENKINS/Sidebar-Link+Plugin
 .. _python-jenkins:    http://pypi.python.org/pypi/python-jenkins
 .. _jenkins-build-per-branch: http://entagen.github.com/jenkins-build-per-branch/
+.. _jenkins-job-builder: https://pypi.python.org/pypi/jenkins-job-builder/
 .. _git:               https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin
 .. _subversion:        https://wiki.jenkins-ci.org/display/JENKINS/Subversion+Plugin
 .. _mercurial:         https://wiki.jenkins-ci.org/display/JENKINS/Mercurial+Plugin
