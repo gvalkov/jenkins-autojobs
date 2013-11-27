@@ -20,6 +20,8 @@ namefmt: 'changeme'
 overwrite: true
 enable: true
 
+python: /usr/bin/python2
+
 substitute :
   '@@JOB_NAME@@' : 'changeme'
 

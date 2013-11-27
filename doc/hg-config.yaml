@@ -6,6 +6,9 @@ password: None  # optional
 # Repository urls
 repo: file:///tmp/repo/
 
+# The Python binary to use when calling mercurial
+python: python2
+
 # Repository login
 scm-username: None  # optional
 scm-password: None  # optional

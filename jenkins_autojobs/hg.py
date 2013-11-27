@@ -32,12 +32,12 @@ print(repr(res))
 '''
 
 
-def hg_branch_iter_remote(repo):
+def hg_branch_iter_remote(repo, python):
     with NamedTemporaryFile() as fh:
         cmd = (hg_list_remote_py % repo).encode('utf8')
         fh.write(cmd)
         fh.flush()
-        out = Popen(('python2', fh.name), stdout=PIPE).communicate()[0]
+        out = Popen((python, fh.name), stdout=PIPE).communicate()[0]
 
     out = literal_eval(out.decode('utf8'))
     return [i[0] for i in out]
@@ -56,8 +56,9 @@ def list_branches(config):
     # should 'hg branches' or peer.branchmap be used
     islocal = path.isdir(config['repo'])
     branch_iter = hg_branch_iter_local if islocal else hg_branch_iter_remote
+    python = config.get('python', 'python')
 
-    return branch_iter(config['repo'])
+    return branch_iter(config['repo'], python)
 
 
 def create_job(ref, template, config, ref_config):
