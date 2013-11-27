@@ -81,6 +81,7 @@ Topics
    subversion
    mercurial
    devel
+   changelog
 
 
 Similar Projects
