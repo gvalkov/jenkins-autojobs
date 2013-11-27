@@ -35,6 +35,7 @@ def teardown_module_(module, jenkins, repo):
     print('Removing temporary repo: %s' % repo.dir)
     repo.clean()
 
+
 def teardown_function_(f, jenkins):
     if hasattr(f, 'job'):
         print('Removing temporary job: %s' % f.job)
@@ -43,9 +44,9 @@ def teardown_function_(f, jenkins):
 
 
 class JenkinsControl(object):
-    war=pjoin(here, 'tmp/jenkins.war')
-    cli=pjoin(here, 'tmp/jenkins-cli.jar')
-    home=pjoin(here, 'tmp/jenkins')
+    war = pjoin(here, 'tmp/jenkins.war')
+    cli = pjoin(here, 'tmp/jenkins-cli.jar')
+    home = pjoin(here, 'tmp/jenkins')
 
     def __init__(self, addr='127.0.0.1:60888', cport='60887'):
         self.addr, self.port = addr.split(':')
@@ -54,10 +55,10 @@ class JenkinsControl(object):
 
     def start_server(self):
         cmd = pjoin(here, './bin/start-jenkins.sh 1>/dev/null 2>&1')
-        env={'JENKINS_HOME'  : self.home,
-             'JENKINS_PORT'  : self.port,
-             'JENKINS_CPORT' : self.cport,
-             'JENKINS_ADDR'  : self.addr}
+        env = {'JENKINS_HOME':  self.home,
+               'JENKINS_PORT':  self.port,
+               'JENKINS_CPORT': self.cport,
+               'JENKINS_ADDR':  self.addr}
         check_call(cmd, shell=True, env=env)
 
     def shutdown_server(self):
@@ -72,10 +73,10 @@ class JenkinsControl(object):
         self.py.job_create(name, configxml)
 
     def getjobs(self):
-        return {i.name:i for i in self.py.jobs}
+        return {i.name: i for i in self.py.jobs}
 
     def enabled(self, name):
-       return self.py.job(name).info['buildable']
+        return self.py.job(name).info['buildable']
 
     def job_etree(self, job):
         res = self.py.job(job).config
@@ -184,7 +185,6 @@ class HgRepo(TmpRepo):
 
         rmtree(self.dir)
         self.init()
-
 
     @contextmanager
     def branch(self, name):

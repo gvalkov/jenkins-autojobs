@@ -24,6 +24,7 @@ def git_refs_iter_local(repo):
 
     return (ref for sha, ref in [i.split() for i in out if i])
 
+
 def git_refs_iter_remote(repo):
     cmd = ('git', 'ls-remote', repo)
     out = Popen(cmd, stdout=PIPE).communicate()[0]
@@ -37,6 +38,7 @@ def git_refs_iter_remote(repo):
             continue
 
         yield ref
+
 
 def list_branches(config):
     # should ls-remote or git show-ref be used
@@ -63,10 +65,10 @@ def create_job(ref, template, config, ref_config):
 
     # placeholders available to the 'substitute' and 'namefmt' options
     fmtdict = {
-        'ref'      : sanitized_ref,
-        'shortref' : shortref.replace('/', ref_config['namesep']),
-        'ref-orig' : ref,
-        'shortref-orig' : shortref,
+        'ref':      sanitized_ref,
+        'shortref': shortref.replace('/', ref_config['namesep']),
+        'ref-orig': ref,
+        'shortref-orig': shortref,
     }
 
     job_name = ref_config['namefmt'].format(*groups, **fmtdict)
@@ -81,7 +83,7 @@ def create_job(ref, template, config, ref_config):
         scm_el = job.xml.xpath('scm[@class="hudson.plugins.git.GitSCM"]')[0]
     except IndexError:
         msg = 'Template job %s is not configured to use Git as an SCM'
-        raise RuntimeError(msg % template)  #:bug:
+        raise RuntimeError(msg % template)  # :bug:
 
     # get remote name
     remote = scm_el.xpath('//hudson.plugins.git.UserRemoteConfig/name')
@@ -97,7 +99,7 @@ def create_job(ref, template, config, ref_config):
     el = scm_el.xpath('//localBranch')
     el = etree.SubElement(scm_el, 'localBranch') if not el else el[0]
 
-    el.text = shortref # the original shortref (with '/')
+    el.text = shortref  # the original shortref (with '/')
 
     # set the state of the newly created job
     job.set_state(ref_config['enable'])

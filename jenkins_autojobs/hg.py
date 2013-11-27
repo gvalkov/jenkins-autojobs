@@ -42,6 +42,7 @@ def hg_branch_iter_remote(repo):
     out = literal_eval(out.decode('utf8'))
     return [i[0] for i in out]
 
+
 def hg_branch_iter_local(repo):
     cmd = ('hg', '-y', 'branches', '-c', '-R', repo)
     out = Popen(cmd, stdout=PIPE).communicate()[0]
@@ -49,6 +50,7 @@ def hg_branch_iter_local(repo):
 
     out = (re.split('\s+', i, 1) for i in out if i)
     return (name for name, rev in out)
+
 
 def list_branches(config):
     # should 'hg branches' or peer.branchmap be used
@@ -75,8 +77,8 @@ def create_job(ref, template, config, ref_config):
 
     # placeholders available to the 'substitute' and 'namefmt' options
     fmtdict = {
-        'branch' : sanitized_ref,
-        'branch-orig' : ref,
+        'branch': sanitized_ref,
+        'branch-orig': ref,
     }
 
     job_name = ref_config['namefmt'].format(*groups, **fmtdict)
@@ -91,7 +93,7 @@ def create_job(ref, template, config, ref_config):
         scm_el = job.xml.xpath('scm[@class="hudson.plugins.mercurial.MercurialSCM"]')[0]
     except IndexError:
         msg = 'Template job %s is not configured to use Mercurial as an SCM'
-        raise RuntimeError(msg % template)  #:bug:
+        raise RuntimeError(msg % template)  # :bug:
 
     # set branch
     el = scm_el.xpath('//branch')[0]

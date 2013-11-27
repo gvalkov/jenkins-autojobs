@@ -18,7 +18,7 @@ from jenkins_autojobs.job import Job
 def svn_ls(url, username=None, password=None, dirsonly=True):
     cmd = ['svn', 'ls', '--trust-server-cert', '--non-interactive']
 
-    #:todo: plaintext (will probably have to use the bindings)
+    # :todo: plaintext (will probably have to use the bindings)
     if username: cmd += ['--username', username]
     if password: cmd += ['--password', password]
 
@@ -31,8 +31,11 @@ def svn_ls(url, username=None, password=None, dirsonly=True):
 
     return out
 
+
 def list_branches(config):
-    c = config ; branches = []
+    c = config
+    branches = []
+
     for url in c['branches']:
         res = svn_ls(url, c['scm-username'], c['scm-password'])
         rel = url.replace(c['repo'], '').lstrip('/')
@@ -57,9 +60,9 @@ def create_job(branch, template, config, branch_config):
 
     # placeholders available to the 'substitute' and 'namefmt' options
     fmtdict = {
-        'branch'      : branch.split('/')[-1],
-        'path'        : branch.replace('/', branch_config['namesep']),
-        'path-orig'   : branch,
+        'branch': branch.split('/')[-1],
+        'path': branch.replace('/', branch_config['namesep']),
+        'path-orig': branch,
     }
 
     job_name = branch_config['namefmt'].format(*groups, **fmtdict)
@@ -74,7 +77,7 @@ def create_job(branch, template, config, branch_config):
         scm_el = job.xml.xpath('scm[@class="hudson.scm.SubversionSCM"]')[0]
     except IndexError:
         msg = 'Template job %s is not configured to use SVN as an SCM'
-        raise RuntimeError(msg % template)  #:bug:
+        raise RuntimeError(msg % template)  # :bug:
 
     # set branch
     el = scm_el.xpath('//remote')[0]

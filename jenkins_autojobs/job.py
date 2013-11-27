@@ -25,9 +25,9 @@ class Job(object):
         '''
         el = self.xml.xpath('disabled')[0]
 
-        if value is True or value=='true':
+        if value is True or value == 'true':
             el.text = 'false'
-        elif value is False or value=='false':
+        elif value is False or value == 'false':
             el.text = 'true'
         elif value == 'template':
             pass
@@ -37,7 +37,7 @@ class Job(object):
 
     def substitute(self, items, fmtdict):
         for el in self.xml.xpath("//text()"):
-            for k,v in items:
+            for k, v in items:
                 if k in el:
                     p = el.getparent()
                     nv = p.text.replace(k, v.format(**fmtdict))
@@ -47,8 +47,9 @@ class Job(object):
         try:
             return etree.tostring(xml, method='c14n')
         except ValueError:
-            # Guess the installed lxml is too old to support c14n.  Drat.
-            # Unable to canonicalize the xml, so hopefully nobody makes a non-semantic change...
+            # Guess the installed lxml is too old to support c14n.
+            # Drat. Unable to canonicalize the xml, so hopefully
+            # nobody makes a non-semantic change...
             return etree.tostring(xml)
 
     def create(self, overwrite, dryrun):

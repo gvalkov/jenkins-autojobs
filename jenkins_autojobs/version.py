@@ -32,7 +32,7 @@ def version():
 def version_verbose():
     res = 'jenkins-autojobs version %s' % version()
     try:
-        sha = _gitsha() ; brc = _gitbrc()
+        sha = _gitsha(); brc = _gitbrc()
         if sha or brc:
             res = '%s (%s:%s)' % (res, brc, sha[:8])
     except:
