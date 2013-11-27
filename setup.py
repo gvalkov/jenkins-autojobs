@@ -29,8 +29,8 @@ classifiers = (
 )
 
 requires = (
-    'jenkins-webapi>=0.1.0',
-    'lxml>=2.2.0',
+    'jenkins-webapi>=0.1.1',
+    'lxml>=3.2.3',
     'PyYAML>=3.10'
 )
 
@@ -43,12 +43,12 @@ scripts = (
 kw = {
     'name'             : 'jenkins-autojobs',
     'version'          : version(),
-    'description'      : 'Scripts for automatically creating jenkins jobs from scm branches',
+    'description'      : 'Scripts for automatically creating Jenkins jobs from scm branches',
     'long_description' : open(pjoin(here, 'README.rst')).read(),
     'author'           : 'Georgi Valkov',
     'author_email'     : 'georgi.t.valkov@gmail.com',
-    'license'          : 'New BSD License',
-    'keywords'         : 'jenkins git mercurial svn',
+    'license'          : 'Revised BSD License',
+    'keywords'         : 'jenkins git mercurial svn subversion',
     'classifiers'      : classifiers,
     'url'              : 'https://github.com/gvalkov/jenkins-autojobs',
     'packages'         : ('jenkins_autojobs',),
@@ -62,7 +62,7 @@ kw = {
 class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self.test_args = [] 
+        self.test_args = []
         self.test_suite = True
     def run_tests(self):
         import pytest
@@ -70,4 +70,6 @@ class PyTest(TestCommand):
         exit(errno)
 
 kw['cmdclass']['test'] = PyTest
-setup(**kw)
+
+if __name__ == '__main__':
+    setup(**kw)
