@@ -6,7 +6,7 @@ jenkins = j = None
 jobexists = None
 repo = r = HgRepo()
 
-cmd = partial(hg.main, ('jenkins-makejobs-hg'))
+cmd = partial(hg.main, ('jenkins-makejobs-hg',))
 
 base_config_dict = None
 base_config_yaml = '''
@@ -48,7 +48,7 @@ def setup_module(module):
 
     print('Removing all jobs ...')
     for job in j.getjobs():
-        j.py.delete_job(job)
+        j.py.job_delete(job)
 
     print('Creating test jobs ...')
     j.createjob('master-job-hg', pjoin(here, 'etc/master-job-hg-config.xml'))

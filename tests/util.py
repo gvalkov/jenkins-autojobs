@@ -1,4 +1,3 @@
-
 import yaml
 import pytest
 import os, sys, time
@@ -39,7 +38,7 @@ def teardown_module_(module, jenkins, repo):
 def teardown_function_(f, jenkins):
     if hasattr(f, 'job'):
         print('Removing temporary job: %s' % f.job)
-        try: jenkins.delete_job(f.job)
+        try: jenkins.py.job_delete(f.job)
         except: pass
 
 
@@ -73,7 +72,7 @@ class JenkinsControl(object):
         self.py.job_create(name, configxml)
 
     def getjobs(self):
-        return {i.name : i for i in self.py.jobs}
+        return {i.name:i for i in self.py.jobs}
 
     def enabled(self, name):
        return self.py.job(name).info['buildable']
@@ -82,8 +81,6 @@ class JenkinsControl(object):
         res = self.py.job(job).config
         res = etree.fromstring(res)
         return res
-
-
 
 
 class TmpRepo(object):

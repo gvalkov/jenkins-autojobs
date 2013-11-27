@@ -1,4 +1,3 @@
-
 from util import *
 from jenkins_autojobs import svn
 
@@ -7,7 +6,7 @@ jenkins = j = None
 jobexists = None
 repo = r = SvnRepo()
 
-cmd = partial(svn.main, ('jenkins-makejobs-svn'))
+cmd = partial(svn.main, ('jenkins-makejobs-svn',))
 
 base_config_dict = None
 base_config_yaml = '''
@@ -58,7 +57,7 @@ def setup_module(module):
 
     print('Removing all jobs ...')
     for job in j.getjobs():
-        j.py.delete_job(job)
+        j.py.job_delete(job)
 
     print('Creating test jobs ...')
     j.createjob('master-job-svn', pjoin(here, 'etc/master-job-svn-config.xml'))

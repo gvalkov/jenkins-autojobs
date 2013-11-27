@@ -1,4 +1,3 @@
-
 from util import *
 from jenkins_autojobs import git
 
@@ -7,7 +6,7 @@ jenkins = j = None
 jobexists = None
 repo = r = GitRepo()
 
-cmd = partial(git.main, ('jenkins-makejobs-git'))
+cmd = partial(git.main, ('jenkins-makejobs-git',))
 
 base_config_dict = None
 base_config_yaml = '''
@@ -46,7 +45,7 @@ def setup_module(module):
 
     print('Removing all jobs ...')
     for job in j.getjobs():
-        j.py.delete_job(job)
+        j.py.job_delete(job)
 
     print('Creating test jobs ...')
     j.createjob('master-job-1', pjoin(here, 'etc/master-job-git-config.xml'))
@@ -117,7 +116,7 @@ def test_substitute(cfg, branch, sub, ejob, expected):
     with r.branch(branch):
         cmd(cfg)
         assert jobexists(ejob)
-        assert j.py.get_job_info(ejob)['description'] == expected
+        assert j.py.job_info(ejob)['description'] == expected
 
 @pytest.mark.parametrize(('branch', 'ignores'),[
 ('wip/one/two',  ['wip/.*']),
@@ -164,7 +163,7 @@ def test_overwrite_global(cfg, capsys):
         assert 'create job' not in out
 
 def test_enable_true(cfg):
-    j.py.disable_job('master-job-1')
+    j.py.job_disable('master-job-1')
     cfg['enable'] = True
 
     with r.branch('feature/enable-true'):
@@ -173,7 +172,7 @@ def test_enable_true(cfg):
         assert j.enabled('feature-enable-true')
 
 def test_enable_false(cfg):
-    j.py.enable_job('master-job-1')
+    j.py.job_enable('master-job-1')
     cfg['enable'] = False
 
     with r.branch('feature/enable-false'):
@@ -184,13 +183,13 @@ def test_enable_false(cfg):
 def test_enable_template(cfg):
     cfg['enable'] = 'template'
 
-    j.py.enable_job('master-job-1')
+    j.py.job_enable('master-job-1')
     with r.branch('feature/enable-template-one'):
         cmd(cfg)
         assert jobexists('feature-enable-template-one')
         assert j.enabled('feature-enable-template-one')
 
-    j.py.disable_job('master-job-1')
+    j.py.job_disable('master-job-1')
     with r.branch('feature/enable-template-two'):
         cmd(cfg)
         assert jobexists('feature-enable-template-two')
@@ -200,13 +199,13 @@ def test_enable_sticky(cfg):
     cfg['enable'] = 'sticky'
     cfg['overwrite'] = True
 
-    j.py.disable_job('master-job-1')
+    j.py.job_disable('master-job-1')
     with r.branch('feature/enable-sticky-one'):
         cmd(cfg)
         assert jobexists('feature-enable-sticky-one')
         assert not j.enabled('feature-enable-sticky-one')
 
-    j.py.enable_job('feature-enable-sticky-one')
+    j.py.job_enable('feature-enable-sticky-one')
     with r.branch('feature/enable-sticky-one'):
         cmd(cfg)
         assert j.enabled('feature-enable-sticky-one')

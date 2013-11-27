@@ -11,8 +11,9 @@ class Job(object):
         self.xml = deepcopy(template)
 
         # this is the raw config xml of the job  :todo: naming is mixed-up
-        self.config = jenkins.job(name).config
-        self.exists = bool(self.config)
+        job = jenkins.job(name)
+        self.exists = job.exists()
+        self.config = job.config if self.exists else None
 
     def set_state(self, value):
         '''Set the state of newly created or overwritten job. One of:

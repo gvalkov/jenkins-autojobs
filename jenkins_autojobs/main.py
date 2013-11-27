@@ -14,10 +14,7 @@ from jenkins import Jenkins, JenkinsError
 from jenkins_autojobs.version import version_verbose
 from jenkins_autojobs.util import *
 
-try:
-    from urllib2 import URLError
-except ImportError:
-    from urllib.error import URLError
+from requests.exceptions import RequestException
 
 try:
     from itertools import ifilterfalse as filterfalse
@@ -58,7 +55,7 @@ Jenkins Options:
 jenkins = None
 
 
-def main(argv, create_job, list_branches,  getoptfmt='vdnr:j:u:p:y:o:UPYO', config=None):
+def main(argv, create_job, list_branches, getoptfmt='vdnr:j:u:p:y:o:UPYO', config=None):
     '''
     :param argv: command-line arguments to parse (defaults to sys.argv[1:])
     :param create_job: scm specific function that configures and creates jobs
@@ -84,7 +81,7 @@ def main(argv, create_job, list_branches,  getoptfmt='vdnr:j:u:p:y:o:UPYO', conf
     try:
         global jenkins
         jenkins = main.jenkins = Jenkins(c['jenkins'], c['username'], c['password'])
-    except (URLError, JenkinsError) as e:
+    except (RequestException, JenkinsError) as e:
         print(e); exit(1)
 
     # get all the template names that the config refenrences
@@ -101,7 +98,7 @@ def main(argv, create_job, list_branches,  getoptfmt='vdnr:j:u:p:y:o:UPYO', conf
 
     # list all git refs, svn branches etc (implemented by child classes)
     branches = list_branches(config)
-    
+
     # see if some of the branches are ignored
     ignored, branches = get_ignored(branches, c['ignore'])
 

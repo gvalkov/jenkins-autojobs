@@ -1,8 +1,7 @@
 import re
 
-
 def filtersplit(p, iterable):
-    ''' filtersplit(p, iter) -> ifilter(p, iter), ifilterfalse(p, iter)'''
+    '''filtersplit(p, iter) -> ifilter(p, iter), ifilterfalse(p, iter)'''
     t, f = [], []
     if p is None: p = bool
     for i in iterable:
