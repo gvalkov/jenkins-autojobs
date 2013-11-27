@@ -27,7 +27,7 @@ def git_refs_iter_local(repo):
 def git_refs_iter_remote(repo):
     cmd = ('git', 'ls-remote', repo)
     out = Popen(cmd, stdout=PIPE).communicate()[0]
-    out = out.split(linesep)
+    out = out.decode('utf8').split(linesep)
 
     for sha, ref in (i.split() for i in out if i):
         if not ref.startswith('refs/'):

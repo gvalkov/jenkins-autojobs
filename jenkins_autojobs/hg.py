@@ -10,6 +10,7 @@ import re
 
 from os import linesep, path
 from sys import exit, argv
+from ast import literal_eval
 from tempfile import NamedTemporaryFile
 from subprocess import Popen, PIPE
 
@@ -23,25 +24,28 @@ from jenkins_autojobs.job import Job
 hg_list_remote_py = '''
 from mercurial import ui, hg, node
 
+res = []
 peer = hg.peer(ui.ui(), {}, '%s')
 for name, rev in peer.branchmap().items():
-    print name, node.short(rev[0])
+    res.append((name, node.short(rev[0])))
+print(repr(res))
 '''
 
 
 def hg_branch_iter_remote(repo):
     with NamedTemporaryFile() as fh:
-        fh.write(hg_list_remote_py % repo)
+        cmd = (hg_list_remote_py % repo).encode('utf8')
+        fh.write(cmd)
         fh.flush()
-        out = Popen(('python', fh.name), stdout=PIPE).communicate()[0]
+        out = Popen(('python2', fh.name), stdout=PIPE).communicate()[0]
 
-    out = out.split(linesep)
-    return (name for name, rev in (i.split() for i in out if i))
+    out = literal_eval(out.decode('utf8'))
+    return [i[0] for i in out]
 
 def hg_branch_iter_local(repo):
     cmd = ('hg', '-y', 'branches', '-c', '-R', repo)
     out = Popen(cmd, stdout=PIPE).communicate()[0]
-    out = out.split(linesep)
+    out = out.decode('utf8').split(linesep)
 
     out = (re.split('\s+', i, 1) for i in out if i)
     return (name for name, rev in out)

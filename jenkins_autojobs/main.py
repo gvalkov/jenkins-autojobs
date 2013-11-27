@@ -120,7 +120,7 @@ def parse_args(argv, fmt):
     opts, args = getopt(argv, fmt)
     opts = dict(opts)
 
-    if opts.has_key('-v'):
+    if '-v' in opts:
         print(version_verbose()) ; exit(0)
 
     return opts, args
@@ -184,7 +184,7 @@ def get_effective_branch_config(branches, defaults):
 
     for entry in branches:
         if isinstance(entry, dict):
-            key, overrides = entry.items()[0]
+            key, overrides = list(entry.items())[0]
             config = defaults.copy()
             config.update(overrides)
             ec[re.compile(key)] = config

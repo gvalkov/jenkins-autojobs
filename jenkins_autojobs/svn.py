@@ -24,7 +24,7 @@ def svn_ls(url, username=None, password=None, dirsonly=True):
 
     cmd.append(url)
     out = Popen(cmd, stdout=PIPE).communicate()[0]
-    out = out.split(linesep)
+    out = out.decode('utf8').split(linesep)
 
     if dirsonly:
         out = [i.rstrip('/') for i in out if i.endswith('/')]

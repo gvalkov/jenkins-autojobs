@@ -56,7 +56,7 @@ class Job(object):
         self.xml = self.canonicalize(self.xml)
 
         if self.exists and overwrite:
-            job_config_dom = etree.fromstring(self.config)
+            job_config_dom = etree.fromstring(self.config.encode('utf8'))
 
             if self.canonicalize(job_config_dom) == self.xml:
                 print('. job does not need to be reconfigured')
