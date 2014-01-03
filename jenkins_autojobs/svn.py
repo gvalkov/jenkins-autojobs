@@ -99,6 +99,7 @@ def create_job(branch, template, config, branch_config):
 
     if config['debug']:
         debug_refconfig(branch_config)
+    return job_name
 
 def main(argv=argv, config=None):
     _main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)

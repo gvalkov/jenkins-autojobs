@@ -112,9 +112,20 @@ def main(argv, create_job, list_branches, getoptfmt='vdnr:j:u:p:y:o:UPYO', confi
     configs = zip(branches, configs)
     configs = filter(lambda x: bool(x[1]), configs)
 
+    job_names = [config['template']]
     for branch, branch_config in configs:
-        create_job(branch, templates[branch_config['template']], config, branch_config)
+        job_names.append(create_job(branch, templates[branch_config['template']], config, branch_config))
 
+    # delete old jobs
+    if config['cleanup']:
+        for job in jenkins.jobs:
+            print('\nProcessing Job: %s' % job.name)
+            if 'createdByJenkinsAutojobs' in job.config:
+                print('. job is created by Jenkins Autojobs')
+                if job.name not in job_names and job.exists():
+                        if not config['dryrun']:
+                            job.delete()
+                        print('. job deleted')
 
 def parse_args(argv, fmt):
     '''Parse getopt arguments as a dictionary.'''
@@ -165,6 +176,8 @@ def get_default_config(config, opts):
 
     if '-U' in o: c['username'] = raw_input('User: ')
     if '-P' in o: c['password'] = getpass()
+
+    if 'cleanup' not in c: c['cleanup'] = False
 
     # compile ignore regexes
     c.setdefault('ignore', {})

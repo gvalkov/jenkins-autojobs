@@ -53,6 +53,9 @@ class Job(object):
             return etree.tostring(xml)
 
     def create(self, overwrite, dryrun):
+        # append autojobs-information
+        etree.SubElement(self.xml, "createdByJenkinsAutojobs")
+
         # method='c14n' is only available in more recent versions of lxml
         self.xml = self.canonicalize(self.xml)
 

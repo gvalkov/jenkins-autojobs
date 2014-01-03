@@ -112,6 +112,7 @@ def create_job(ref, template, config, ref_config):
 
     if config['debug']:
         debug_refconfig(ref_config)
+    return job_name
 
 
 def main(argv=argv, config=None):
