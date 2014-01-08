@@ -11,7 +11,7 @@ from functools import partial
 from lxml import etree
 from jenkins import Jenkins, JenkinsError
 
-from jenkins_autojobs.version import version_verbose
+from jenkins_autojobs import version
 from jenkins_autojobs.util import *
 
 from requests.exceptions import RequestException
@@ -121,7 +121,8 @@ def parse_args(argv, fmt):
     opts = dict(opts)
 
     if '-v' in opts:
-        print(version_verbose()) ; exit(0)
+        print('jenkins-autojobs version %s' % version)
+        exit(0)
 
     return opts, args
 
