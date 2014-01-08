@@ -134,6 +134,8 @@ def get_default_config(config, opts):
     # default global settings (not inheritable)
     c['dryrun'] = False
     c['debug'] = False
+    c['username'] = config.get('username', None)
+    c['password'] = config.get('password', None)
 
     # default settings for each git ref/branch/ config
     c['defaults'] = {
@@ -152,8 +154,8 @@ def get_default_config(config, opts):
     if '-d' in o: c['debug'] = True
 
     # jenkins authentication options
-    c['username'] = o.get('-u', None)
-    c['password'] = o.get('-p', None)
+    if '-u' in o: c['username'] = o['-u']
+    if '-p' in o: c['password'] = o['-p']
 
     c['scm-username'] = c.get('scm-username', None) #:todo
     c['scm-password'] = c.get('scm-password', None) #:todo
