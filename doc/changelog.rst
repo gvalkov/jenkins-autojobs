@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.9.1 (Jan 08, 2014)
+^^^^^^^^^^^^^^^^^^^^
+
+- Command line flags ``-u|-p`` properly overwrite ``username`` and
+  ``password`` config keys (thanks `@timmipetit`_).
+
 0.9.0 (Nov 27, 2013)
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -24,3 +30,5 @@ Changelog
 
 .. _jenkins-webapi: https://pypi.python.org/pypi/jenkins-webapi
 .. _python-jenkins: https://pypi.python.org/pypi/python-jenkins
+
+.. _`@timmipetit`:  https://github.com/timmipetit
