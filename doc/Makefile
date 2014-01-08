@@ -151,3 +151,9 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+
+$(BUILDDIR)/html/jenkins-autojobs-doc.zip: html
+	cd $(BUILDDIR)/html/ &&  zip -x \*.zip -r evdev-doc.zip .
+	@echo `readlink -f $@`
+
+htmlzip: $(BUILDDIR)/html/jenkins-autojobs-doc.zip
