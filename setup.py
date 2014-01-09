@@ -2,9 +2,12 @@
 # encoding: utf-8
 
 from sys import exit
+from os.path import dirname, join as pjoin
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 from jenkins_autojobs import version
+
+here = dirname(__file__)
 
 classifiers = (
     'Environment :: Console',
@@ -38,7 +41,7 @@ kw = {
     'name'             : 'jenkins-autojobs',
     'version'          : version,
     'description'      : 'Scripts for automatically creating Jenkins jobs from scm branches',
-    'long_description' : open('README.rst').read(),
+    'long_description' : open(pjoin(here, 'README.rst')).read(),
     'author'           : 'Georgi Valkov',
     'author_email'     : 'georgi.t.valkov@gmail.com',
     'license'          : 'Revised BSD License',
