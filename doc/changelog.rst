@@ -1,6 +1,23 @@
 Changelog
 ---------
 
+0.10.0 (Jan 08, 2014)
+^^^^^^^^^^^^^^^^^^^^
+
+- Add the ``sanitize`` config option (thanks `@xgouchet`_).
+
+  You can now substitute characters or whole patterns with the
+  ``sanitize`` option:
+
+  .. code-block:: yaml
+
+      sanitize:
+        '@!?#&|\^_$%*': '_'    # replace any of '@!?#&|\^_$%*' with '_'
+        're:colou?r': 'color'  # replace regex 'colou?r' with 'color'
+
+  The default is '@!?#&|\^_$%*': '_', which is the list of characters
+  that are not allowed in job names.
+
 0.9.1 (Jan 08, 2014)
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -32,3 +49,4 @@ Changelog
 .. _python-jenkins: https://pypi.python.org/pypi/python-jenkins
 
 .. _`@timmipetit`:  https://github.com/timmipetit
+.. _`@xgouchet`:    https://github.com/xgouchet
