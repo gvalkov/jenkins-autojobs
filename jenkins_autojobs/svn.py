@@ -12,6 +12,7 @@ from subprocess import Popen, PIPE
 
 from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
+from jenkins_autojobs.util import sanitize
 from jenkins_autojobs.job import Job
 
 

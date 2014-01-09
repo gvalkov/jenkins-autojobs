@@ -14,6 +14,7 @@ from subprocess import Popen, PIPE
 
 from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
+from jenkins_autojobs.util import sanitize
 from jenkins_autojobs.job import Job
 
 
@@ -58,15 +59,21 @@ def create_job(ref, template, config, ref_config):
 
     print('\nprocessing ref: %s' % ref)
 
-    # job names with '/' in them are problematic
-    sanitized_ref = ref.replace('/', ref_config['namesep'])
     shortref = re.sub('^refs/(heads|tags|remotes)/', '', ref)
+
+    sanitized_ref = sanitize(ref, ref_config['sanitize'])
+    sanitized_shortref = sanitize(shortref, ref_config['sanitize'])
+
+    # job names with '/' in them are problematic (todo: consolidate with sanitize())
+    sanitized_ref = sanitized_ref.replace('/', ref_config['namesep'])
+    sanitized_shortref = sanitized_shortref.replace('/', ref_config['namesep'])
+
     groups = ref_config['re'].match(ref).groups()
 
     # placeholders available to the 'substitute' and 'namefmt' options
     fmtdict = {
         'ref':      sanitized_ref,
-        'shortref': shortref.replace('/', ref_config['namesep']),
+        'shortref': sanitized_shortref,
         'ref-orig': ref,
         'shortref-orig': shortref,
     }

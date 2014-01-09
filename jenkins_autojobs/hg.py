@@ -16,6 +16,7 @@ from subprocess import Popen, PIPE
 
 from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
+from jenkins_autojobs.util import sanitize
 from jenkins_autojobs.job import Job
 
 
@@ -71,9 +72,9 @@ def create_job(ref, template, config, ref_config):
 
     print('\nprocessing branch: %s' % ref)
 
-    # job names with '/' in them are problematic
-    sanitized_ref = ref.replace('/', ref_config['namesep'])
-    shortref = sanitized_ref
+    sanitized_ref = sanitize(ref, ref_config['sanitize'])
+    sanitized_ref = sanitized_ref.replace('/', ref_config['namesep'])
+
     groups = ref_config['re'].match(ref).groups()
 
     # placeholders available to the 'substitute' and 'namefmt' options

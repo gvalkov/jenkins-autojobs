@@ -1,3 +1,4 @@
+# -*- coding: utf-8; -*-
 
 import re
 import yaml
@@ -146,6 +147,7 @@ def get_default_config(config, opts):
         'enable':     c.get('enable', 'sticky'),
         'substitute': c.get('substitute', {}),
         'template':   c.get('template'),
+        'sanitize':   c.get('sanitize', {'@!?#&|\^_$%*': '_'})
     }
 
     # some options can be overwritten on the command line

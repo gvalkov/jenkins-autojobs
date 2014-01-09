@@ -18,6 +18,10 @@ namesep: '-'
 namefmt: '{shortref}'
 overwrite: true
 enable: 'sticky'
+
+sanitize:
+  '@!?#&|\^_$%%*': '_'
+
 substitute :
   '@@JOB_NAME@@' : '{shortref}'
 
@@ -87,6 +91,39 @@ def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
     cfg['refs'] = [{'refs/heads/%s' % branch : {
         'namesep' : namesep,
         'namefmt' : namefmt, }}]
+
+    with r.branch(branch):
+        cmd(cfg)
+        assert jobexists(expected)
+
+@pytest.mark.parametrize(('branch', 'namefmt', 'sanitize', 'namesep', 'expected'),[
+('feature/one@two', '{shortref}',      {'#@': 'X'}, '.', 'feature.oneXtwo'),
+('feature/one#two', 'test-{shortref}', {'#@': '_'}, '-', 'test-feature-one_two'),
+('feature/one@#two','test.{ref}',      {'#@': '_'}, '-', 'test.refs-heads-feature-one__two'), ])
+def test_namefmt_sanitize_global(cfg, branch, namefmt, sanitize, namesep, expected):
+    test_namefmt_sanitize_global.job = expected
+
+    cfg['namefmt'] = namefmt
+    cfg['namesep'] = namesep
+    cfg['sanitize'] = sanitize
+
+    with r.branch(branch):
+        cmd(cfg)
+        assert jobexists(expected)
+
+@pytest.mark.parametrize(('branch', 'namefmt', 'sanitize', 'namesep', 'expected'),[
+('feature/one#two', '{shortref}',      {'#': '_'}, '.', 'feature.one_two'),
+('feature/one#two@three','test.{ref}', {'#@': '_'}, '-', 'test.refs-heads-feature-one_two_three'), ])
+def test_namefmt_sanitize_inherit(cfg, branch, namefmt, sanitize, namesep, expected):
+    test_namefmt_sanitize_inherit.job = expected
+
+    cfg['namefmt'] = namefmt
+    cfg['namesep'] = namesep
+    cfg['sanitize'] = {'#': 'X'}
+
+    cfg['refs'] = [{'refs/heads/%s' % branch : {
+        'sanitize' : sanitize,
+    }}]
 
     with r.branch(branch):
         cmd(cfg)

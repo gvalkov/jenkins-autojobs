@@ -1,8 +1,17 @@
+#!/usr/bin/env
+
 import re
 
 
 def filtersplit(p, iterable):
-    '''filtersplit(p, iter) -> ifilter(p, iter), ifilterfalse(p, iter)'''
+    '''
+    filtersplit(p, iter) -> ifilter(p, iter), ifilterfalse(p, iter)
+
+    >>> iseven = lambda x: (x % 2) == 0
+    >>> filtersplit(iseven, [0, 1, 2, 3, 4])
+    ([0, 2, 4], [1, 3])
+    '''
+
     t, f = [], []
     if p is None:
         p = bool
@@ -15,6 +24,34 @@ def filtersplit(p, iterable):
 
 
 def anymatch(regexes, s):
+    '''Return True if any of the regexes match the string.'''
     for r in regexes:
         if r.match(s): return True
     return False
+
+
+def sanitize(ref, rules):
+    '''
+    >>> rules = {
+    ...    '!?#&|\^_$%*': '_',
+    ...    '/': '-',
+    ...    '@': 'X',
+    ...    're:develop': 'dev'
+    ... }
+    >>> sanitize('develop/test', rules)
+    'dev-test'
+    >>> sanitize('develop#test/zxcv@ASDF&1', rules)
+    'dev_test-zxcvXASDF_1'
+    '''
+    for pattern, value in rules.items():
+        if pattern.startswith('re:'):
+            pattern = pattern.lstrip('re:')
+        else:
+            pattern = '|'.join(map(re.escape, pattern))
+        ref = re.sub(pattern, value, ref)
+
+    return ref
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
