@@ -15,8 +15,8 @@ Changelog
         '@!?#&|\^_$%*': '_'    # replace any of '@!?#&|\^_$%*' with '_'
         're:colou?r': 'color'  # replace regex 'colou?r' with 'color'
 
-  The default is '@!?#&|\^_$%*': '_', which is the list of characters
-  that are not allowed in job names.
+  The default is ``'@!?#&|\^_$%*': '_'``, which is the list of
+  characters that are not allowed in job names.
 
 0.9.1 (Jan 08, 2014)
 ^^^^^^^^^^^^^^^^^^^^
