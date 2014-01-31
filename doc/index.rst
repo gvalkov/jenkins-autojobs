@@ -15,6 +15,7 @@ The modus operandi of *jenkins-autojobs* is simple:
 - List branches from git, mercurial or subversion.
 - Create or update jobs as specified in the config file. Jobs are
   updated whenever their template jobs change.
+- Delete jobs for branches that were removed
 
 In a nutshell, the configuration file specifies:
 

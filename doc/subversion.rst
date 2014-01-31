@@ -153,4 +153,10 @@ Defaults to:
 
 See :ref:`href-substitute`
 
+
+``cleanup``
+**************
+
+See :ref:`href-cleanup`
+
 .. _`Svn SCM`:         https://wiki.jenkins-ci.org/display/JENKINS/Subversion+Plugin

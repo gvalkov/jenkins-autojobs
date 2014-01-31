@@ -63,3 +63,5 @@ refs:
       'template': 'scratch-template'
       'namefmt':  'wip-{shortref}'
       'enable':   false
+
+cleanup: true

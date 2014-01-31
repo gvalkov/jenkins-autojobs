@@ -65,3 +65,5 @@ refs:
       'template': 'release-template'
       'namefmt':  'rel-{1}'
       'enable':   false
+
+cleanup: true

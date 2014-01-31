@@ -126,4 +126,10 @@ Defaults to:
 
 See :ref:`href-substitute`
 
+
+``cleanup``
+**************
+
+See :ref:`href-cleanup`
+
 .. _`Mercurial SCM`:   https://wiki.jenkins-ci.org/display/JENKINS/Mercurial+Plugin
