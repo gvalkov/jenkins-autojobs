@@ -112,20 +112,33 @@ def main(argv, create_job, list_branches, getoptfmt='vdnr:j:u:p:y:o:UPYO', confi
     configs = zip(branches, configs)
     configs = filter(lambda x: bool(x[1]), configs)
 
+    # the names of all successfully created or updated jobs
     job_names = [config['template']]
     for branch, branch_config in configs:
-        job_names.append(create_job(branch, templates[branch_config['template']], config, branch_config))
+        name = create_job(branch, templates[branch_config['template']], config, branch_config)
+        job_names.append(name)
 
-    # delete old jobs
     if config['cleanup']:
-        for job in jenkins.jobs:
-            print('\nProcessing Job: %s' % job.name)
-            if 'createdByJenkinsAutojobs' in job.config:
-                print('. job is created by Jenkins Autojobs')
-                if job.name not in job_names and job.exists():
-                        if not config['dryrun']:
-                            job.delete()
-                        print('. job deleted')
+        cleanup(config, job_names, jenkins)
+
+
+def cleanup(config, job_names, jenkins, verbose=True):
+    print('\ncleaning up old jobs:')
+
+    tag = '<createdByJenkinsAutojobs>'
+    managed_jobs = (job for job in jenkins.jobs if tag in job.config)
+    removed_jobs = []
+
+    for job in managed_jobs:
+        if job.name not in job_names and job.exists():
+            removed_jobs.append(job)
+            if not config['dryrun']:
+                job.delete()
+            print(' - %s' % job.name)
+
+    if not removed_jobs:
+        print('. nothing to do')
+
 
 def parse_args(argv, fmt):
     '''Parse getopt arguments as a dictionary.'''
@@ -147,6 +160,7 @@ def get_default_config(config, opts):
     # default global settings (not inheritable)
     c['dryrun'] = False
     c['debug'] = False
+    c['cleanup']  = config.get('cleanup', False)
     c['username'] = config.get('username', None)
     c['password'] = config.get('password', None)
 
@@ -176,8 +190,6 @@ def get_default_config(config, opts):
 
     if '-U' in o: c['username'] = raw_input('User: ')
     if '-P' in o: c['password'] = getpass()
-
-    if 'cleanup' not in c: c['cleanup'] = False
 
     # compile ignore regexes
     c.setdefault('ignore', {})
