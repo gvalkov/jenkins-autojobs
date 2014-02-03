@@ -73,7 +73,7 @@ def pytest_funcarg__cfg(request):
 ('branches/feature-two',  '{branch}', '-', 'branches-feature-two'),
 ('branches/feature-three', '{branch}', '.', 'branches.feature-three'), ])
 def test_namefmt_namesep_global(cfg, branch, namefmt, namesep, expected):
-    test_namefmt_namesep_global.job = expected
+    test_namefmt_namesep_global.cleanup_jobs = [expected]
 
     cfg['namefmt'] = namefmt
     cfg['namesep'] = namesep
@@ -86,7 +86,7 @@ def test_namefmt_namesep_global(cfg, branch, namefmt, namesep, expected):
 ('branches/feature-two',   'test.{branch}', 'X', 'test.branchesXfeature-two'),
 ('branches/feature-three', 'test.{branch}', '_', 'test.branches_feature-three'), ])
 def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
-    test_namefmt_namesep_inherit.job = expected
+    test_namefmt_namesep_inherit.cleanup_jobs = [expected]
 
     cfg['refs'] = [ {branch : {
         'namesep' : namesep,
@@ -100,7 +100,7 @@ def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
 ('experimental/john/bug/01', 'experimental/(.*)/bug/(.*)', '{0}-{1}', 'john-01'),
 ('tag/alpha/gamma',          '(.*)/(.*)/(.*)', 'test-{2}.{1}.{0}', 'test-gamma.alpha.tag'), ])
 def test_namefmt_groups_inherit(cfg, branch, regex, namefmt, expected):
-    test_namefmt_groups_inherit.job = expected
+    test_namefmt_groups_inherit.cleanup_jobs = [expected]
 
     cfg['namefmt'] = '.'
     cfg['refs'] = [{ regex : {'namefmt' : namefmt, }}]
@@ -114,7 +114,7 @@ def test_namefmt_groups_inherit(cfg, branch, regex, namefmt, expected):
 ('branches/alpha', '{repo}/branches/alpha',  '.'),])
 def test_configxml_global(cfg, branch, name, local):
     job = branch.replace('/', '-')
-    test_configxml_global.job = job
+    test_configxml_global.cleanup_jobs = [job]
     name = name.format(**cfg)
 
     with r.branch(branch):

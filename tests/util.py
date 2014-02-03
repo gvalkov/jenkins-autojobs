@@ -37,10 +37,19 @@ def teardown_module_(module, jenkins, repo):
 
 
 def teardown_function_(f, jenkins):
-    if hasattr(f, 'job'):
-        print('Removing temporary job: %s' % f.job)
-        try: jenkins.py.job_delete(f.job)
-        except: pass
+    if hasattr(f, 'cleanup_jobs'):
+        for job in f.cleanup_jobs:
+            print('Removing temporary job: %s' % job)
+            try: jenkins.py.job_delete(job)
+            except: pass
+
+class cleanup:
+    def __init__(self, *args):
+        self.jobs = args
+
+    def __call__(self, func):
+        func.cleanup_jobs = self.jobs
+        return func
 
 
 class JenkinsControl(object):
@@ -122,6 +131,13 @@ class GitRepo(TmpRepo):
         self.mkbranch(name, base)
         yield
         self.rmbranch(name)
+
+    @contextmanager
+    def branches(self, *args, **kw):
+        base = kw.get('base', 'master')
+        [self.mkbranch(name, base) for name in args]
+        yield
+        [self.rmbranch(name) for name in args]
 
 
 class SvnRepo(TmpRepo):

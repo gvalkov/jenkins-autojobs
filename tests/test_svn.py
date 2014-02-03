@@ -80,7 +80,7 @@ def pytest_funcarg__cfg(request):
 ('branches/feature-one', '{path}',   '-', 'branches-feature-one'),
 ('branches/feature-one', '{path}',   '.', 'branches.feature-one'), ])
 def test_namefmt_namesep_global(cfg, branch, namefmt, namesep, expected):
-    test_namefmt_namesep_global.job = expected
+    test_namefmt_namesep_global.cleanup_jobs = [expected]
 
     cfg['namefmt'] = namefmt
     cfg['namesep'] = namesep
@@ -93,7 +93,7 @@ def test_namefmt_namesep_global(cfg, branch, namefmt, namesep, expected):
 ('branches/feature-two', 'test.{path}', 'X', 'test.branchesXfeature-two'),
 ('branches/feature-two', 'test.{path}', '_', 'test.branches_feature-two'), ])
 def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
-    test_namefmt_namesep_inherit.job = expected
+    test_namefmt_namesep_inherit.cleanup_jobs = [expected]
 
     cfg['refs'] = [ {branch : {
         'namesep' : namesep,
@@ -107,7 +107,7 @@ def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
 ('experimental/john/bug/01', 'experimental/(.*)/bug/(.*)', '{0}-{1}', 'john-01'),
 ('tag/alpha/gamma',          '(.*)/(.*)/(.*)', 'test-{2}.{1}.{0}', 'test-gamma.alpha.tag'), ])
 def test_namefmt_groups_inherit(cfg, branch, regex, namefmt, expected):
-    test_namefmt_groups_inherit.job = expected
+    test_namefmt_groups_inherit.cleanup_jobs = [expected]
 
     cfg['branches'].append(os.path.join(cfg['repo'], os.path.dirname(branch)))
     cfg['namefmt'] = '.'
@@ -121,18 +121,18 @@ def test_namefmt_groups_inherit(cfg, branch, regex, namefmt, expected):
 ('experimental/john',  ['experimental/.*']),
 ('experimental/v0.1-nobuild', ['.*-nobuild'])])
 def test_ignore(cfg, branch, ignores):
-    test_ignore.job = branch.replace('/', cfg['namesep'])
+    test_ignore.cleanup_jobs = [branch.replace('/', cfg['namesep'])]
 
     cfg['ignore'] = ignores
     with r.branch(branch):
         cmd(cfg)
-        assert not jobexists(test_ignore.job)
+        assert not jobexists(test_ignore.cleanup_jobs[0])
 
 @pytest.mark.parametrize(('branch', 'name', 'local'),[
 ('branches/alpha', '{repo}/branches/alpha',  '.'),])
 def test_configxml_global(cfg, branch, name, local):
     job = branch.split('/')[-1]
-    test_configxml_global.job = job
+    test_configxml_global.cleanup_jobs = [job]
     name = name.format(**cfg)
 
     with r.branch(branch):

@@ -72,7 +72,7 @@ def pytest_funcarg__cfg(request):
 ('feature/one/two', 'test-{shortref}', '-', 'test-feature-one-two'),
 ('feature/one/two', 'test.{ref}',      '-', 'test.refs-heads-feature-one-two'), ])
 def test_namefmt_namesep_global(cfg, branch, namefmt, namesep, expected):
-    test_namefmt_namesep_global.job = expected
+    test_namefmt_namesep_global.cleanup_jobs = [expected]
 
     cfg['namefmt'] = namefmt
     cfg['namesep'] = namesep
@@ -86,7 +86,7 @@ def test_namefmt_namesep_global(cfg, branch, namefmt, namesep, expected):
 ('scratch/one/two', 'test.{ref}', '_', 'test.refs_heads_scratch_one_two'),
 ('scratch/one/two', 'test.{shortref}', '_', 'test.scratch_one_two'), ])
 def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
-    test_namefmt_namesep_inherit.job = expected
+    test_namefmt_namesep_inherit.cleanup_jobs = [expected]
 
     cfg['refs'] = [{'refs/heads/%s' % branch : {
         'namesep' : namesep,
@@ -101,7 +101,7 @@ def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
 ('feature/one#two', 'test-{shortref}', {'#@': '_'}, '-', 'test-feature-one_two'),
 ('feature/one@#two','test.{ref}',      {'#@': '_'}, '-', 'test.refs-heads-feature-one__two'), ])
 def test_namefmt_sanitize_global(cfg, branch, namefmt, sanitize, namesep, expected):
-    test_namefmt_sanitize_global.job = expected
+    test_namefmt_sanitize_global.cleanup_jobs = [expected]
 
     cfg['namefmt'] = namefmt
     cfg['namesep'] = namesep
@@ -115,7 +115,7 @@ def test_namefmt_sanitize_global(cfg, branch, namefmt, sanitize, namesep, expect
 ('feature/one#two', '{shortref}',      {'#': '_'}, '.', 'feature.one_two'),
 ('feature/one#two@three','test.{ref}', {'#@': '_'}, '-', 'test.refs-heads-feature-one_two_three'), ])
 def test_namefmt_sanitize_inherit(cfg, branch, namefmt, sanitize, namesep, expected):
-    test_namefmt_sanitize_inherit.job = expected
+    test_namefmt_sanitize_inherit.cleanup_jobs = [expected]
 
     cfg['namefmt'] = namefmt
     cfg['namesep'] = namesep
@@ -134,7 +134,7 @@ def test_namefmt_sanitize_inherit(cfg, branch, namefmt, sanitize, namesep, expec
 ('scratch/one/two/three', 'refs/heads/scratch/(.*)/.*/(.*)', '{1}.{0}', 'three.one'),
 ('wip/alpha/beta/gamma',  'refs/heads/wip/(.*)/.*/(.*)', 'test-{1}.{0}', 'test-gamma.alpha'), ])
 def test_namefmt_groups_inherit(cfg, branch, regex, namefmt, expected):
-    test_namefmt_groups_inherit.job = expected
+    test_namefmt_groups_inherit.cleanup_jobs = [expected]
     cfg['namefmt'] = '.'
     cfg['refs'] = [{ regex: {'namefmt' : namefmt, }}]
 
@@ -147,7 +147,7 @@ def test_namefmt_groups_inherit(cfg, branch, regex, namefmt, expected):
 ('feature/two/three', {'@@JOB_NAME@@' : 'one-{ref}'},  'feature-two-three', 'one-refs-heads-feature-two-three'),
 ])
 def test_substitute(cfg, branch, sub, ejob, expected):
-    test_substitute.job = ejob
+    test_substitute.cleanup_jobs = [ejob]
     cfg['substitute'] = sub
 
     with r.branch(branch):
@@ -170,7 +170,7 @@ def test_ignore(cfg, branch, ignores):
 ('feature/config-one', 'origin/refs/heads/feature/config-one', 'feature/config-one'),])
 def test_configxml_global(cfg, branch, name, local):
     job = branch.replace('/', cfg['namesep'])
-    test_configxml_global.job = job
+    test_configxml_global.cleanup_jobs = [job]
 
     with r.branch(branch):
         cmd(cfg)
@@ -183,6 +183,7 @@ def test_configxml_global(cfg, branch, name, local):
         assert el.text == local
         assert scm_el.xpath('//localBranch')[0].text == local
 
+@cleanup('samename')
 def test_overwrite_global(cfg, capsys):
     cfg['overwrite'] = False
     cfg['namefmt'] = 'samename'
@@ -199,6 +200,7 @@ def test_overwrite_global(cfg, capsys):
         out, err = capsys.readouterr()
         assert 'create job' not in out
 
+@cleanup('feature-enable-true')
 def test_enable_true(cfg):
     j.py.job_disable('master-job-1')
     cfg['enable'] = True
@@ -208,6 +210,7 @@ def test_enable_true(cfg):
         assert jobexists('feature-enable-true')
         assert j.enabled('feature-enable-true')
 
+@cleanup('feature-enable-false')
 def test_enable_false(cfg):
     j.py.job_enable('master-job-1')
     cfg['enable'] = False
@@ -217,6 +220,7 @@ def test_enable_false(cfg):
         assert jobexists('feature-enable-false')
         assert not j.enabled('feature-enable-false')
 
+@cleanup('feature-enable-template-one', 'feature-enable-template-two')
 def test_enable_template(cfg):
     cfg['enable'] = 'template'
 
@@ -247,8 +251,8 @@ def test_enable_sticky(cfg):
         cmd(cfg)
         assert j.enabled('feature-enable-sticky-one')
 
+@cleanup('one-feature-bravo-four')
 def test_inheritance_order(cfg):
-    test_namefmt_groups_inherit.job = 'one-feature-bravo-four'
     cfg['refs'] = [
         { 'refs/heads/feature/bravo/(.*)' : {'namefmt' : 'one-{shortref}'} },
         { 'refs/heads/feature/(.*)'       : {'namefmt' : 'two-{shortref}'} },
