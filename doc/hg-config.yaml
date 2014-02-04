@@ -66,4 +66,6 @@ refs:
       'namefmt':  'rel-{1}'
       'enable':   false
 
+# If set to true, remove all jobs that were created by jenkins-autojobs
+# for which there no longer exists a branch. Defaults to false.
 cleanup: true
