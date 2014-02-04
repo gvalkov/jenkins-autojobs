@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.11.0 (Feb 04, 2014)
+^^^^^^^^^^^^^^^^^^^^
+
+- Add the ``cleanup`` config option (thanks `@timmipetit`_).
+
+  If set to ``true``, jenkins-autojobs will remove all jobs for which
+  a branch no longer exists.
+
+- Jenkins-autojobs now adds a ``createdByJenkinsAutojobs`` element to
+  the config.xml of jobs that it has created.
+
 0.10.0 (Jan 08, 2014)
 ^^^^^^^^^^^^^^^^^^^^
 
