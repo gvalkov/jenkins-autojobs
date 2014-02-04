@@ -10,7 +10,7 @@ Changelog
   a branch no longer exists.
 
 - Jenkins-autojobs now adds a ``createdByJenkinsAutojobs`` element to
-  the config.xml of jobs that it has created.
+  the ``config.xml`` of jobs that it creates.
 
 0.10.0 (Jan 08, 2014)
 ^^^^^^^^^^^^^^^^^^^^
