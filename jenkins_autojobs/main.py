@@ -125,7 +125,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdnr:j:u:p:y:o:UPYO', confi
 def cleanup(config, job_names, jenkins, verbose=True):
     print('\ncleaning up old jobs:')
 
-    tag = '<createdByJenkinsAutojobs>'
+    tag = '</createdByJenkinsAutojobs>'
     managed_jobs = (job for job in jenkins.jobs if tag in job.config)
     removed_jobs = []
 

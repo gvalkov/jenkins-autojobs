@@ -146,3 +146,17 @@ def test_configxml_global(cfg, branch, name, local):
         assert el.text == name
 
         assert scm_el.xpath('//local')[0].text == local
+
+@cleanup('one')
+def test_cleanup(cfg):
+    cfg['cleanup'] = True
+
+    with r.branches('branches/one', 'branches/two'):
+        cmd(cfg)
+        assert jobexists('one')
+        assert jobexists('two')
+        assert 'createdByJenkinsAutojobs' in j.py.job('one').config
+
+    with r.branch('branches/one'):
+        cmd(cfg)
+        assert not jobexists('two')

@@ -266,3 +266,16 @@ def test_missing_template(cfg):
     cfg['template'] = 'does-not-exist'
     with raises(SystemExit):
         cmd(cfg)
+
+def test_cleanup(cfg):
+    cfg['cleanup'] = True
+
+    with r.branches('feature/one', 'feature/two'):
+        cmd(cfg)
+        assert jobexists('feature-one')
+        assert jobexists('feature-two')
+        assert 'createdByJenkinsAutojobs' in j.py.job('feature-one').config
+
+    with r.branch('feature/one'):
+        cmd(cfg)
+        assert not jobexists('feature-two')

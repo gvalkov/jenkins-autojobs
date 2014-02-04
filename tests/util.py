@@ -105,6 +105,24 @@ class TmpRepo(object):
     def chdir(self):
         os.chdir(self.dir)
 
+    @contextmanager
+    def branch(self, name, **kw):
+        if GitRepo == self.__class__ and 'base' not in kw:
+            kw['base'] = 'master'
+
+        self.mkbranch(name, **kw)
+        yield
+        self.rmbranch(name)
+
+    @contextmanager
+    def branches(self, *args, **kw):
+        if GitRepo == self.__class__ and 'base' not in kw:
+            kw['base'] = 'master'
+
+        [self.mkbranch(name, **kw) for name in args]
+        yield
+        [self.rmbranch(name) for name in args]
+
 
 class GitRepo(TmpRepo):
     def __init__(self, d=pjoin(here, 'tmp/repos')):
@@ -125,19 +143,6 @@ class GitRepo(TmpRepo):
     def rmbranch(self, name):
         cmd = self.gitcmd + ['branch', '-D', name]
         check_call(cmd)
-
-    @contextmanager
-    def branch(self, name, base='master'):
-        self.mkbranch(name, base)
-        yield
-        self.rmbranch(name)
-
-    @contextmanager
-    def branches(self, *args, **kw):
-        base = kw.get('base', 'master')
-        [self.mkbranch(name, base) for name in args]
-        yield
-        [self.rmbranch(name) for name in args]
 
 
 class SvnRepo(TmpRepo):
@@ -160,12 +165,6 @@ class SvnRepo(TmpRepo):
     def rmbranch(self, name):
         cmd = ('svn', 'rm', '%s/%s' % (self.url, name), '-m', '++')
         check_call(cmd)
-
-    @contextmanager
-    def branch(self, name):
-        self.mkbranch(name)
-        yield
-        self.rmbranch(name)
 
 
 class HgRepo(TmpRepo):
@@ -201,9 +200,3 @@ class HgRepo(TmpRepo):
 
         rmtree(self.dir)
         self.init()
-
-    @contextmanager
-    def branch(self, name):
-        self.mkbranch(name)
-        yield
-        self.rmbranch(name)

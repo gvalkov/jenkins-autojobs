@@ -126,3 +126,17 @@ def test_configxml_global(cfg, branch, name, local):
         scm_el = configxml.xpath('scm[@class="hudson.plugins.mercurial.MercurialSCM"]')[0]
         el = scm_el.xpath('//branch')[0]
         assert el.text == branch
+
+@cleanup('branches-one')
+def test_cleanup(cfg):
+    cfg['cleanup'] = True
+
+    with r.branches('branches/one', 'branches/two'):
+        cmd(cfg)
+        assert jobexists('branches-one')
+        assert jobexists('branches-two')
+        assert 'createdByJenkinsAutojobs' in j.py.job('branches-one').config
+
+    with r.branch('branches/one'):
+        cmd(cfg)
+        assert not jobexists('branches-two')
