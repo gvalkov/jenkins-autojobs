@@ -84,7 +84,7 @@ def create_job(ref, template, config, ref_config):
     }
 
     job_name = ref_config['namefmt'].format(*groups, **fmtdict)
-    job = Job(job_name, template, _main.jenkins)
+    job = Job(job_name, ref, template, _main.jenkins)
 
     fmtdict['job_name'] = job_name
 

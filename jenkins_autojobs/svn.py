@@ -67,7 +67,7 @@ def create_job(branch, template, config, branch_config):
     }
 
     job_name = branch_config['namefmt'].format(*groups, **fmtdict)
-    job = Job(job_name, template, _main.jenkins)
+    job = Job(job_name, branch, template, _main.jenkins)
 
     fmtdict['job_name'] = job_name
 

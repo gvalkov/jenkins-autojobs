@@ -1,10 +1,14 @@
+# -*- coding: utf-8; -*-
+
 from copy import deepcopy
+from xml.sax.saxutils import escape as xmlescape
 from lxml import etree
 
 
 class Job(object):
-    def __init__(self, name, template, jenkins):
+    def __init__(self, name, branch, template, jenkins):
         self.name = name
+        self.branch = branch  # the scm branch that this job builds
         self.jenkins = jenkins
 
         # this will be the new config.xml for the job we're creating
@@ -54,7 +58,9 @@ class Job(object):
 
     def create(self, overwrite, dryrun):
         # append autojobs-information
-        etree.SubElement(self.xml, "createdByJenkinsAutojobs")
+        info_el = etree.SubElement(self.xml, 'createdByJenkinsAutojobs')
+        info_el = etree.SubElement(info_el, 'ref')
+        info_el.text = xmlescape(self.branch)
 
         # method='c14n' is only available in more recent versions of lxml
         self.xml = self.canonicalize(self.xml)
