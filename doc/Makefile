@@ -153,7 +153,7 @@ doctest:
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
 $(BUILDDIR)/html/jenkins-autojobs-doc.zip: html
-	cd $(BUILDDIR)/html/ &&  zip -x \*.zip -r evdev-doc.zip .
+	cd $(BUILDDIR)/html/ &&  zip -x \*.zip -r $$(basename $@) .
 	@echo `readlink -f $@`
 
 htmlzip: $(BUILDDIR)/html/jenkins-autojobs-doc.zip
