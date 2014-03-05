@@ -14,9 +14,10 @@ Alternatively, *jenkins-autojobs* can be installed like any other Python package
 
 .. code-block:: bash
 
-    $ git clone git@github.com:gvalkov/jenkins-autojobs.git
+    $ git clone https://github.com/gvalkov/jenkins-autojobs.git
     $ cd  jenkins-autojobs
-    $ git reset --hard HEAD $versiontag
+    $ git tag -l # List possible versiontags
+    $ git reset --hard $versiontag
     $ python setup.py install
 
 *Jenkins-autojobs* requires a version of lxml_ that supports XML
