@@ -130,7 +130,7 @@ def cleanup(config, job_names, jenkins, verbose=True):
     removed_jobs = []
 
     for job in managed_jobs:
-        if job.name not in job_names and job.exists():
+        if job.name not in job_names and job.exists:
             removed_jobs.append(job)
             if not config['dryrun']:
                 job.delete()

@@ -16,7 +16,7 @@ class Job(object):
 
         # this is the raw config xml of the job  :todo: naming is mixed-up
         job = jenkins.job(name)
-        self.exists = job.exists()
+        self.exists = job.exists
         self.config = job.config if self.exists else None
 
     def set_state(self, value):
