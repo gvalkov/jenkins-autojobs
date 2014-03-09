@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.12.0 (Mar 09, 2014)
+^^^^^^^^^^^^^^^^^^^^
+
+- Fix a bug that made jenkins-autojobs remove all managed jobs if
+  ``list_branches()`` failed with ``cleanup`` on (thanks `@sja`_).
+
+- Use jenkins-webapi_ 0.2.0.
+
 0.11.0 (Feb 04, 2014)
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -61,3 +69,4 @@ Changelog
 
 .. _`@timmipetit`:  https://github.com/timmipetit
 .. _`@xgouchet`:    https://github.com/xgouchet
+.. _`@sja`:         https://github.com/sja
