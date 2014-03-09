@@ -208,7 +208,6 @@ def test_enable_true(cfg):
     with r.branch('feature/enable-true'):
         cmd(cfg)
         assert jobexists('feature-enable-true')
-        assert j.enabled('feature-enable-true')
 
 @cleanup('feature-enable-false')
 def test_enable_false(cfg):
@@ -279,3 +278,19 @@ def test_cleanup(cfg):
     with r.branch('feature/one'):
         cmd(cfg)
         assert not jobexists('feature-two')
+
+def test_failing_git_cleanup(cfg):
+    cfg['cleanup'] = True
+
+    with r.branches('feature/one', 'feature/two'):
+        cmd(cfg)
+        assert jobexists('feature-one')
+        assert jobexists('feature-two')
+        assert 'createdByJenkinsAutojobs' in j.py.job('feature-one').config
+
+        cfg['repo'] = '/tmp/should-never-exist-zxcv-123-zxcv-1asfmn'
+        with raises(SystemExit):
+            cmd(cfg)
+        # feature-{one,two} should not be removed if command fails
+        assert jobexists('feature-one')
+        assert jobexists('feature-two')

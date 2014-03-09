@@ -8,11 +8,10 @@ Documentation: http://gvalkov.github.com/jenkins-autojobs/
 
 from os import linesep, path
 from sys import exit, argv
-from subprocess import Popen, PIPE
 
 from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
-from jenkins_autojobs.util import sanitize
+from jenkins_autojobs.util import sanitize, check_output
 from jenkins_autojobs.job import Job
 
 
@@ -24,8 +23,7 @@ def svn_ls(url, username=None, password=None, dirsonly=True):
     if password: cmd += ['--password', password]
 
     cmd.append(url)
-    out = Popen(cmd, stdout=PIPE).communicate()[0]
-    out = out.decode('utf8').split(linesep)
+    out = check_output(cmd).decode('utf8').split(linesep)
 
     if dirsonly:
         out = [i.rstrip('/') for i in out if i.endswith('/')]

@@ -10,26 +10,23 @@ import re
 
 from os import linesep, path
 from sys import exit, argv
-from subprocess import Popen, PIPE
 
 from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
-from jenkins_autojobs.util import sanitize
+from jenkins_autojobs.util import sanitize, check_output
 from jenkins_autojobs.job import Job
 
 
 def git_refs_iter_local(repo):
     cmd = ('git', 'show-ref')
-    out = Popen(cmd, stdout=PIPE, cwd=repo).communicate()[0]
-    out = out.split(linesep)
+    out = check_output(cmd, cwd=repo).split(linesep)
 
     return (ref for sha, ref in [i.split() for i in out if i])
 
 
 def git_refs_iter_remote(repo):
     cmd = ('git', 'ls-remote', repo)
-    out = Popen(cmd, stdout=PIPE).communicate()[0]
-    out = out.decode('utf8').split(linesep)
+    out = check_output(cmd).decode('utf8').split(linesep)
 
     for sha, ref in (i.split() for i in out if i):
         if not ref.startswith('refs/'):

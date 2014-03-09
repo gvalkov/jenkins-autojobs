@@ -12,11 +12,10 @@ from os import linesep, path
 from sys import exit, argv
 from ast import literal_eval
 from tempfile import NamedTemporaryFile
-from subprocess import Popen, PIPE
 
 from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
-from jenkins_autojobs.util import sanitize
+from jenkins_autojobs.util import sanitize, check_output
 from jenkins_autojobs.job import Job
 
 
@@ -38,7 +37,7 @@ def hg_branch_iter_remote(repo, python):
         cmd = (hg_list_remote_py % repo).encode('utf8')
         fh.write(cmd)
         fh.flush()
-        out = Popen((python, fh.name), stdout=PIPE).communicate()[0]
+        out = check_output((python, fh.name))
 
     out = literal_eval(out.decode('utf8'))
     return [i[0] for i in out]
@@ -46,8 +45,7 @@ def hg_branch_iter_remote(repo, python):
 
 def hg_branch_iter_local(repo):
     cmd = ('hg', '-y', 'branches', '-c', '-R', repo)
-    out = Popen(cmd, stdout=PIPE).communicate()[0]
-    out = out.decode('utf8').split(linesep)
+    out = check_output(cmd).decode('utf8').split(linesep)
 
     out = (re.split('\s+', i, 1) for i in out if i)
     return (name for name, rev in out)

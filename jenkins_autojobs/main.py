@@ -9,6 +9,7 @@ from copy import deepcopy
 from getopt import getopt
 from getpass import getpass
 from functools import partial
+from subprocess import CalledProcessError
 from lxml import etree
 from jenkins import Jenkins, JenkinsError
 
@@ -98,7 +99,12 @@ def main(argv, create_job, list_branches, getoptfmt='vdnr:j:u:p:y:o:UPYO', confi
     templates = dict((i, get_job_etree(i)) for i in templates)
 
     # list all git refs, svn branches etc (implemented by child classes)
-    branches = list_branches(config)
+    try:
+        branches = list(list_branches(config))
+    except CalledProcessError as e:
+        print('! cannot list branches')
+        print('! command %s failed' % ' '.join(e.cmd))
+        exit(1)
 
     # see if some of the branches are ignored
     ignored, branches = get_ignored(branches, c['ignore'])

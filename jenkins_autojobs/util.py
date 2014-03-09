@@ -1,6 +1,7 @@
 #!/usr/bin/env
 
 import re
+import subprocess as sub
 
 
 def filtersplit(p, iterable):
@@ -51,6 +52,22 @@ def sanitize(ref, rules):
         ref = re.sub(pattern, value, ref)
 
     return ref
+
+
+# subprocess.check_output() from Python 2.7
+def check_output(*popenargs, **kwargs):
+    if 'stdout' in kwargs:
+        raise ValueError('stdout argument not allowed, it will be overridden.')
+    process = sub.Popen(stdout=sub.PIPE, *popenargs, **kwargs)
+    output, unused_err = process.communicate()
+    retcode = process.poll()
+    if retcode:
+        cmd = kwargs.get("args")
+        if cmd is None:
+            cmd = popenargs[0]
+        raise sub.CalledProcessError(retcode, cmd, output=output)
+    return output
+
 
 if __name__ == "__main__":
     import doctest
