@@ -57,7 +57,6 @@ def create_job(ref, template, config, ref_config):
     '''
 
     print('\nprocessing ref: %s' % ref)
-
     shortref = re.sub('^refs/(heads|tags|remotes)/', '', ref)
 
     sanitized_ref = sanitize(ref, ref_config['sanitize'])
@@ -114,7 +113,7 @@ def create_job(ref, template, config, ref_config):
     # name, we do it for them
     job.substitute(list(ref_config['substitute'].items()), fmtdict)
 
-    job.create(ref_config['overwrite'], config['dryrun'])
+    job.create(ref_config['overwrite'], config['dryrun'], tag=ref_config['tag'])
 
     if config['debug']:
         debug_refconfig(ref_config)

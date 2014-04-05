@@ -48,10 +48,13 @@ sanitize:
 substitute:
   '@@JOB_NAME@@': '{shortref}'
 
-# List of refs to ignore (regular expressions)
+# List of refs to ignore (regular expressions).
 ignore:
   - 'refs/heads/feature/.*-nobuild'
   - 'refs/heads/scratch/.*'
+
+# String to tag jobs with (off by default).
+tag: 'throw-away-jobs'
 
 # Maps ref names (regular expressions) to config dictionaries that may
 # overwrite any of the previously specified options. Defaults to
@@ -63,7 +66,10 @@ refs:
       'template': 'scratch-template'
       'namefmt':  'wip-{shortref}'
       'enable':   false
+      'tag':      'group-1'
 
-# If set to true, remove all jobs that were created by jenkins-autojobs
-# for which there no longer exists a branch. Defaults to false.
+# If set to true, remove all jobs that were created by
+# jenkins-autojobs for which there no longer exists a branch. If set
+# to a tag, only jobs with that tag will be cleaned. Defaults to false.
 cleanup: true
+# cleanup: throw-away-jobs

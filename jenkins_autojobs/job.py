@@ -56,11 +56,16 @@ class Job(object):
             # nobody makes a non-semantic change...
             return etree.tostring(xml)
 
-    def create(self, overwrite, dryrun):
+    def create(self, overwrite, dryrun, tag=None):
         # append autojobs-information
         info_el = etree.SubElement(self.xml, 'createdByJenkinsAutojobs')
-        info_el = etree.SubElement(info_el, 'ref')
-        info_el.text = xmlescape(self.branch)
+        ref_el  = etree.SubElement(info_el, 'ref')
+        ref_el.text = xmlescape(self.branch)
+
+        # tag builds (this will be reworked in the future)
+        if tag:
+            tag_el = etree.SubElement(info_el, 'tag')
+            tag_el.text = xmlescape(tag)
 
         # method='c14n' is only available in more recent versions of lxml
         self.xml = self.canonicalize(self.xml)

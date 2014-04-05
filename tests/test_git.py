@@ -294,3 +294,41 @@ def test_failing_git_cleanup(cfg):
         # feature-{one,two} should not be removed if command fails
         assert jobexists('feature-one')
         assert jobexists('feature-two')
+
+def test_tag(cfg):
+    cfg['tag'] = 'group1'
+    cfg['refs'] = [
+        { 'refs/heads/feature/(.*)': {'namefmt': '{shortref}'} },
+        { 'refs/heads/test': {'tag': 'group2'} },
+    ]
+
+    with r.branch('feature/one'):
+        cmd(cfg)
+        assert '<tag>group1</tag>' in j.py.job('feature-one').config
+
+    with r.branch('test'):
+        cmd(cfg)
+        assert '<tag>group2</tag>' in j.py.job('test').config
+
+def test_cleanup_tags(cfg):
+    cfg['cleanup'] = 'group1'
+    cfg['refs'] = [
+        { 'refs/heads/group1/(.*)': {'tag': 'group1'} },
+        { 'refs/heads/group2/(.*)': {'tag': 'group2'} },
+    ]
+
+    with r.branches('group1/one', 'group1/two', 'group2/three'):
+        cmd(cfg)
+        assert jobexists('group1-one')
+        assert jobexists('group1-two')
+        assert jobexists('group2-three')
+
+    cmd(cfg)
+    assert not jobexists('group1-one')
+    assert not jobexists('group1-two')
+    assert jobexists('group2-three')
+
+    cfg['cleanup'] = 'group2'
+    with r.branches('group1/one'):
+        cmd(cfg)
+        assert not jobexists('group2-three')

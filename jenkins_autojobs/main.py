@@ -132,11 +132,20 @@ def cleanup(config, job_names, jenkins, verbose=True):
     print('\ncleaning up old jobs:')
 
     tag = '</createdByJenkinsAutojobs>'
+    tagxpath = 'createdByJenkinsAutojobs/tag/text()'
+
     managed_jobs = (job for job in jenkins.jobs if tag in job.config)
     removed_jobs = []
 
     for job in managed_jobs:
         if job.name not in job_names and job.exists:
+            # if cleanup is a tag name, only cleanup builds with that tag
+            if isinstance(config['cleanup'], str):
+                xml = etree.fromstring(job.config.encode('utf8'))
+                clean_tag = xml.xpath(tagxpath)
+                if not config['cleanup'] in clean_tag:
+                    continue
+
             removed_jobs.append(job)
             if not config['dryrun']:
                 job.delete()
@@ -178,7 +187,8 @@ def get_default_config(config, opts):
         'enable':     c.get('enable', 'sticky'),
         'substitute': c.get('substitute', {}),
         'template':   c.get('template'),
-        'sanitize':   c.get('sanitize', {'@!?#&|\^_$%*': '_'})
+        'sanitize':   c.get('sanitize', {'@!?#&|\^_$%*': '_'}),
+        'tag':        c.get('tag', []),
     }
 
     # some options can be overwritten on the command line
