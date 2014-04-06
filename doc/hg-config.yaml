@@ -56,6 +56,9 @@ ignore:
   - '.*-nobuild'
   - 'scratch/.*'
 
+# String to tag jobs with (no tagging by default).
+tag: 'throw-away-jobs'
+
 # Maps branch names (regular expressions) to config dictionaries that
 # may overwrite any of the previously specified options. Defaults to
 # "refs: '.*'".
@@ -65,7 +68,9 @@ refs:
       'template': 'release-template'
       'namefmt':  'rel-{1}'
       'enable':   false
+      'tag':      'group-1'
 
 # If set to true, remove all jobs that were created by jenkins-autojobs
-# for which there no longer exists a branch. Defaults to false.
-cleanup: true
+# for which there no longer exists a branch. If set to a tag name, only
+# jobs with that name will be cleaned. Defaults to false.
+cleanup: true  # or 'throw-away-jobs'
