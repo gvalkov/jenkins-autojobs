@@ -10,13 +10,14 @@ from getopt import getopt
 from getpass import getpass
 from functools import partial
 from subprocess import CalledProcessError
+
 from lxml import etree
 from jenkins import Jenkins, JenkinsError
+from requests.exceptions import RequestException
 
 from jenkins_autojobs import version
 from jenkins_autojobs.util import *
 
-from requests.exceptions import RequestException
 
 try:
     from itertools import ifilterfalse as filterfalse
