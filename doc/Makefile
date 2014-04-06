@@ -13,8 +13,9 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+SAMPLE_CONFIGS  = git-config.yaml svn-config.yaml hg-config.yaml
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext sample-configs
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -40,18 +41,19 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm -f  $(SAMPLE_CONFIGS)
 
-html:
+html: sample-configs
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
-dirhtml:
+dirhtml: sample-configs
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
 
-singlehtml:
+singlehtml: sample-configs
 	$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
 	@echo
 	@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
@@ -157,3 +159,19 @@ $(BUILDDIR)/html/jenkins-autojobs-doc.zip: html
 	@echo `readlink -f $@`
 
 htmlzip: $(BUILDDIR)/html/jenkins-autojobs-doc.zip
+
+define RENDER
+from jinja2 import Template, Environment, FileSystemLoader
+
+loader = FileSystemLoader('./')
+env = Environment(trim_blocks=True, lstrip_blocks=True, loader=loader)
+tmpl = env.from_string(open('$<').read())
+
+print(tmpl.render())
+endef
+
+export RENDER
+%.yaml: %.yaml.jinja2
+	python -c "$$RENDER" > $@
+
+sample-configs: $(SAMPLE_CONFIGS)

@@ -39,17 +39,17 @@ overwrite: true
 #                 overwritten jobs keep their previous state.
 enable: 'sticky'
 
-# Substitutions to perform on the branch name
+# Literal substitute of strings in template job
+# Useful for certain plugins (eg. sidebar links)
+substitute:
+  '@@JOB_NAME@@' : '{branch}'
+
+# Substitutions to perform on the ref and shortref.
 # The default is '@!?#&|\^_$%*': '_', which substitutes the characters
 # that cannot be in a Jenkins job name with '_'.
 sanitize:
   '@!?#&|\^_$%*': '_'    # replace any of @!?#&|\^_$%* with _
   're:colou?r': 'color'  # replace regex 'colou?r' with 'color'
-
-# Literal substitute of strings in template job
-# Useful for certain plugins (eg. sidebar links)
-substitute:
-  '@@JOB_NAME@@' : '{branch}'
 
 # List of branches to ignore (regular expressions)
 ignore:
