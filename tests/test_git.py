@@ -22,7 +22,7 @@ enable: 'sticky'
 sanitize:
   '@!?#&|\^_$%%*': '_'
 
-substitute :
+substitute:
   '@@JOB_NAME@@' : '{shortref}'
 
 ignore:
@@ -154,6 +154,20 @@ def test_substitute(cfg, branch, sub, ejob, expected):
         cmd(cfg)
         assert jobexists(ejob)
         assert j.py.job_info(ejob)['description'] == expected
+
+@cleanup('release-0.7.4-wheezy', 'feature-55-random-1')
+def test_substitute_groups(cfg):
+    cfg['substitute'] = {'@@JOB_NAME@@' : '{2}'}
+    cfg['refs'] = ['refs/heads/release-((?:(\d+\.){1,2})[1-9]+\d*)-(.*)']
+    with r.branch('release-0.7.4-wheezy') as name:
+        cmd(cfg)
+        assert j.py.job_info(name)['description'] == 'wheezy'
+
+    cfg['refs'] = ['refs/heads/feature-(\d\d)-(?P<name>\w+)-(\d)']
+    cfg['substitute'] = {'@@JOB_NAME@@' : '{0}-{name}-{2}'}
+    with r.branch('feature-55-random-1') as name:
+        cmd(cfg)
+        assert j.py.job_info(name)['description'] == '55-random-1'
 
 @pytest.mark.parametrize(('branch', 'ignores'),[
 ('wip/one/two',  ['wip/.*']),
@@ -295,6 +309,7 @@ def test_failing_git_cleanup(cfg):
         assert jobexists('feature-one')
         assert jobexists('feature-two')
 
+@cleanup('feature/one', 'test')
 def test_tag(cfg):
     cfg['tag'] = 'group1'
     cfg['refs'] = [

@@ -11,7 +11,7 @@ from sys import exit, argv
 
 from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
-from jenkins_autojobs.util import sanitize, check_output
+from jenkins_autojobs.util import sanitize, check_output, merge
 from jenkins_autojobs.job import Job
 
 
@@ -55,7 +55,9 @@ def create_job(branch, template, config, branch_config):
 
     # job names with '/' in them are problematic
     sanitized_branch = branch.replace('/', branch_config['namesep'])
-    groups = branch_config['re'].match(branch).groups()
+
+    match = branch_config['re'].match(branch)
+    groups, groupdict = match.groups(), match.groupdict()
 
     # placeholders available to the 'substitute' and 'namefmt' options
     fmtdict = {
@@ -64,7 +66,7 @@ def create_job(branch, template, config, branch_config):
         'path-orig': branch,
     }
 
-    job_name = branch_config['namefmt'].format(*groups, **fmtdict)
+    job_name = branch_config['namefmt'].format(*groups, **merge(groupdict, fmtdict))
     job = Job(job_name, branch, template, _main.jenkins)
 
     fmtdict['job_name'] = job_name
@@ -91,7 +93,7 @@ def create_job(branch, template, config, branch_config):
 
     # since some plugins (such as sidebar links) can't interpolate the job
     # name, we do it for them
-    job.substitute(list(branch_config['substitute'].items()), fmtdict)
+    job.substitute(list(branch_config['substitute'].items()), fmtdict, groups, groupdict)
 
     job.create(branch_config['overwrite'], config['dryrun'])
 

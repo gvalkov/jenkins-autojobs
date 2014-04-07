@@ -13,7 +13,7 @@ from sys import exit, argv
 
 from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
-from jenkins_autojobs.util import sanitize, check_output
+from jenkins_autojobs.util import sanitize, check_output, merge
 from jenkins_autojobs.job import Job
 
 
@@ -66,7 +66,8 @@ def create_job(ref, template, config, ref_config):
     sanitized_ref = sanitized_ref.replace('/', ref_config['namesep'])
     sanitized_shortref = sanitized_shortref.replace('/', ref_config['namesep'])
 
-    groups = ref_config['re'].match(ref).groups()
+    match = ref_config['re'].match(ref)
+    groups, groupdict = match.groups(), match.groupdict()
 
     # placeholders available to the 'substitute' and 'namefmt' options
     fmtdict = {
@@ -76,7 +77,7 @@ def create_job(ref, template, config, ref_config):
         'shortref-orig': shortref,
     }
 
-    job_name = ref_config['namefmt'].format(*groups, **fmtdict)
+    job_name = ref_config['namefmt'].format(*groups, **merge(groupdict, fmtdict))
     job = Job(job_name, ref, template, _main.jenkins)
 
     fmtdict['job_name'] = job_name
@@ -111,7 +112,7 @@ def create_job(ref, template, config, ref_config):
 
     # since some plugins (such as sidebar links) can't interpolate the job
     # name, we do it for them
-    job.substitute(list(ref_config['substitute'].items()), fmtdict)
+    job.substitute(list(ref_config['substitute'].items()), fmtdict, groups, groupdict)
 
     job.create(ref_config['overwrite'], config['dryrun'], tag=ref_config['tag'])
 

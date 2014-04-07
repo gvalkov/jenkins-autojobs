@@ -1,5 +1,7 @@
 # -*- coding: utf-8; -*-
 
+from jenkins_autojobs.util import merge
+
 from copy import deepcopy
 from xml.sax.saxutils import escape as xmlescape
 from lxml import etree
@@ -39,12 +41,13 @@ class Job(object):
             if '<disabled>false</disabled>' in self.config:
                 el.text = 'false'
 
-    def substitute(self, items, fmtdict):
+    def substitute(self, items, fmtdict, groups, groupdict):
         for el in self.xml.xpath("//text()"):
             for k, v in items:
                 if k in el:
                     p = el.getparent()
-                    nv = p.text.replace(k, v.format(**fmtdict))
+                    ctx = merge(groupdict, fmtdict)
+                    nv = p.text.replace(k, v.format(*groups, **ctx))
                     p.text = nv
 
     def canonicalize(self, xml):

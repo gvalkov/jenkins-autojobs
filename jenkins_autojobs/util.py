@@ -1,6 +1,6 @@
 #!/usr/bin/env
 
-import re
+import re, copy
 import subprocess as sub
 
 
@@ -52,6 +52,12 @@ def sanitize(ref, rules):
         ref = re.sub(pattern, value, ref)
 
     return ref
+
+
+def merge(a, b):
+    c = copy.copy(a)
+    c.update(b)
+    return c
 
 
 # subprocess.check_output() from Python 2.7

@@ -111,7 +111,7 @@ class TmpRepo(object):
             kw['base'] = 'master'
 
         self.mkbranch(name, **kw)
-        yield
+        yield name
         self.rmbranch(name)
 
     @contextmanager
