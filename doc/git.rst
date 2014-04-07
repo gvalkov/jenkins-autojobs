@@ -189,15 +189,31 @@ introspect the name of the branch or job (eg. `Sidebar-Link`_):
 
 All placeholders available to namefmt_ are also available here.
 
+.. _href-tag:
+``tag``
+*******
+
+Tag jobs with a string. The tag can be found inside the ``config.xml``
+of jobs created by jenkins-autojobs:
+
+.. code-block:: xml
+   <createdByJenkinsAutojobs>
+      <tag>name</tag>
+   </createdByJenkinsAutojobs>
+
+
 .. _href-cleanup:
 
 ``cleanup``
 **************
 
-If set to true, jenkins-autojobs will remove jobs for branches
-that were deleted. It uses a special property in a job's
-``config.xml`` to determine if the job was created by
-jenkins-autojobs.
+If set to true, jenkins-autojobs will remove jobs for branches that
+were deleted. It uses a special property in a job's ``config.xml`` to
+determine if the job was created by jenkins-autojobs.
+
+If set to a tag name, only jobs with that name will be cleaned. This
+is useful if you have more than one instances of jenkins-autojobs
+running and you don't want them to mutually cleanup each others jobs.
 
 .. _`Sidebar-Link`:    https://wiki.jenkins-ci.org/display/JENKINS/Sidebar-Link+Plugin
 .. _`Git SCM`:         https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin

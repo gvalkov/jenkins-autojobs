@@ -2,7 +2,7 @@ Changelog
 ---------
 
 0.12.0 (Mar 09, 2014)
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 - Fix a bug that made jenkins-autojobs remove all managed jobs if
   ``list_branches()`` failed with ``cleanup`` on (thanks `@sja`_).
@@ -10,7 +10,7 @@ Changelog
 - Use jenkins-webapi_ 0.2.0.
 
 0.11.0 (Feb 04, 2014)
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 - Add the ``cleanup`` config option (thanks `@timmipetit`_).
 
@@ -21,7 +21,7 @@ Changelog
   the ``config.xml`` of jobs that it creates.
 
 0.10.0 (Jan 08, 2014)
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 - Add the ``sanitize`` config option (thanks `@xgouchet`_).
 
