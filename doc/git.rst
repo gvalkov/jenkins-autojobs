@@ -197,6 +197,7 @@ Tag jobs with a string. The tag can be found inside the ``config.xml``
 of jobs created by jenkins-autojobs:
 
 .. code-block:: xml
+
    <createdByJenkinsAutojobs>
       <tag>name</tag>
    </createdByJenkinsAutojobs>

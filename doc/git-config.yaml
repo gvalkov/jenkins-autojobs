@@ -27,7 +27,6 @@ namefmt: '{shortref}'
 # If true, a job will be overwritten if the new configration
 # differs from the old one.
 overwrite: true
-overwrite: true
 
 # State of newly created or overwritten jobs. One of:
 #   true       -> jobs will be enabled
