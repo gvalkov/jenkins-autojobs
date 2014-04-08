@@ -31,12 +31,13 @@ except ImportError:
 
 
 usage = '''\
-Usage: %s [-rvdjnyoupUYOP] <config.yaml>
+Usage: %s [-rvdtjnyoupUYOP] <config.yaml>
 
 General Options:
   -n dry run
   -v show version and exit
   -d debug config inheritance
+  -t debug http requests
 
 Repository Options:
   -r <arg> repository url
@@ -58,7 +59,7 @@ Jenkins Options:
 jenkins = None
 
 
-def main(argv, create_job, list_branches, getoptfmt='vdnr:j:u:p:y:o:UPYO', config=None):
+def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', config=None):
     '''
     :param argv: command-line arguments to parse (defaults to sys.argv[1:])
     :param create_job: scm specific function that configures and creates jobs
@@ -79,6 +80,9 @@ def main(argv, create_job, list_branches, getoptfmt='vdnr:j:u:p:y:o:UPYO', confi
         config = yaml.load(open(yamlfn))
 
     config = c = get_default_config(config, opts)
+
+    if config['debughttp']:
+        enable_http_logging()
 
     # connect to jenkins
     try:
@@ -175,7 +179,8 @@ def get_default_config(config, opts):
 
     # default global settings (not inheritable)
     c['dryrun'] = False
-    c['debug'] = False
+    c['debug']  = False
+    c['debughttp'] = False
     c['cleanup']  = config.get('cleanup', False)
     c['username'] = config.get('username', None)
     c['password'] = config.get('password', None)
@@ -197,6 +202,7 @@ def get_default_config(config, opts):
     if '-j' in o: c['jenkins'] = o['-j']
     if '-n' in o: c['dryrun'] = True
     if '-d' in o: c['debug'] = True
+    if '-t' in o: c['debughttp'] = True
 
     # jenkins authentication options
     if '-u' in o: c['username'] = o['-u']
@@ -272,3 +278,13 @@ def debug_refconfig(ref_config):
             print('  . %s: %s' % (k, v.pattern))
             continue
         if v: print('  . %s: %s' % (k, v))
+
+
+def enable_http_logging():
+    import logging, httplib
+    httplib.HTTPConnection.debuglevel = 1
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
+    requests_log = logging.getLogger('requests.packages.urllib3')
+    requests_log.setLevel(logging.DEBUG)
+    requests_log.propagate = True

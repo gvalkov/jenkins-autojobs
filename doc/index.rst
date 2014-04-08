@@ -50,11 +50,13 @@ Supported SCMs
 
 All scripts accept the same command-line options and arguments::
 
-    Usage: jenkins-makejobs-* [-rvjnyoupUYOP] <config.yaml>
+    Usage: jenkins-makejobs-git [-rvdtjnyoupUYOP] <config.yaml>
 
     General Options:
       -n dry run
       -v show version and exit
+      -d debug config inheritance
+      -t debug http requests
 
     Repository Options:
       -r <arg> repository url
