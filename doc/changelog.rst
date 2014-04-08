@@ -1,6 +1,26 @@
 Changelog
 ---------
 
+0.13.0 (Apr 08, 2014)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Add the ``tag`` config option.
+
+- The ``cleanup`` option now accepts a tag name.
+
+- The ``substitute`` option now has access to matched groups (thanks `@traviscosgrave`_)
+
+- The ``substitute`` and ``namefmt`` options can now refer to named capture groups. For example:
+
+  .. code-block:: yaml
+
+      refs:
+        - 'refs/heads/feature-(\d\d)-(?P<name>\w+)-(\d)':
+            namefmt: 'wip-{name}-{3}'
+
+  The above ref config will map the branch ``feature-random-10`` to
+  job ``wip-random-10``.
+
 0.12.0 (Mar 09, 2014)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -67,6 +87,7 @@ Changelog
 .. _jenkins-webapi: https://pypi.python.org/pypi/jenkins-webapi
 .. _python-jenkins: https://pypi.python.org/pypi/python-jenkins
 
-.. _`@timmipetit`:  https://github.com/timmipetit
-.. _`@xgouchet`:    https://github.com/xgouchet
-.. _`@sja`:         https://github.com/sja
+.. _`@timmipetit`:     https://github.com/timmipetit
+.. _`@xgouchet`:       https://github.com/xgouchet
+.. _`@sja`:            https://github.com/sja
+.. _`@traviscosgrave`: https://github.com/traviscosgrave
