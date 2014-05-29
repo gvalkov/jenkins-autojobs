@@ -32,16 +32,18 @@ Config file
 
 :download:`Download git-config.yaml <git-config.yaml>`
 
+Options
+-------
 
-``repo``
-********
+repo
+****
 
 The location of the git repository.
 
 If this is a local directory, ``jenkins-makejobs-git`` will use ``git
 show-ref`` to list refs. If location is an url, ``git ls-remote`` will
 be used. Keep in mind that these return ref names differently - this
-is important for the refs_ option.
+is important when setting the refs_ option. For example:
 
 .. code-block:: bash
 
@@ -61,46 +63,22 @@ is important for the refs_ option.
     refs/heads/0.6-maintenance
     refs/heads/0.7-maintenance
 
+namesep
+*******
 
-``namefmt``
-***********
+Character with which to replace backslashes in branch names. Defaults
+to ``-``.
 
-Template string to use for job names.
-
-Given a ref ``refs/heads/feature/one/two.three``, the following table
-maps the available placeholders to their respectful values:
-
-=====================     =======================================
- placeholder                   value
-=====================     =======================================
- ``{shortref}``             ``feature-one.two.three``
- ``{shortref-orig}``        ``feature/one/two.three``
- ``{ref}``                  ``refs-heads-feature-one-two.three``
- ``{ref-orig}``             ``refs/heads/feature/one/two.three``
- ``{0}``                    ``one``
- ``{1}``                    ``two.three``
-=====================     =======================================
-
-Assumes that the following config:
-
-.. code-block:: yaml
-
-    refs:
-      - 'refs/heads/feature/(.*)/(.*)':
-        namesep: '-'
-
-Placeholders such as ``{0} {1} {2}`` evaluate to the
-backreferences (``\1 \2 \3``) of the matching regular expression (see refs_).
-
-.. note::
-
-   Using ``shortref-orig`` and ``ref-orig`` would most likely result
-   in an error, since some of the characters allowed in branch names
-   cannot be used for job names.
-
-
-``refs``
+sanitize
 ********
+
+Substitutions to perform on the ref and shortref. The default is
+``'@!?#&|\^_$%*': '_'``, which substitutes the characters that cannot
+be in a Jenkins job name with ``_``.
+
+
+refs
+****
 
 A list of regular expressions that specify which refs to process:
 
@@ -166,10 +144,59 @@ Defaults to:
    complicated setups (at the expense of automatically triggered
    builds).
 
+namefmt
+*******
+
+Template string to use for job names.
+
+Given the refs config below and a ref named
+``refs/heads/feature/one/two.three``, the following table maps the
+available placeholders to their respectful values:
+
+.. code-block:: yaml
+
+    refs:
+      - 'refs/heads/feature/(.*)/(.*)'
+
+=====================     =======================================
+ placeholder                   value
+=====================     =======================================
+ ``{shortref}``             ``feature-one.two.three``
+ ``{shortref-orig}``        ``feature/one/two.three``
+ ``{ref}``                  ``refs-heads-feature-one-two.three``
+ ``{ref-orig}``             ``refs/heads/feature/one/two.three``
+ ``{0}``                    ``one``
+ ``{1}``                    ``two.three``
+=====================     =======================================
+
+Placeholders such as ``{0} {1} {2}`` evaluate to the backreferences
+(``\1 \2 \3``) of the matching regular expression (see refs_).
+
+It's also possible to refer to regex capture groups. Given the same
+ref name and the refs config below, we can use the following
+placeholders:
+
+.. code-block:: yaml
+
+    refs:
+      - 'refs/heads/(?P<type>(?:feature|release))/(.*)/(.*)'
+
+=====================     =======================================
+ placeholder                   value
+=====================     =======================================
+ ``{0}``                    ``feature``
+ ``{1}``                    ``one``
+ ``{2}``                    ``two.three``
+ ``{type}``                 ``feature``
+=====================     =======================================
+
+Be careful with capturing and non-capturing groups when using this
+functinality.
+
 .. _href-substitute:
 
-``substitute``
-**************
+substitute
+**********
 
 Sets text substitutions throughout all text elements of a job's
 ``config.xml`` (this includes the body of all commands that you may
@@ -190,8 +217,9 @@ introspect the name of the branch or job (eg. `Sidebar-Link`_):
 All placeholders available to namefmt_ are also available here.
 
 .. _href-tag:
-``tag``
-*******
+
+tag
+***
 
 Tag jobs with a string. The tag can be found inside the ``config.xml``
 of jobs created by jenkins-autojobs:
@@ -205,15 +233,15 @@ of jobs created by jenkins-autojobs:
 
 .. _href-cleanup:
 
-``cleanup``
-**************
+cleanup
+*******
 
 If set to true, jenkins-autojobs will remove jobs for branches that
-were deleted. It uses a special property in a job's ``config.xml`` to
-determine if the job was created by jenkins-autojobs.
+were deleted. It uses a special property in the job's ``config.xml``
+to determine if the job was created by jenkins-autojobs.
 
 If set to a tag name, only jobs with that name will be cleaned. This
-is useful if you have more than one instances of jenkins-autojobs
+is useful if you have more than one instance of jenkins-autojobs
 running and you don't want them to mutually cleanup each others jobs.
 
 .. _`Sidebar-Link`:    https://wiki.jenkins-ci.org/display/JENKINS/Sidebar-Link+Plugin

@@ -26,15 +26,17 @@ Config file
 
 :download:`Download svn-config.yaml <svn-config.yaml>`
 
+Options
+-------
 
-``repo``
-********
+repo
+****
 
 The base url for the project (not necessarily the repository root).
 
 
-``branches``
-************
+branches
+********
 
 Urls to list for branches that will be matchable by the refs_ option.
 
@@ -55,8 +57,8 @@ and strip the value of ``repo``. The end result is a list similar to::
   releases/banana
 
 
-``namefmt``
-***********
+namefmt
+*******
 
 Template string to use for job names.
 
@@ -91,8 +93,8 @@ backreferences (``\1 \2 \3``) of the matching regular expression (see refs_).
    job names.
 
 
-``refs``
-********
+refs
+****
 
 A list of regular expressions that specify the branches to process:
 
@@ -148,14 +150,14 @@ Defaults to:
       - '.*'
 
 
-``substitute``
-**************
+substitute
+**********
 
 See :ref:`href-substitute`
 
 
-``cleanup``
-**************
+cleanup
+*******
 
 See :ref:`href-cleanup`
 

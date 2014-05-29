@@ -22,15 +22,17 @@ Config file
 
 :download:`Download hg-config.yaml <hg-config.yaml>`
 
+Options
+-------
 
-``repo``
-********
+repo
+****
 
 Url to the mercurial repository.
 
 
-``namefmt``
-***********
+namefmt
+*******
 
 Template string to use for job names.
 
@@ -54,18 +56,12 @@ Assumes that the following config:
       - 'branches/(.*)-(.*)'
         namesep: '-'
 
-Placeholders such as ``{0} {1} {2}`` evaluate to the
-backreferences (``\1 \2 \3``) of the matching regular expression (see refs_).
-
-.. note::
-
-   Using ``branch-orig`` would most likely result in an error, since
-   some of the characters allowed in branch names cannot be used for
-   job names.
+Placeholders such as ``{0} {1} {2}`` evaluate to the backreferences
+(``\1 \2 \3``) of the matching regular expression (see refs_).
 
 
-``refs``
-********
+refs
+****
 
 A list of regular expressions that specify the branches to process:
 
@@ -121,14 +117,14 @@ Defaults to:
       - '.*'
 
 
-``substitute``
-**************
+substitute
+**********
 
 See :ref:`href-substitute`
 
 
-``cleanup``
-**************
+cleanup
+*******
 
 See :ref:`href-cleanup`
 

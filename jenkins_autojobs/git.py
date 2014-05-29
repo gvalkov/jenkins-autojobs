@@ -49,11 +49,11 @@ def list_branches(config):
 def create_job(ref, template, config, ref_config):
     '''Create a jenkins job.
 
-       :param ref: git ref name (ex: refs/heads/something)
-       :param template: the config of the template job to use
-       :param config: global config (parsed yaml)
-       :param ref_config: the effective config for this ref
-       :returns: the name of the newly created job
+       :param ref:         git ref name (ex: refs/heads/something)
+       :param template:    the config of the template job to use
+       :param config:      global config (parsed yaml)
+       :param ref_config:  the effective config for this ref
+       :returns:           the name of the newly created job
     '''
 
     print('\nprocessing ref: %s' % ref)

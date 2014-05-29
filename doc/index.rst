@@ -1,7 +1,7 @@
 Introduction
 ============
 
-.. image:: img/explanation-figure.svg
+.. image:: img/explanation-figure.png
    :align: center
    :width: 680
 
@@ -73,8 +73,8 @@ All scripts accept the same command-line options and arguments::
       -P jenkins password (read from stdin)
 
 
-Topics
-------
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
