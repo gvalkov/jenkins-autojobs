@@ -13,8 +13,8 @@ base_config_yaml = '''
 jenkins: {url}
 repo: {repo}
 
-trunk: file://{repo}/trunk/
 branches:
+  - {repo}/
   - {repo}/branches/
   - {repo}/experimental/
 
@@ -160,3 +160,9 @@ def test_cleanup(cfg):
     with r.branch('branches/one'):
         cmd(cfg)
         assert not jobexists('two')
+
+def test_make_trunk(cfg):
+    cfg['refs'] = [ {'trunk': {'namefmt': 'trunktest'}} ]
+
+    cmd(cfg)
+    assert jobexists('trunktest')
