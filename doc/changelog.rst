@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.13.1 (May 29, 2014)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Add the ``tag`` config option to the subversion script (thanks `@mrook`_)
+
 0.13.0 (Apr 08, 2014)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -91,3 +96,4 @@ Changelog
 .. _`@xgouchet`:       https://github.com/xgouchet
 .. _`@sja`:            https://github.com/sja
 .. _`@traviscosgrave`: https://github.com/traviscosgrave
+.. _`@mrook`:          https://github.com/mrook
