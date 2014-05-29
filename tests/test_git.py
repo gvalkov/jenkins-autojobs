@@ -88,9 +88,10 @@ def test_namefmt_namesep_global(cfg, branch, namefmt, namesep, expected):
 def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
     test_namefmt_namesep_inherit.cleanup_jobs = [expected]
 
-    cfg['refs'] = [{'refs/heads/%s' % branch : {
-        'namesep' : namesep,
-        'namefmt' : namefmt, }}]
+    cfg['refs'] = [{
+        'refs/heads/%s' % branch : {
+            'namesep' : namesep,
+            'namefmt' : namefmt, }}]
 
     with r.branch(branch):
         cmd(cfg)
@@ -155,8 +156,13 @@ def test_substitute(cfg, branch, sub, ejob, expected):
         assert jobexists(ejob)
         assert j.py.job_info(ejob)['description'] == expected
 
-@cleanup('release-0.7.4-wheezy', 'feature-55-random-1')
+@cleanup('release-0.7.4-wheezy', 'feature-55-random-1', 'feature/one/two.three')
 def test_substitute_groups(cfg):
+    cfg['refs'] = ['refs/heads/(?P<type>(?:feature|release))/(.*)/(.*)']
+    with r.branch('feature/one/two.three') as name:
+        cmd(cfg)
+        assert jobexists('feature-one-two.three')
+
     cfg['substitute'] = {'@@JOB_NAME@@' : '{2}'}
     cfg['refs'] = ['refs/heads/release-((?:(\d+\.){1,2})[1-9]+\d*)-(.*)']
     with r.branch('release-0.7.4-wheezy') as name:
