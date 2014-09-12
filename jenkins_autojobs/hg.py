@@ -96,9 +96,11 @@ def create_job(ref, template, config, ref_config):
         msg = 'Template job %s is not configured to use Mercurial as an SCM'
         raise RuntimeError(msg % template)  # :bug:
 
-    # set branch
-    el = scm_el.xpath('//branch')[0]
-    el.text = ref
+    # set branch 
+    el = scm_el.xpath('//branch')
+    if not el:
+        el = scm_el.xpath('//revision')    
+    el[0].text = ref
 
     # set the state of the newly created job
     job.set_state(ref_config['enable'])
