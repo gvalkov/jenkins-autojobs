@@ -3,7 +3,7 @@
 
 '''
 Automatically create jenkins jobs for the branches in a mercurial repository.
-Documentation: http://gvalkov.github.com/jenkins-autojobs/
+Documentation: https://github.com/gvalkov/jenkins-autojobs/
 '''
 
 import re
@@ -25,16 +25,17 @@ hg_list_remote_py = '''
 from mercurial import ui, hg, node
 
 res = []
-peer = hg.peer(ui.ui(), {}, '%s')
+peer = hg.peer(ui.ui(), {}, %(repo)r)
 for name, rev in peer.branchmap().items():
     res.append((name, node.short(rev[0])))
+
 print(repr(res))
 '''
 
 
 def hg_branch_iter_remote(repo, python):
     with NamedTemporaryFile() as fh:
-        cmd = (hg_list_remote_py % repo).encode('utf8')
+        cmd = (hg_list_remote_py % {'repo': repo}).encode('utf8')
         fh.write(cmd)
         fh.flush()
         out = check_output((python, fh.name))
@@ -96,10 +97,12 @@ def create_job(ref, template, config, ref_config):
         msg = 'Template job %s is not configured to use Mercurial as an SCM'
         raise RuntimeError(msg % template)  # :bug:
 
-    # set branch 
+    # set branch
     el = scm_el.xpath('//branch')
+
+    # newer version of the jenkins hg plugin store the branch in the 'revision' element
     if not el:
-        el = scm_el.xpath('//revision')    
+        el = scm_el.xpath('//revision')
     el[0].text = ref
 
     # set the state of the newly created job

@@ -3,7 +3,7 @@
 
 '''
 Automatically create jenkins jobs for the branches in a svn repository.
-Documentation: http://gvalkov.github.com/jenkins-autojobs/
+Documentation: https://github.com/gvalkov/jenkins-autojobs/
 '''
 
 from os import linesep, path

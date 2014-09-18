@@ -19,6 +19,8 @@ from jenkins_autojobs import version
 from jenkins_autojobs.util import *
 
 
+#-----------------------------------------------------------------------------
+# compatibility imports
 try:
     from itertools import ifilterfalse as filterfalse
 except ImportError:
@@ -30,6 +32,7 @@ except ImportError:
     from python26_support import OrderedDict
 
 
+#-----------------------------------------------------------------------------
 usage = '''\
 Usage: %s [-rvdtjnyoupUYOP] <config.yaml>
 
@@ -55,7 +58,8 @@ Jenkins Options:
 ''' % basename(argv[0])
 
 
-# the global connection to jenkins
+#-----------------------------------------------------------------------------
+# the *global* connection to jenkins - assigned in main()
 jenkins = None
 
 
@@ -91,7 +95,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     except (RequestException, JenkinsError) as e:
         print(e); exit(1)
 
-    # get all the template names that the config refenrences
+    # get all the template names that the config references
     templates = set(i['template'] for i in c['refs'].values())
 
     # check if all referenced template jobs exist on the server
@@ -111,7 +115,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
         print('! command %s failed' % ' '.join(e.cmd))
         exit(1)
 
-    # see if some of the branches are ignored
+    # see if any of the branches are ignored
     ignored, branches = get_ignored(branches, c['ignore'])
 
     if ignored:
