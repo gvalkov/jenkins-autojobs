@@ -1,10 +1,15 @@
 Changelog
 ---------
 
+Development
+^^^^^^^^^^^
+
+- Fix compatiblity with newer version of the Jenkins Mercurial plugin (thanks `@ThomasMatern`_).
+
 0.13.1 (May 29, 2014)
 ^^^^^^^^^^^^^^^^^^^^^
 
-- Add the ``tag`` config option to the subversion script (thanks `@mrook`_)
+- Add the ``tag`` config option to the subversion script (thanks `@mrook`_).
 
 0.13.0 (Apr 08, 2014)
 ^^^^^^^^^^^^^^^^^^^^^
@@ -13,7 +18,7 @@ Changelog
 
 - The ``cleanup`` option now accepts a tag name.
 
-- The ``substitute`` option now has access to matched groups (thanks `@traviscosgrave`_)
+- The ``substitute`` option now has access to matched groups (thanks `@traviscosgrave`_).
 
 - The ``substitute`` and ``namefmt`` options can now refer to named capture groups. For example:
 
@@ -97,3 +102,4 @@ Changelog
 .. _`@sja`:            https://github.com/sja
 .. _`@traviscosgrave`: https://github.com/traviscosgrave
 .. _`@mrook`:          https://github.com/mrook
+.. _`@ThomasMatern`:   https://github.com/ThomasMatern
