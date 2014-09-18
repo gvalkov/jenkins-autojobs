@@ -36,7 +36,7 @@ On a Redhat compatible OS:
 
 .. code-block:: bash
 
-    $ yum install libxslt-devev libxml-devel
+    $ yum install libxml2-devel libxslt-devel
 
 .. _lxml:       http://lxml.de/
 .. _PyPi:       http://pypi.python.org/pypi/jenkins-autojobs
