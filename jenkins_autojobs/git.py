@@ -17,6 +17,7 @@ from jenkins_autojobs.util import sanitize, check_output, merge
 from jenkins_autojobs.job import Job
 
 
+#-----------------------------------------------------------------------------
 def git_refs_iter_local(repo):
     cmd = ('git', 'show-ref')
     out = check_output(cmd, cwd=repo).split(linesep)
@@ -62,14 +63,14 @@ def create_job(ref, template, config, ref_config):
     sanitized_ref = sanitize(ref, ref_config['sanitize'])
     sanitized_shortref = sanitize(shortref, ref_config['sanitize'])
 
-    # job names with '/' in them are problematic (todo: consolidate with sanitize())
+    # Job names with '/' in them are problematic (todo: consolidate with sanitize()).
     sanitized_ref = sanitized_ref.replace('/', ref_config['namesep'])
     sanitized_shortref = sanitized_shortref.replace('/', ref_config['namesep'])
 
     match = ref_config['re'].match(ref)
     groups, groupdict = match.groups(), match.groupdict()
 
-    # placeholders available to the 'substitute' and 'namefmt' options
+    # Placeholders available to the 'substitute' and 'namefmt' options.
     fmtdict = {
         'ref':      sanitized_ref,
         'shortref': sanitized_shortref,
@@ -91,27 +92,27 @@ def create_job(ref, template, config, ref_config):
         msg = 'Template job %s is not configured to use Git as an SCM'
         raise RuntimeError(msg % template)  # :bug:
 
-    # get remote name
+    # Get remote name.
     remote = scm_el.xpath('//hudson.plugins.git.UserRemoteConfig/name')
     remote = remote[0].text if remote else 'origin'
 
-    # set branch
+    # Set branch.
     el = scm_el.xpath('//hudson.plugins.git.BranchSpec/name')[0]
     # :todo: jenkins is being very caprecious about the branchspec
     # el.text = '%s/%s' % (remote, shortref)  # :todo:
     el.text = shortref
 
-    # set the branch that git plugin will locally checkout to
+    # Set the branch that git plugin will locally checkout to.
     el = scm_el.xpath('//localBranch')
     el = etree.SubElement(scm_el, 'localBranch') if not el else el[0]
 
     el.text = shortref  # the original shortref (with '/')
 
-    # set the state of the newly created job
+    # Set the state of the newly created job.
     job.set_state(ref_config['enable'])
 
-    # since some plugins (such as sidebar links) can't interpolate the job
-    # name, we do it for them
+    # Since some plugins (such as sidebar links) can't interpolate the
+    # job name, we do it for them.
     job.substitute(list(ref_config['substitute'].items()), fmtdict, groups, groupdict)
 
     job.create(ref_config['overwrite'], config['dryrun'], tag=ref_config['tag'])

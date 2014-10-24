@@ -18,7 +18,7 @@ from jenkins_autojobs.job import Job
 def svn_ls(url, username=None, password=None, dirsonly=True):
     cmd = ['svn', 'ls', '--trust-server-cert', '--non-interactive']
 
-    # :todo: plaintext (will probably have to use the bindings)
+    # :todo: plaintext (will probably have to use the bindings).
     if username: cmd += ['--username', username]
     if password: cmd += ['--password', password]
 
@@ -53,13 +53,13 @@ def create_job(branch, template, config, branch_config):
 
     print('\nprocessing branch: %s' % branch)
 
-    # job names with '/' in them are problematic
+    # Job names with '/' in them are problematic.
     sanitized_branch = branch.replace('/', branch_config['namesep'])
 
     match = branch_config['re'].match(branch)
     groups, groupdict = match.groups(), match.groupdict()
 
-    # placeholders available to the 'substitute' and 'namefmt' options
+    # Placeholders available to the 'substitute' and 'namefmt' options.
     fmtdict = {
         'branch': branch.split('/')[-1],
         'path': branch.replace('/', branch_config['namesep']),
@@ -84,15 +84,15 @@ def create_job(branch, template, config, branch_config):
     el = scm_el.xpath('//remote')[0]
     el.text = path.join(config['repo'], branch)
 
-    # set the branch that git plugin will locally checkout to
+    # Set the branch that git plugin will locally checkout to.
     el = scm_el.xpath('//local')[0]
     el.text = '.'
 
-    # set the state of the newly created job
+    # Set the state of the newly created job.
     job.set_state(branch_config['enable'])
 
-    # since some plugins (such as sidebar links) can't interpolate the job
-    # name, we do it for them
+    # Since some plugins (such as sidebar links) can't interpolate the
+    # job name, we do it for them.
     job.substitute(list(branch_config['substitute'].items()), fmtdict, groups, groupdict)
 
     job.create(branch_config['overwrite'], config['dryrun'], tag=branch_config['tag'])

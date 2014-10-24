@@ -13,10 +13,10 @@ class Job(object):
         self.branch = branch  # the scm branch that this job builds
         self.jenkins = jenkins
 
-        # this will be the new config.xml for the job we're creating
+        # This will be the new config.xml for the job we're creating.
         self.xml = deepcopy(template)
 
-        # this is the raw config xml of the job  :todo: naming is mixed-up
+        # This is the raw config xml of the job  :todo: naming is mixed-up.
         job = jenkins.job(name)
         self.exists = job.exists
         self.config = job.config if self.exists else None
@@ -56,16 +56,16 @@ class Job(object):
         except ValueError:
             # Guess the installed lxml is too old to support c14n.
             # Drat. Unable to canonicalize the xml, so hopefully
-            # nobody makes a non-semantic change...
+            # nobody makes a non-semantic change ...
             return etree.tostring(xml)
 
     def create(self, overwrite, dryrun, tag=None):
-        # append autojobs-information
+        # Append autojobs-information.
         info_el = etree.SubElement(self.xml, 'createdByJenkinsAutojobs')
         ref_el  = etree.SubElement(info_el, 'ref')
         ref_el.text = xmlescape(self.branch)
 
-        # tag builds (this will be reworked in the future)
+        # Tag builds (this will be reworked in the future).
         if tag:
             tag_el = etree.SubElement(info_el, 'tag')
             tag_el.text = xmlescape(tag)

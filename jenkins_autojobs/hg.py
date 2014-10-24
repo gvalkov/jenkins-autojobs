@@ -19,8 +19,8 @@ from jenkins_autojobs.util import sanitize, check_output, merge
 from jenkins_autojobs.job import Job
 
 
-# decouple the current interpreter version from the mercurial
-# interpreter version
+# Decouple the current interpreter version from the mercurial
+# interpreter version.
 hg_list_remote_py = '''
 from mercurial import ui, hg, node
 
@@ -53,7 +53,7 @@ def hg_branch_iter_local(repo):
 
 
 def list_branches(config):
-    # should 'hg branches' or peer.branchmap be used
+    # Should 'hg branches' or peer.branchmap be used.
     islocal = path.isdir(config['repo'])
     branch_iter = hg_branch_iter_local if islocal else hg_branch_iter_remote
     python = config.get('python', 'python')
@@ -77,7 +77,7 @@ def create_job(ref, template, config, ref_config):
     match = ref_config['re'].match(ref)
     groups, groupdict = match.groups(), match.groupdict()
 
-    # placeholders available to the 'substitute' and 'namefmt' options
+    # Placeholders available to the 'substitute' and 'namefmt' options.
     fmtdict = {
         'branch': sanitized_ref,
         'branch-orig': ref,
@@ -97,19 +97,20 @@ def create_job(ref, template, config, ref_config):
         msg = 'Template job %s is not configured to use Mercurial as an SCM'
         raise RuntimeError(msg % template)  # :bug:
 
-    # set branch
+    # Set branch.
     el = scm_el.xpath('//branch')
 
-    # newer version of the jenkins hg plugin store the branch in the 'revision' element
+    # Newer version of the jenkins hg plugin store the branch in the
+    # 'revision' element.
     if not el:
         el = scm_el.xpath('//revision')
     el[0].text = ref
 
-    # set the state of the newly created job
+    # Set the state of the newly created job.
     job.set_state(ref_config['enable'])
 
-    # since some plugins (such as sidebar links) can't interpolate the job
-    # name, we do it for them
+    # Since some plugins (such as sidebar links) can't interpolate the
+    # job name, we do it for them.
     job.substitute(list(ref_config['substitute'].items()), fmtdict, groups, groupdict)
 
     job.create(ref_config['overwrite'], config['dryrun'])

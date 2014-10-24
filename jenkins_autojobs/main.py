@@ -20,7 +20,7 @@ from jenkins_autojobs.util import *
 
 
 #-----------------------------------------------------------------------------
-# compatibility imports
+# Compatibility imports.
 try:
     from itertools import ifilterfalse as filterfalse
 except ImportError:
@@ -59,7 +59,7 @@ Jenkins Options:
 
 
 #-----------------------------------------------------------------------------
-# the *global* connection to jenkins - assigned in main()
+# The *global* connection to jenkins - assigned in main().
 jenkins = None
 
 
@@ -77,7 +77,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     if not args and not config:
         print(usage) ; exit(1)
 
-    # load config, set default values and compile regexes
+    # Load config, set default values and compile regexes.
     if not config :
         yamlfn = args[-1]
         print('loading config from "%s"' % abspath(yamlfn))
@@ -88,26 +88,26 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     if config['debughttp']:
         enable_http_logging()
 
-    # connect to jenkins
+    # Connect to jenkins.
     try:
         global jenkins
         jenkins = main.jenkins = Jenkins(c['jenkins'], c['username'], c['password'])
     except (RequestException, JenkinsError) as e:
         print(e); exit(1)
 
-    # get all the template names that the config references
+    # Get all the template names that the config references.
     templates = set(i['template'] for i in c['refs'].values())
 
-    # check if all referenced template jobs exist on the server
+    # Check if all referenced template jobs exist on the server.
     missing = list(filterfalse(jenkins.job_exists, templates))
     if missing:
         missing.insert(0, '\nconfig references non-existant template jobs:')
         print('\n - '.join(missing)); exit(1)
 
-    # convert them to etree objects of the templates' config xmls
+    # Convert them to etree objects of the templates' config xmls.
     templates = dict((i, get_job_etree(i)) for i in templates)
 
-    # list all git refs, svn branches etc (implemented by child classes)
+    # List all git refs, svn branches etc (implemented by child classes).
     try:
         branches = list(list_branches(config))
     except CalledProcessError as e:
@@ -115,28 +115,30 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
         print('! command %s failed' % ' '.join(e.cmd))
         exit(1)
 
-    # see if any of the branches are ignored
+    # See if any of the branches are ignored.
     ignored, branches = get_ignored(branches, c['ignore'])
 
     if ignored:
         msg = ['\nexplicitly ignored:'] + ignored
         print('\n - '.join(msg))
 
-    # get branch config for each branch
+    # Get branch config for each branch.
     configs = map(partial(resolveconfig, config), branches)
     configs = zip(branches, configs)
     configs = filter(lambda x: bool(x[1]), configs)
 
-    # the names of all successfully created or updated jobs
+    # The names of all successfully created or updated jobs.
     job_names = [config['template']]
     for branch, branch_config in configs:
-        name = create_job(branch, templates[branch_config['template']], config, branch_config)
+        tmpl = templates[branch_config['template']]
+        name = create_job(branch, tmpl, config, branch_config)
         job_names.append(name)
 
     if config['cleanup']:
         cleanup(config, job_names, jenkins)
 
 
+#-----------------------------------------------------------------------------
 def cleanup(config, job_names, jenkins, verbose=True):
     print('\ncleaning up old jobs:')
 
@@ -148,7 +150,7 @@ def cleanup(config, job_names, jenkins, verbose=True):
 
     for job in managed_jobs:
         if job.name not in job_names and job.exists:
-            # if cleanup is a tag name, only cleanup builds with that tag
+            # If cleanup is a tag name, only cleanup builds with that tag.
             if isinstance(config['cleanup'], str):
                 xml = etree.fromstring(job.config.encode('utf8'))
                 clean_tag = xml.xpath(tagxpath)
@@ -164,6 +166,7 @@ def cleanup(config, job_names, jenkins, verbose=True):
         print('. nothing to do')
 
 
+#-----------------------------------------------------------------------------
 def parse_args(argv, fmt):
     '''Parse getopt arguments as a dictionary.'''
     opts, args = getopt(argv, fmt)
@@ -176,12 +179,13 @@ def parse_args(argv, fmt):
     return opts, args
 
 
+#-----------------------------------------------------------------------------
 def get_default_config(config, opts):
     '''Set default config values and compile regexes.'''
 
     c, o = deepcopy(config), opts
 
-    # default global settings (not inheritable)
+    # Default global settings (not inheritable).
     c['dryrun'] = False
     c['debug']  = False
     c['debughttp'] = False
@@ -189,7 +193,7 @@ def get_default_config(config, opts):
     c['username'] = config.get('username', None)
     c['password'] = config.get('password', None)
 
-    # default settings for each git ref/branch/ config
+    # Default settings for each git ref/branch/ config.
     c['defaults'] = {
         'namesep':    c.get('namesep', '-'),
         'namefmt':    c.get('namefmt', '{shortref}'),
@@ -199,16 +203,17 @@ def get_default_config(config, opts):
         'template':   c.get('template'),
         'sanitize':   c.get('sanitize', {'@!?#&|\^_$%*': '_'}),
         'tag':        c.get('tag', []),
+        'view':       c.get('view', [])
     }
 
-    # some options can be overwritten on the command line
+    # Some options can be overwritten on the command line.
     if '-r' in o: c['repo'] = o['-r']
     if '-j' in o: c['jenkins'] = o['-j']
     if '-n' in o: c['dryrun'] = True
     if '-d' in o: c['debug'] = True
     if '-t' in o: c['debughttp'] = True
 
-    # jenkins authentication options
+    # Jenkins authentication options.
     if '-u' in o: c['username'] = o['-u']
     if '-p' in o: c['password'] = o['-p']
 
@@ -218,20 +223,21 @@ def get_default_config(config, opts):
     if '-U' in o: c['username'] = raw_input('User: ')
     if '-P' in o: c['password'] = getpass()
 
-    # compile ignore regexes
+    # Compile ignore regexes.
     c.setdefault('ignore', {})
     c['ignore'] = [re.compile(i) for i in c['ignore']]
 
     if not 'refs' in c:
         c['refs'] = ['.*']
 
-    # get the effective (accounting for inheritance) config for all refs
+    # Get the effective (accounting for inheritance) config for all refs.
     cfg = get_effective_branch_config(c['refs'], c['defaults'])
     c['refs'] = cfg
 
     return c
 
 
+#-----------------------------------------------------------------------------
 def get_effective_branch_config(branches, defaults):
     '''Compile ref/branch regexes and map to their configuration with
        inheritance factored in (think maven help:effective-pom).'''
