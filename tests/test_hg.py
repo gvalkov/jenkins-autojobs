@@ -1,142 +1,154 @@
+# -*- coding: utf-8; -*-
+
+from pytest import fixture
+from textwrap import dedent
+
 from util import *
 from jenkins_autojobs import hg
+from jenkins import Jenkins, JenkinsError
 
 
-jenkins = j = None
-jobexists = None
-repo = r = HgRepo()
+#-----------------------------------------------------------------------------
+# Fixtures and shortcuts.
+cmd = partial(hg.main, ['jenkins-makejobs-hg'])
 
-cmd = partial(hg.main, ('jenkins-makejobs-hg',))
+@fixture(scope='module')
+def repo():
+    repo = HgRepo()
+    print('Creating temporary mercurial repo: %s' % repo.dir)
+    repo.init()
+    return repo
 
-base_config_dict = None
-base_config_yaml = '''
-jenkins: {url}
-repo: {repo}
-
-template: master-job-hg
-
-namesep: '-'
-namefmt: 'changeme'
-overwrite: true
-enable: true
-
-python: /usr/bin/python2
-
-substitute :
-  '@@JOB_NAME@@' : 'changeme'
-
-ignore:
-  - 'branches/.*-nobuild'
-  - 'experimental/bob/.*'
-
-refs:
-  - 'branches/(.*)'
-'''
-
-
-def setup_module(module):
-    # print('Starting Jenkins ...')
-    # j.start_server()
-
-    global jenkins, j, jobexists
-    global base_config_dict
-
+@fixture(scope='module')
+def jenkins():
     print('Looking for a running Jenkins instance')
-    jenkins = j = JenkinsControl('127.0.0.1:60888', '60887')
-    jobexists = partial(jenkins.py.job_exists)
-
-    base_config_dict = yaml.load(StringIO(base_config_yaml.format(url=j.url, repo=r.url)))
-    base_config_dict['namefmt'] = '{branch}'
+    webapi = Jenkins('http://127.0.0.1:60888')
 
     print('Removing all jobs ...')
-    for job in j.getjobs():
-        j.py.job_delete(job)
+    for job in webapi.jobs:
+        webapi.job_delete(job.name)
 
     print('Creating test jobs ...')
-    j.createjob('master-job-hg', pjoin(here, 'etc/master-job-hg-config.xml'))
+    configxml = pjoin(here, 'etc/master-job-hg-config.xml')
+    configxml = open(configxml).read().encode('utf8')
+    webapi.job_create('master-job-hg', configxml)
+    return webapi
 
-    print('Creating temporary hg repo: %s' % repo.dir)
-    repo.init()
+@fixture(scope='function')
+def config(jenkins, repo):
+    base = '''
+    jenkins: %s
+    repo: %s
 
-def teardown_module(module):
-    teardown_module_(module, jenkins, repo)
+    template: master-job-hg
 
-def teardown_function(f):
-    teardown_function_(f, jenkins)
+    namesep: '-'
+    namefmt: 'changeme'
+    overwrite: true
+    enable: true
 
-def pytest_funcarg__cfg(request):
-    return deepcopy(base_config_dict)
+    python: /usr/bin/python2
 
+    substitute :
+      '@@JOB_NAME@@' : 'changeme'
 
-@pytest.mark.parametrize(('branch', 'namefmt', 'namesep', 'expected'), [
-('branches/feature-one',  '{branch}', '-', 'branches-feature-one'),
-('branches/feature-two',  '{branch}', '-', 'branches-feature-two'),
-('branches/feature-three', '{branch}', '.', 'branches.feature-three'), ])
-def test_namefmt_namesep_global(cfg, branch, namefmt, namesep, expected):
-    test_namefmt_namesep_global.cleanup_jobs = [expected]
+    ignore:
+      - 'branches/.*-nobuild'
+      - 'experimental/bob/.*'
 
-    cfg['namefmt'] = namefmt
-    cfg['namesep'] = namesep
-    with r.branch(branch):
-        cmd(cfg)
-        assert jobexists(expected)
+    refs:
+      - 'branches/(.*)'
+    '''
 
-@pytest.mark.parametrize(('branch', 'namefmt', 'namesep', 'expected'),[
-('branches/feature-one',   '{branch}',      '.',           'branches.feature-one'),
-('branches/feature-two',   'test.{branch}', 'X', 'test.branchesXfeature-two'),
-('branches/feature-three', 'test.{branch}', '_', 'test.branches_feature-three'), ])
-def test_namefmt_namesep_inherit(cfg, branch, namefmt, namesep, expected):
-    test_namefmt_namesep_inherit.cleanup_jobs = [expected]
+    base = dedent(base) % (jenkins.url, repo.url)
+    base = yaml.load(StringIO(base))
+    return base
 
-    cfg['refs'] = [ {branch : {
-        'namesep' : namesep,
-        'namefmt' : namefmt, }}]
+@fixture(scope='function', autouse=True)
+def cleanup(request, jenkins):
+    def finalize():
+        jobs = (job for job in jenkins.jobs if job.name != 'master-job-hg')
+        for job in jobs:
+            jenkins.job_delete(job.name)
 
-    with r.branch(branch):
-        cmd(cfg)
-        assert jobexists(expected)
+    request.addfinalizer(finalize)
 
-@pytest.mark.parametrize(('branch', 'regex', 'namefmt', 'expected'),[
-('experimental/john/bug/01', 'experimental/(.*)/bug/(.*)', '{0}-{1}', 'john-01'),
-('tag/alpha/gamma',          '(.*)/(.*)/(.*)', 'test-{2}.{1}.{0}', 'test-gamma.alpha.tag'), ])
-def test_namefmt_groups_inherit(cfg, branch, regex, namefmt, expected):
-    test_namefmt_groups_inherit.cleanup_jobs = [expected]
+#------------------------------------------------------------------------------
+params = [
+    ['branches/feature-one',  '{branch}', '-', 'branches-feature-one'],
+    ['branches/feature-two',  '{branch}', '-', 'branches-feature-two'],
+    ['branches/feature-three', '{branch}', '.', 'branches.feature-three'],
+]
+@pytest.mark.parametrize(['branch', 'namefmt', 'namesep', 'expected'], params)
+def test_namefmt_namesep_global(config, jenkins, repo, branch, namefmt, namesep, expected):
+    config['namefmt'] = namefmt
+    config['namesep'] = namesep
+    with repo.branch(branch):
+        cmd(config)
+        assert jenkins.job_exists(expected)
 
-    cfg['namefmt'] = '.'
-    cfg['refs'] = [{ regex : {'namefmt' : namefmt, }}]
-    cfg['refs'].append(os.path.join(cfg['repo'], os.path.dirname(branch)))
+#------------------------------------------------------------------------------
+params = [
+    ['branches/feature-one',   '{branch}',      '.',           'branches.feature-one'],
+    ['branches/feature-two',   'test.{branch}', 'X', 'test.branchesXfeature-two'],
+    ['branches/feature-three', 'test.{branch}', '_', 'test.branches_feature-three'],
+]
+@pytest.mark.parametrize(['branch', 'namefmt', 'namesep', 'expected'], params)
+def test_namefmt_namesep_inherit(config, jenkins, repo, branch, namefmt, namesep, expected):
+    config['refs'] = [ {branch: {
+        'namesep': namesep,
+        'namefmt': namefmt, }}]
 
-    with r.branch(branch):
-        cmd(cfg)
-        assert jobexists(expected)
+    with repo.branch(branch):
+        cmd(config)
+        assert jenkins.job_exists(expected)
 
-@pytest.mark.parametrize(('branch', 'name', 'local'),[
-('branches/alpha', '{repo}/branches/alpha',  '.'),])
-def test_configxml_global(cfg, branch, name, local):
+#------------------------------------------------------------------------------
+params = [
+    ['experimental/john/bug/01', 'experimental/(.*)/bug/(.*)', '{0}-{1}', 'john-01'],
+    ['tag/alpha/gamma',          '(.*)/(.*)/(.*)', 'test-{2}.{1}.{0}', 'test-gamma.alpha.tag'],
+]
+@pytest.mark.parametrize(['branch', 'regex', 'namefmt', 'expected'], params)
+def test_namefmt_groups_inherit(config, jenkins, repo, branch, regex, namefmt, expected):
+    config['namefmt'] = '.'
+    config['refs'] = [ {regex: {'namefmt' : namefmt}} ]
+    config['refs'].append(os.path.join(config['repo'], os.path.dirname(branch)))
+
+    with repo.branch(branch):
+        cmd(config)
+        assert jenkins.job_exists(expected)
+
+#------------------------------------------------------------------------------
+params = [
+    ['branches/alpha', '{repo}/branches/alpha',  '.']
+]
+@pytest.mark.parametrize(['branch', 'name', 'local'], params)
+def test_configxml_global(config, jenkins, repo, branch, name, local):
     job = branch.replace('/', '-')
-    test_configxml_global.cleanup_jobs = [job]
-    name = name.format(**cfg)
+    name = name.format(**config)
 
-    with r.branch(branch):
-        cmd(cfg)
-        assert jobexists(job)
-
-        configxml = jenkins.job_etree(job)
-
+    config['namefmt'] = '{branch}'
+    with repo.branch(branch):
+        cmd(config)
+        assert jenkins.job_exists(job)
+        configxml = jenkins.job_config_etree(job)
         scm_el = configxml.xpath('scm[@class="hudson.plugins.mercurial.MercurialSCM"]')[0]
         el = scm_el.xpath('//branch')[0]
         assert el.text == branch
 
-@cleanup('branches-one')
-def test_cleanup(cfg):
-    cfg['cleanup'] = True
+#------------------------------------------------------------------------------
+def test_cleanup(config, jenkins, repo):
+    config['cleanup'] = True
+    config['namefmt'] = '{branch}'
+    config['namesep'] = '-'
 
-    with r.branches('branches/one', 'branches/two'):
-        cmd(cfg)
-        assert jobexists('branches-one')
-        assert jobexists('branches-two')
-        assert 'createdByJenkinsAutojobs' in j.py.job('branches-one').config
+    with repo.branches('branches/one', 'branches/two'):
+        cmd(config)
 
-    with r.branch('branches/one'):
-        cmd(cfg)
-        assert not jobexists('branches-two')
+        assert jenkins.job_exists('branches-one')
+        assert jenkins.job_exists('branches-two')
+        assert 'createdByJenkinsAutojobs' in jenkins.job('branches-one').config
+
+    with repo.branch('branches/one'):
+        cmd(config)
+        assert not jenkins.job_exists('branches-two')
