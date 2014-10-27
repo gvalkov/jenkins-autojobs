@@ -1,8 +1,8 @@
 Changelog
 ---------
 
-Development
-^^^^^^^^^^^
+0.14.0 (Oct 27, 2014)
+^^^^^^^^^^^^^^^^^^^^^
 
 - Learned the ability to add generated jobs to specific views.
 
