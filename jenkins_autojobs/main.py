@@ -102,7 +102,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     # Check if all referenced template jobs exist on the server.
     missing = list(filterfalse(jenkins.job_exists, templates))
     if missing:
-        missing.insert(0, '\nconfig references non-existant template jobs:')
+        missing.insert(0, '\nconfig references non-existent template jobs:')
         print('\n - '.join(missing)); exit(1)
 
     # Convert them to etree objects of the templates' config xmls.
@@ -113,7 +113,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     view_names = set(view for i in c['refs'].values() for view in i['view'])
     missing = list(filterfalse(jenkins.view_exists, view_names))
     if missing:
-        missing.insert(0, '\nconfig references non-existant views:')
+        missing.insert(0, '\nconfig references non-existent views:')
         print('\n - '.join(missing)); exit(1)
 
     #-------------------------------------------------------------------------

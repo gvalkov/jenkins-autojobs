@@ -5,7 +5,7 @@
   <keepDependencies>false</keepDependencies>
   <properties/>
   <scm class="hudson.plugins.mercurial.MercurialSCM">
-    <source>file://tmp/non-existant</source>
+    <source>file://tmp/non-existent</source>
     <modules></modules>
     <branch>tip</branch>
     <clean>false</clean>
