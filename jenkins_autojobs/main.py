@@ -95,6 +95,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     except (RequestException, JenkinsError) as e:
         print(e); exit(1)
 
+    #-------------------------------------------------------------------------
     # Get all the template names that the config references.
     templates = set(i['template'] for i in c['refs'].values())
 
@@ -107,6 +108,15 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     # Convert them to etree objects of the templates' config xmls.
     templates = dict((i, get_job_etree(i)) for i in templates)
 
+    #-------------------------------------------------------------------------
+    # Check if all referenced views exist.
+    view_names = set(view for i in c['refs'].values() for view in i['view'])
+    missing = list(filterfalse(jenkins.view_exists, view_names))
+    if missing:
+        missing.insert(0, '\nconfig references non-existant views:')
+        print('\n - '.join(missing)); exit(1)
+
+    #-------------------------------------------------------------------------
     # List all git refs, svn branches etc (implemented by child classes).
     try:
         branches = list(list_branches(config))
@@ -128,13 +138,21 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     configs = filter(lambda x: bool(x[1]), configs)
 
     # The names of all successfully created or updated jobs.
-    job_names = [config['template']]
+    job_names = {}
     for branch, branch_config in configs:
         tmpl = templates[branch_config['template']]
         name = create_job(branch, tmpl, config, branch_config)
-        job_names.append(name)
+        job_names[name] = branch_config
+
+    for job_name, branch_config in job_names.items():
+        views = branch_config['view']
+        for view_name in views:
+            jenkins.view_add_job(view_name, job_name)
+        if views:
+            print('. job added to view: %s' % ','.join(views))
 
     if config['cleanup']:
+        job_names[config['template']] = {}
         cleanup(config, job_names, jenkins)
 
 
@@ -205,6 +223,9 @@ def get_default_config(config, opts):
         'tag':        c.get('tag', []),
         'view':       c.get('view', [])
     }
+
+    # Make sure some options are always lists.
+    c['defaults']['view'] = pluralize(c['defaults']['view'])
 
     # Some options can be overwritten on the command line.
     if '-r' in o: c['repo'] = o['-r']

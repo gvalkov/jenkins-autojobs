@@ -35,6 +35,8 @@ ignore:
   - '.*-nobuild'
   - 'scratch/.*'
 
+{{ m.view()|trim }}
+
 {{ m.tag()|trim }}
 
 # Maps branch names (regular expressions) to config dictionaries that
@@ -46,6 +48,7 @@ refs:
       'template': 'release-template'
       'namefmt':  'rel-{1}'
       'enable':   false
+      'view':     'release-view'
       'tag':      'group-1'
 
 {{ m.cleanup()|trim }}

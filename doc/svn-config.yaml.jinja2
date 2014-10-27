@@ -38,6 +38,8 @@ ignore:
   - 'branches/.*-nobuild'
   - 'experimental/john/.*'
 
+{{ m.view()|trim }}
+
 {{ m.tag()|trim }}
 
 # Maps branch names (regular expressions) to config dictionaries that
@@ -49,6 +51,7 @@ refs:
       'template': 'release-template'
       'namefmt':  'release-{short}'
       'enable':   false
+      'view':     'release-view'
       'tag':      'group-1'
 
 {{ m.cleanup()|trim }}

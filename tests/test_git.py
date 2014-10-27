@@ -35,6 +35,16 @@ def jenkins():
     webapi.job_create('master-job-git', configxml)
     return webapi
 
+@fixture(scope='module')
+def view(request, jenkins):
+    if jenkins.view_exists('Tests'):
+        jenkins.view_delete('Tests')
+
+    configxml = 'test-view-config.xml'
+    jenkins.view_create('Tests', open(configxml).read().encode('utf8'))
+    request.addfinalizer(lambda: jenkins.view_delete('Tests'))
+    return 'Tests'
+
 @fixture(scope='function')
 def config(jenkins, repo):
     base = '''
@@ -51,7 +61,7 @@ def config(jenkins, repo):
       '@!?#&|\^_$%%*': '_'
 
     substitute:
-      '@@JOB_NAME@@' : '{shortref}'
+      '@@JOB_NAME@@': '{shortref}'
 
     ignore:
       - 'refs/heads/feature/.*-nobuild'
@@ -59,7 +69,7 @@ def config(jenkins, repo):
     refs:
       - 'refs/heads/feature/(.*)'
       - 'refs/heads/scratch/(.*)':
-          'namefmt':  '{shortref}'
+          'namefmt': '{shortref}'
     '''
 
     base = dedent(base) % (jenkins.url, repo.url)
@@ -383,8 +393,8 @@ def test_failing_git_cleanup(config, jenkins, repo,):
 def test_tag(config, jenkins, repo):
     config['tag'] = 'group1'
     config['refs'] = [
-        { 'refs/heads/feature/(.*)': {'namefmt': '{shortref}'} },
-        { 'refs/heads/test': {'tag': 'group2'} },
+        {'refs/heads/feature/(.*)': {'namefmt': '{shortref}'}},
+        {'refs/heads/test': {'tag': 'group2'}},
     ]
 
     with repo.branch('feature/one'):
@@ -400,8 +410,8 @@ def test_tag(config, jenkins, repo):
 def test_cleanup_tags(config, jenkins, repo):
     config['cleanup'] = 'group1'
     config['refs'] = [
-        { 'refs/heads/group1/(.*)': {'tag': 'group1'} },
-        { 'refs/heads/group2/(.*)': {'tag': 'group2'} },
+        {'refs/heads/group1/(.*)': {'tag': 'group1'}},
+        {'refs/heads/group2/(.*)': {'tag': 'group2'}},
     ]
 
     with repo.branches('group1/one', 'group1/two', 'group2/three'):
@@ -419,3 +429,22 @@ def test_cleanup_tags(config, jenkins, repo):
     with repo.branches('group1/one'):
         cmd(config)
         assert not jenkins.job_exists('group2-three')
+
+
+#-----------------------------------------------------------------------------
+def test_views(config, jenkins, view, repo):
+    config['namefmt'] = '{shortref}'
+    config['view'] = view
+
+    with repo.branches('feature/one'):
+        cmd(config)
+        assert '<string>feature-one</string>' in jenkins.view_config(view)
+
+
+#-----------------------------------------------------------------------------
+def test_views_nonexist(config, jenkins, repo):
+    config['namefmt'] = '{shortref}'
+    config['view'] = ['abc', 'zxc']
+
+    with pytest.raises(SystemExit):
+        cmd(config)

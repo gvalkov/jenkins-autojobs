@@ -32,6 +32,8 @@ ignore:
   - 'refs/heads/feature/.*-nobuild'
   - 'refs/heads/scratch/.*'
 
+{{ m.view()|trim }}
+
 {{ m.tag()|trim }}
 
 # Maps ref names (regular expressions) to config dictionaries that may
@@ -44,6 +46,7 @@ refs:
       'template': 'scratch-template'
       'namefmt':  'wip-{shortref}'
       'enable':   false
+      'view':     'scratch-view'
       'tag':      'group-1'
 
 {{ m.cleanup()|trim }}

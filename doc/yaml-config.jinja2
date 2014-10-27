@@ -55,6 +55,11 @@ sanitize:
 tag: 'throw-away-jobs'
 {% endmacro %}
 
+{% macro view() %}
+# View to which new jobs should be added.
+view: 'view-name'
+{% endmacro %}
+
 {% macro cleanup() %}
 # If set to true, remove all jobs that were created by jenkins-autojobs
 # for which there no longer exists a branch. If set to a tag name, only

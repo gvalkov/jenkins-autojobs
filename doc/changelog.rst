@@ -4,6 +4,8 @@ Changelog
 Development
 ^^^^^^^^^^^
 
+- Learned the ability to add generated jobs to specific views.
+
 - Fix compatiblity with newer version of the Jenkins Mercurial plugin (thanks `@ThomasMatern`_).
 
 0.13.1 (May 29, 2014)

@@ -1,9 +1,11 @@
-#!/usr/bin/env
+#!/usr/bin/env python
+# -*- coding: utf-8; -*-
 
 import re, copy
 import subprocess as sub
 
 
+#-----------------------------------------------------------------------------
 def filtersplit(p, iterable):
     '''
     filtersplit(p, iter) -> ifilter(p, iter), ifilterfalse(p, iter)
@@ -23,14 +25,20 @@ def filtersplit(p, iterable):
 
     return t, f
 
+#-----------------------------------------------------------------------------
+def pluralize(value):
+    if not isinstance(value, list):
+        return [value]
+    return value
 
+#-----------------------------------------------------------------------------
 def anymatch(regexes, s):
     '''Return True if any of the regexes match the string.'''
     for r in regexes:
         if r.match(s): return True
     return False
 
-
+#-----------------------------------------------------------------------------
 def sanitize(ref, rules):
     '''
     >>> rules = {
@@ -53,13 +61,13 @@ def sanitize(ref, rules):
 
     return ref
 
-
+#-----------------------------------------------------------------------------
 def merge(a, b):
     c = copy.copy(a)
     c.update(b)
     return c
 
-
+#-----------------------------------------------------------------------------
 # subprocess.check_output() from Python 2.7
 def check_output(*popenargs, **kwargs):
     if 'stdout' in kwargs:
@@ -75,6 +83,7 @@ def check_output(*popenargs, **kwargs):
     return output
 
 
+#-----------------------------------------------------------------------------
 if __name__ == "__main__":
     import doctest
     doctest.testmod()

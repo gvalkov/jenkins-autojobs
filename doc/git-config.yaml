@@ -53,6 +53,9 @@ ignore:
   - 'refs/heads/feature/.*-nobuild'
   - 'refs/heads/scratch/.*'
 
+# View to which new jobs should be added.
+view: 'view-name'
+
 # String to tag jobs with (no tagging by default).
 tag: 'throw-away-jobs'
 
@@ -66,6 +69,7 @@ refs:
       'template': 'scratch-template'
       'namefmt':  'wip-{shortref}'
       'enable':   false
+      'view':     'scratch-view'
       'tag':      'group-1'
 
 # If set to true, remove all jobs that were created by jenkins-autojobs
