@@ -1,11 +1,15 @@
 # -*- coding: utf-8; -*-
 
+import io, os, yaml, pytest
+
+from pytest import mark
 from pytest import fixture
 from textwrap import dedent
+from functools import partial
 
-from util import *
+from repo_fixture import repo_fixture
 from jenkins_autojobs import hg
-from jenkins import Jenkins, JenkinsError
+from jenkins import Jenkins
 
 
 #-----------------------------------------------------------------------------
@@ -14,10 +18,7 @@ cmd = partial(hg.main, ['jenkins-makejobs-hg'])
 
 @fixture(scope='module')
 def repo():
-    repo = HgRepo()
-    print('Creating temporary mercurial repo: %s' % repo.dir)
-    repo.init()
-    return repo
+    return repo_fixture('hg')
 
 @fixture(scope='module')
 def jenkins():
@@ -29,7 +30,7 @@ def jenkins():
         webapi.job_delete(job.name)
 
     print('Creating test jobs ...')
-    configxml = pjoin(here, 'etc/master-job-hg-config.xml')
+    configxml = 'master-job-hg-config.xml'
     configxml = open(configxml).read().encode('utf8')
     webapi.job_create('master-job-hg', configxml)
     return webapi
@@ -61,7 +62,7 @@ def config(jenkins, repo):
     '''
 
     base = dedent(base) % (jenkins.url, repo.url)
-    base = yaml.load(StringIO(base))
+    base = yaml.load(io.StringIO(base))
     return base
 
 @fixture(scope='function', autouse=True)
@@ -87,6 +88,7 @@ def test_namefmt_namesep_global(config, jenkins, repo, branch, namefmt, namesep,
         cmd(config)
         assert jenkins.job_exists(expected)
 
+
 #------------------------------------------------------------------------------
 params = [
     ['branches/feature-one',   '{branch}',      '.',           'branches.feature-one'],
@@ -103,6 +105,7 @@ def test_namefmt_namesep_inherit(config, jenkins, repo, branch, namefmt, namesep
         cmd(config)
         assert jenkins.job_exists(expected)
 
+
 #------------------------------------------------------------------------------
 params = [
     ['experimental/john/bug/01', 'experimental/(.*)/bug/(.*)', '{0}-{1}', 'john-01'],
@@ -117,6 +120,7 @@ def test_namefmt_groups_inherit(config, jenkins, repo, branch, regex, namefmt, e
     with repo.branch(branch):
         cmd(config)
         assert jenkins.job_exists(expected)
+
 
 #------------------------------------------------------------------------------
 params = [
@@ -135,6 +139,7 @@ def test_configxml_global(config, jenkins, repo, branch, name, local):
         scm_el = configxml.xpath('scm[@class="hudson.plugins.mercurial.MercurialSCM"]')[0]
         el = scm_el.xpath('//branch')[0]
         assert el.text == branch
+
 
 #------------------------------------------------------------------------------
 def test_cleanup(config, jenkins, repo):

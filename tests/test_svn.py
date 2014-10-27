@@ -1,21 +1,23 @@
 # -*- coding: utf-8; -*-
 
+import io, os, yaml, pytest
+
+from pytest import mark
 from pytest import fixture
 from textwrap import dedent
+from functools import partial
 
-from util import *
+from repo_fixture import repo_fixture
 from jenkins_autojobs import svn
+from jenkins import Jenkins
 
-
+#-----------------------------------------------------------------------------
 # Fixtures and shortcuts.
 cmd = partial(svn.main, ['jenkins-makejobs-svn'])
 
 @fixture(scope='module')
 def repo():
-    repo = SvnRepo()
-    print('Creating temporary subversion repo: %s' % repo.dir)
-    repo.init()
-    return repo
+    return repo_fixture('svn')
 
 @fixture(scope='module')
 def jenkins():
@@ -27,7 +29,7 @@ def jenkins():
         webapi.job_delete(job.name)
 
     print('Creating test jobs ...')
-    configxml = pjoin(here, 'etc/master-job-svn-config.xml')
+    configxml = 'master-job-svn-config.xml'
     configxml = open(configxml).read().encode('utf8')
     webapi.job_create('master-job-svn', configxml)
     return webapi
@@ -66,7 +68,7 @@ def config(jenkins, repo):
     '''
 
     base = dedent(base).format(url=jenkins.url, repo=repo.url)
-    base = yaml.load(StringIO(base))
+    base = yaml.load(io.StringIO(base))
     return base
 
 @fixture(scope='function', autouse=True)
@@ -93,6 +95,7 @@ def test_namefmt_namesep_global(jenkins, repo, config, branch, namefmt, namesep,
         cmd(config)
         assert jenkins.job_exists(expected)
 
+
 #------------------------------------------------------------------------------
 params = [
     ['branches/feature-two', '{branch}',    '.', 'feature-two'],
@@ -109,6 +112,7 @@ def test_namefmt_namesep_inherit(jenkins, repo, config, branch, namefmt, namesep
         cmd(config)
         assert jenkins.job_exists(expected)
 
+
 #------------------------------------------------------------------------------
 params = [
     ['experimental/john/bug/01', 'experimental/(.*)/bug/(.*)', '{0}-{1}', 'john-01'],
@@ -124,6 +128,7 @@ def test_namefmt_groups_inherit(jenkins, repo, config, branch, regex, namefmt, e
         cmd(config)
         assert jenkins.job_exists(expected)
 
+
 #------------------------------------------------------------------------------
 params = [
     ['experimental/john',  ['experimental/.*']],
@@ -136,6 +141,7 @@ def test_ignore(jenkins, repo, config, branch, ignores):
     with repo.branch(branch):
         cmd(config)
         assert not jenkins.job_exists(cleanup_jobs[0])
+
 
 #------------------------------------------------------------------------------
 params = [
@@ -174,6 +180,7 @@ def test_cleanup(jenkins, repo, config):
     with repo.branch('branches/one'):
         cmd(config)
         assert not jenkins.job_exists('two')
+
 
 #------------------------------------------------------------------------------
 def test_make_trunk(jenkins, repo, config):

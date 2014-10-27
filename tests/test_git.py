@@ -1,11 +1,15 @@
 # -*- coding: utf-8; -*-
 
+import io, yaml, pytest
+
+from pytest import mark
 from pytest import fixture
 from textwrap import dedent
+from functools import partial
 
-from util import *
+from repo_fixture import repo_fixture
 from jenkins_autojobs import git
-from jenkins import Jenkins, JenkinsError
+from jenkins import Jenkins
 
 
 #-----------------------------------------------------------------------------
@@ -14,10 +18,7 @@ cmd = partial(git.main, ['jenkins-makejobs-git'])
 
 @fixture(scope='module')
 def repo():
-    repo = GitRepo()
-    print('Creating temporary git repo: %s' % repo.dir)
-    repo.init()
-    return repo
+    return repo_fixture('git')
 
 @fixture(scope='module')
 def jenkins():
@@ -29,9 +30,9 @@ def jenkins():
         webapi.job_delete(job.name)
 
     print('Creating test jobs ...')
-    configxml = pjoin(here, 'etc/master-job-git-config.xml')
+    configxml = 'master-job-git-config.xml'
     configxml = open(configxml).read().encode('utf8')
-    webapi.job_create('master-job-1', configxml)
+    webapi.job_create('master-job-git', configxml)
     return webapi
 
 @fixture(scope='function')
@@ -40,7 +41,7 @@ def config(jenkins, repo):
     jenkins: %s
     repo: %s
 
-    template: master-job-1
+    template: master-job-git
     namesep: '-'
     namefmt: '{shortref}'
     overwrite: true
@@ -62,13 +63,13 @@ def config(jenkins, repo):
     '''
 
     base = dedent(base) % (jenkins.url, repo.url)
-    base = yaml.load(StringIO(base))
+    base = yaml.load(io.StringIO(base))
     return base
 
 @fixture(scope='function', autouse=True)
 def cleanup(request, jenkins):
     def finalize():
-        jobs = (job for job in jenkins.jobs if job.name != 'master-job-1')
+        jobs = (job for job in jenkins.jobs if job.name != 'master-job-git')
         for job in jobs:
             jenkins.job_delete(job.name)
 
@@ -81,7 +82,7 @@ params = [
     ['feature/one/two', 'test-{shortref}', '-', 'test-feature-one-two'],
     ['feature/one/two', 'test.{ref}',      '-', 'test.refs-heads-feature-one-two'],
 ]
-@pytest.mark.parametrize(['branch', 'namefmt', 'namesep', 'expected'], params)
+@mark.parametrize(['branch', 'namefmt', 'namesep', 'expected'], params)
 def test_namefmt_namesep_global(config, jenkins, repo, branch, namefmt, namesep, expected):
     config['namefmt'] = namefmt
     config['namesep'] = namesep
@@ -97,7 +98,7 @@ params = [
     ['feature/one/two', 'test-{shortref}', '-', 'test-feature-one-two'],
     ['feature/one/two', 'test.{ref}',      '-', 'test.refs-heads-feature-one-two'],
 ]
-@pytest.mark.parametrize(['branch', 'namefmt', 'namesep', 'expected'], params)
+@mark.parametrize(['branch', 'namefmt', 'namesep', 'expected'], params)
 def test_namefmt_namesep_global(config, jenkins, repo, branch, namefmt, namesep, expected):
     config['namefmt'] = namefmt
     config['namesep'] = namesep
@@ -113,7 +114,7 @@ params = [
     ['scratch/one/two', 'test.{ref}', '_', 'test.refs_heads_scratch_one_two'],
     ['scratch/one/two', 'test.{shortref}', '_', 'test.scratch_one_two'],
 ]
-@pytest.mark.parametrize(['branch', 'namefmt', 'namesep', 'expected'], params)
+@mark.parametrize(['branch', 'namefmt', 'namesep', 'expected'], params)
 def test_namefmt_namesep_inherit(config, jenkins, repo, branch, namefmt, namesep, expected):
     config['refs'] = [{
         'refs/heads/%s' % branch : {
@@ -133,7 +134,7 @@ params = [
     ['feature/one#two', 'test-{shortref}', {'#@': '_'}, '-', 'test-feature-one_two'],
     ['feature/one@#two','test.{ref}',      {'#@': '_'}, '-', 'test.refs-heads-feature-one__two'],
 ]
-@pytest.mark.parametrize(['branch', 'namefmt', 'sanitize', 'namesep', 'expected'], params)
+@mark.parametrize(['branch', 'namefmt', 'sanitize', 'namesep', 'expected'], params)
 def test_namefmt_sanitize_global(config, jenkins, repo, branch, namefmt, sanitize, namesep, expected):
     config['namefmt'] = namefmt
     config['namesep'] = namesep
@@ -149,7 +150,7 @@ params = [
     ['feature/one#two', '{shortref}',      {'#': '_'}, '.', 'feature.one_two'],
     ['feature/one#two@three','test.{ref}', {'#@': '_'}, '-', 'test.refs-heads-feature-one_two_three'],
 ]
-@pytest.mark.parametrize(['branch', 'namefmt', 'sanitize', 'namesep', 'expected'], params)
+@mark.parametrize(['branch', 'namefmt', 'sanitize', 'namesep', 'expected'], params)
 def test_namefmt_sanitize_inherit(config, jenkins, repo, branch, namefmt, sanitize, namesep, expected):
     config['namefmt'] = namefmt
     config['namesep'] = namesep
@@ -171,7 +172,7 @@ params = [
     ['scratch/one/two/three', 'refs/heads/scratch/(.*)/.*/(.*)', '{1}.{0}', 'three.one'],
     ['wip/alpha/beta/gamma',  'refs/heads/wip/(.*)/.*/(.*)', 'test-{1}.{0}', 'test-gamma.alpha'],
 ]
-@pytest.mark.parametrize(['branch', 'regex', 'namefmt', 'expected'], params)
+@mark.parametrize(['branch', 'regex', 'namefmt', 'expected'], params)
 def test_namefmt_groups_inherit(config, jenkins, repo, branch, regex, namefmt, expected):
     config['namefmt'] = '.'
     config['refs'] = [{ regex: {'namefmt' : namefmt, }}]
@@ -186,7 +187,7 @@ params = [
     ['feature/one/two', {'@@JOB_NAME@@' : '{shortref}'}, 'feature-one-two', 'feature-one-two'],
     ['feature/two/three', {'@@JOB_NAME@@' : 'one-{ref}'},  'feature-two-three', 'one-refs-heads-feature-two-three'],
 ]
-@pytest.mark.parametrize(['branch', 'sub', 'ejob', 'expected'], params)
+@mark.parametrize(['branch', 'sub', 'ejob', 'expected'], params)
 def test_substitute(config, jenkins, repo, branch, sub, ejob, expected):
     test_substitute.cleanup_jobs = [ejob]
     config['substitute'] = sub
@@ -222,7 +223,7 @@ params = [
     ['wip/one/two',  ['wip/.*']],
     ['feature/zetta-nobuild', ['.*-nobuild']]
 ]
-@pytest.mark.parametrize(['branch', 'ignores'], params)
+@mark.parametrize(['branch', 'ignores'], params)
 def test_ignore(config, jenkins, repo, branch, ignores):
     job = branch.replace('/', config['namesep'])
 
@@ -236,7 +237,7 @@ def test_ignore(config, jenkins, repo, branch, ignores):
 params = [
     ['feature/config-one', 'origin/refs/heads/feature/config-one', 'feature/config-one']
 ]
-@pytest.mark.parametrize(['branch', 'name', 'local'], params)
+@mark.parametrize(['branch', 'name', 'local'], params)
 def test_configxml_global(config, jenkins, repo, branch, name, local):
     job = branch.replace('/', config['namesep'])
     test_configxml_global.cleanup_jobs = [job]
@@ -273,7 +274,7 @@ def test_overwrite_global(config, jenkins, repo, capsys):
 
 #-----------------------------------------------------------------------------
 def test_enable_true(config, jenkins, repo,):
-    jenkins.job_disable('master-job-1')
+    jenkins.job_disable('master-job-git')
     config['enable'] = True
 
     with repo.branch('feature/enable-true'):
@@ -283,7 +284,7 @@ def test_enable_true(config, jenkins, repo,):
 
 #-----------------------------------------------------------------------------
 def test_enable_false(config, jenkins, repo,):
-    jenkins.job_enable('master-job-1')
+    jenkins.job_enable('master-job-git')
     config['enable'] = False
 
     with repo.branch('feature/enable-false'):
@@ -296,13 +297,13 @@ def test_enable_false(config, jenkins, repo,):
 def test_enable_template(config, jenkins, repo,):
     config['enable'] = 'template'
 
-    jenkins.job_enable('master-job-1')
+    jenkins.job_enable('master-job-git')
     with repo.branch('feature/enable-template-one'):
         cmd(config)
         assert jenkins.job_exists('feature-enable-template-one')
         assert jenkins.job_enabled('feature-enable-template-one')
 
-    jenkins.job_disable('master-job-1')
+    jenkins.job_disable('master-job-git')
     with repo.branch('feature/enable-template-two'):
         cmd(config)
         assert jenkins.job_exists('feature-enable-template-two')
@@ -314,7 +315,7 @@ def test_enable_sticky(config, jenkins, repo,):
     config['enable'] = 'sticky'
     config['overwrite'] = True
 
-    jenkins.job_disable('master-job-1')
+    jenkins.job_disable('master-job-git')
     with repo.branch('feature/enable-sticky-one'):
         cmd(config)
         assert jenkins.job_exists('feature-enable-sticky-one')
@@ -341,7 +342,7 @@ def test_inheritance_order(config, jenkins, repo,):
 #-----------------------------------------------------------------------------
 def test_missing_template(config, jenkins, repo,):
     config['template'] = 'does-not-exist'
-    with raises(SystemExit):
+    with pytest.raises(SystemExit):
         cmd(config)
 
 
@@ -371,7 +372,7 @@ def test_failing_git_cleanup(config, jenkins, repo,):
         assert 'createdByJenkinsAutojobs' in jenkins.job('feature-one').config
 
         config['repo'] = '/tmp/should-never-exist-zxcv-123-zxcv-1asfmn'
-        with raises(SystemExit):
+        with pytest.raises(SystemExit):
             cmd(config)
         # feature-{one,two} should not be removed if command fails
         assert jenkins.job_exists('feature-one')

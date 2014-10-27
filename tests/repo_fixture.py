@@ -1,96 +1,26 @@
-import yaml
-import pytest
-import os, sys, time
+# -*- coding: utf-8; -*-
 
-from copy import deepcopy
-from shutil import rmtree
+import os
+import shutil
+
+from os.path import join as pjoin, abspath, dirname
 from tempfile import mkdtemp, mkstemp
-from functools import partial
-from subprocess import call, check_call
-from os.path import dirname, abspath, join as pjoin, isdir
 from contextlib import contextmanager
-
-from lxml import etree
-from pytest import raises, set_trace, mark, fail
-from jenkins import Jenkins, JenkinsError
+from subprocess import check_call
 
 
 here = abspath(dirname(__file__))
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
-
-
-def teardown_module_(module, jenkins, repo):
-    print('Removing all jobs ...')
-    for job in jenkins.getjobs():
-        jenkins.py.job(job).delete()
-
-    # print('Stopping Jenkins ...')
-    # jenkins.shutdown()
-    # jenkins.clean()
-
-    print('Removing temporary repo: %s' % repo.dir)
-    repo.clean()
-
-
-def teardown_function_(f, jenkins):
-    if hasattr(f, 'cleanup_jobs'):
-        for job in f.cleanup_jobs:
-            print('Removing temporary job: %s' % job)
-            try: jenkins.py.job_delete(job)
-            except: pass
-
-class cleanup:
-    def __init__(self, *args):
-        self.jobs = args
-
-    def __call__(self, func):
-        func.cleanup_jobs = self.jobs
-        return func
-
-
-class JenkinsControl(object):
-    war = pjoin(here, 'tmp/jenkins.war')
-    cli = pjoin(here, 'tmp/jenkins-cli.jar')
-    home = pjoin(here, 'tmp/jenkins')
-
-    def __init__(self, addr='127.0.0.1:60888', cport='60887'):
-        self.addr, self.port = addr.split(':')
-        self.url = 'http://%s' % addr
-        self.py = Jenkins(self.url)
-
-    def start_server(self):
-        cmd = pjoin(here, './bin/start-jenkins.sh 1>/dev/null 2>&1')
-        env = {'JENKINS_HOME':  self.home,
-               'JENKINS_PORT':  self.port,
-               'JENKINS_CPORT': self.cport,
-               'JENKINS_ADDR':  self.addr}
-        check_call(cmd, shell=True, env=env)
-
-    def shutdown_server(self):
-        cmd = 'echo 0 | nc %s %s' % (self.addr, self.cport)
-        check_call(cmd, shell=True)
-
-    def clean_home(self):
-        rmtree(self.home)
-
-    def createjob(self, name, configxml_fn):
-        configxml = open(configxml_fn).read().encode('utf8')
-        self.py.job_create(name, configxml)
-
-    def getjobs(self):
-        return {i.name: i for i in self.py.jobs}
-
-    def enabled(self, name):
-        return self.py.job(name).info['buildable']
-
-    def job_etree(self, job):
-        res = self.py.job(job).config
-        res = etree.fromstring(res)
-        return res
+def repo_fixture(repo_type):
+    types = {
+        'git': GitRepo,
+        'hg':  HgRepo,
+        'svn': SvnRepo,
+    }
+    repo = types[repo_type]()
+    print('Creating temporary %s repo: %s' % (repo_type, repo.dir))
+    repo.init()
+    return repo
 
 
 class TmpRepo(object):
@@ -100,7 +30,7 @@ class TmpRepo(object):
         self.url = 'file://%s' % abspath(self.dir)
 
     def clean(self):
-        rmtree(self.dir)
+        shutil.rmtree(self.dir)
 
     def chdir(self):
         os.chdir(self.dir)
@@ -190,13 +120,5 @@ class HgRepo(TmpRepo):
         check_call(cmd, cwd=self.dir)
 
     def rmbranch(self, name):
-        # cmd = (('hg', 'up', '-C', name),
-        #        ('hg', 'commit', '--close-branch', '-m', '++'),
-        #        ('hg', 'up', '-C', 'default'))
-
-        # for c in cmd:
-        #     print c
-        #     check_call(c, cwd=self.dir)
-
-        rmtree(self.dir)
+        shutil.rmtree(self.dir)
         self.init()
