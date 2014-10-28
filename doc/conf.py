@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import sys, os
+import sys, os, re
 
 # Check if readthedocs is building us
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('..'))
-from setup import kw
+# read version from setup.py
+for line in open('../jenkins_autojobs/__init__.py'):
+    m = re.search("version.*=.*'(.*)'", line)
+    if m:
+        _release = m.group(1)
+        break
 
 # -- General configuration -----------------------------------------------------
 
@@ -41,7 +42,7 @@ copyright = u'2012-2014, Georgi Valkov'
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = kw['version']
+release = _release
 
 # The short X.Y version.
 version = release
