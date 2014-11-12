@@ -43,14 +43,12 @@ def hg_branch_iter_remote(repo, python):
     out = literal_eval(out.decode('utf8'))
     return [i[0] for i in out]
 
-
 def hg_branch_iter_local(repo):
     cmd = ('hg', '-y', 'branches', '-c', '-R', repo)
     out = check_output(cmd).decode('utf8').split(linesep)
 
     out = (re.split('\s+', i, 1) for i in out if i)
     return (name for name, rev in out)
-
 
 def list_branches(config):
     # Should 'hg branches' or peer.branchmap be used.
@@ -59,7 +57,6 @@ def list_branches(config):
     python = config.get('python', 'python')
 
     return branch_iter(config['repo'], python)
-
 
 def create_job(ref, template, config, ref_config):
     '''Create a jenkins job.
@@ -118,7 +115,6 @@ def create_job(ref, template, config, ref_config):
     if config['debug']:
         debug_refconfig(ref_config)
     return job_name
-
 
 def main(argv=argv, config=None):
     _main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)

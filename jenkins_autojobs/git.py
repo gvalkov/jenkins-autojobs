@@ -24,7 +24,6 @@ def git_refs_iter_local(repo):
 
     return (ref for sha, ref in [i.split() for i in out if i])
 
-
 def git_refs_iter_remote(repo):
     cmd = ('git', 'ls-remote', repo)
     out = check_output(cmd).decode('utf8').split(linesep)
@@ -38,14 +37,12 @@ def git_refs_iter_remote(repo):
 
         yield ref
 
-
 def list_branches(config):
     # should ls-remote or git show-ref be used
     islocal = path.isdir(config['repo'])
     refs_iter = git_refs_iter_local if islocal else git_refs_iter_remote
 
     return refs_iter(config['repo'])
-
 
 def create_job(ref, template, config, ref_config):
     '''Create a jenkins job.
@@ -121,7 +118,6 @@ def create_job(ref, template, config, ref_config):
         debug_refconfig(ref_config)
 
     return job_name
-
 
 def main(argv=argv, config=None):
     _main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)

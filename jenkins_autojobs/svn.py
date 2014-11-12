@@ -30,7 +30,6 @@ def svn_ls(url, username=None, password=None, dirsonly=True):
 
     return out
 
-
 def list_branches(config):
     c = config
     branches = []
@@ -41,7 +40,6 @@ def list_branches(config):
         res = [path.join(rel, i) for i in res]
         branches.extend(res)
     return branches
-
 
 def create_job(branch, template, config, branch_config):
     '''Create a jenkins job.

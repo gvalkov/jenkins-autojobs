@@ -155,7 +155,6 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
         job_names[config['template']] = {}
         cleanup(config, job_names, jenkins)
 
-
 #-----------------------------------------------------------------------------
 def cleanup(config, job_names, jenkins, verbose=True):
     print('\ncleaning up old jobs:')
@@ -183,7 +182,6 @@ def cleanup(config, job_names, jenkins, verbose=True):
     if not removed_jobs:
         print('. nothing to do')
 
-
 #-----------------------------------------------------------------------------
 def parse_args(argv, fmt):
     '''Parse getopt arguments as a dictionary.'''
@@ -195,7 +193,6 @@ def parse_args(argv, fmt):
         exit(0)
 
     return opts, args
-
 
 #-----------------------------------------------------------------------------
 def get_default_config(config, opts):
@@ -257,7 +254,6 @@ def get_default_config(config, opts):
 
     return c
 
-
 #-----------------------------------------------------------------------------
 def get_effective_branch_config(branches, defaults):
     '''Compile ref/branch regexes and map to their configuration with
@@ -277,7 +273,6 @@ def get_effective_branch_config(branches, defaults):
 
     return ec
 
-
 def get_ignored(branches, regexes):
     '''Get refs, excluding ignored.'''
 
@@ -285,7 +280,6 @@ def get_ignored(branches, regexes):
     ignored, branches = filtersplit(isignored, branches)
 
     return ignored, branches
-
 
 def resolveconfig(effective_config, branch):
     '''Resolve a ref to its effective config.'''
@@ -295,12 +289,10 @@ def resolveconfig(effective_config, branch):
             config['re'] = regex
             return config.copy()
 
-
 def get_job_etree(job):
     res = jenkins.job(job).config
     res = etree.fromstring(res.encode('utf8'))
     return res
-
 
 def debug_refconfig(ref_config):
     print('. config:')
@@ -309,7 +301,6 @@ def debug_refconfig(ref_config):
             print('  . %s: %s' % (k, v.pattern))
             continue
         if v: print('  . %s: %s' % (k, v))
-
 
 def enable_http_logging():
     import logging
