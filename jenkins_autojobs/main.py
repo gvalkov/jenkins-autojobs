@@ -312,8 +312,14 @@ def debug_refconfig(ref_config):
 
 
 def enable_http_logging():
-    import logging, httplib
-    httplib.HTTPConnection.debuglevel = 1
+    import logging
+
+    try:
+        from http.client import HTTPConnection
+    except ImportError:
+        from httplib import HTTPConnection
+
+    HTTPConnection.debuglevel = 1
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
     requests_log = logging.getLogger('requests.packages.urllib3')
