@@ -434,7 +434,7 @@ def test_cleanup_tags(config, jenkins, repo):
 #-----------------------------------------------------------------------------
 def test_views(config, jenkins, view, repo):
     config['namefmt'] = '{shortref}'
-    config['view'] = view
+    config['view'] = [view, 'All']  # All should be filtered out in main()
 
     with repo.branches('feature/one'):
         cmd(config)

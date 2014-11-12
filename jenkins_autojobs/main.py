@@ -144,6 +144,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
         name = create_job(branch, tmpl, config, branch_config)
         job_names[name] = branch_config
 
+    # Add newly create jobs to views (if any).
     for job_name, branch_config in job_names.items():
         views = branch_config['view']
         for view_name in views:
@@ -270,6 +271,12 @@ def get_effective_branch_config(branches, defaults):
             ec[re.compile(key)] = config
         else:
             ec[re.compile(entry)] = defaults
+
+    # The 'All' view doesn't have an API endpoint (i.e. no /view/All/api).
+    # Since all jobs are added to it by default, it is safe to ignore it.
+    for config in ec.values():
+        if 'All' in config['view']:
+            config['view'].remove('All')
 
     return ec
 
