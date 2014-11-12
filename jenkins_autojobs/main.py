@@ -205,11 +205,11 @@ def get_default_config(config, opts):
 
     # Default global settings (not inheritable).
     c['dryrun'] = False
-    c['debug']  = False
-    c['debughttp'] = False
-    c['cleanup']  = config.get('cleanup', False)
-    c['username'] = config.get('username', None)
-    c['password'] = config.get('password', None)
+    c['debug']  = config.get('debug', False)
+    c['debughttp'] = config.get('debughttp', False)
+    c['cleanup']   = config.get('cleanup', False)
+    c['username']  = config.get('username', None)
+    c['password']  = config.get('password', None)
 
     # Default settings for each git ref/branch/ config.
     c['defaults'] = {
