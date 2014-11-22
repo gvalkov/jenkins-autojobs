@@ -29,7 +29,7 @@ except ImportError:
 try:
     from collections import OrderedDict
 except ImportError:
-    from python26_support import OrderedDict
+    from ordereddict import OrderedDit
 
 
 #-----------------------------------------------------------------------------

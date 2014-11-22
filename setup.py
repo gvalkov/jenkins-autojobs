@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from sys import version_info
 from setuptools import setup
 from jenkins_autojobs import version
 
@@ -27,6 +28,9 @@ requires = [
     'lxml>=3.2.3',
     'PyYAML>=3.11',
 ]
+
+if version_info <= (2, 7):
+    requires.append('ordereddict>=1.1')
 
 scripts = [
     'jenkins-makejobs-git = jenkins_autojobs.git:main',
