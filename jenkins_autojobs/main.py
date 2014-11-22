@@ -72,10 +72,15 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     :param config: a config dictionary to use instead of parsing the
                    configuration from yaml (useful for testing)
     '''
-    opts, args = parse_args(argv, getoptfmt)
 
+    if '-h' in argv or '--help' in argv:
+        print(usage)
+        exit(1)
+
+    opts, args = parse_args(argv, getoptfmt)
     if not args and not config:
-        print(usage) ; exit(1)
+        print(usage)
+        exit(1)
 
     # Load config, set default values and compile regexes.
     if not config :

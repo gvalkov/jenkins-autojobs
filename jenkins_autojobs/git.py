@@ -95,11 +95,11 @@ def create_job(ref, template, config, ref_config):
 
     # Set branch.
     el = scm_el.xpath('//hudson.plugins.git.BranchSpec/name')[0]
-    # :todo: jenkins is being very caprecious about the branchspec
+    # :todo: jenkins is being very capricious about the branch-spec
     # el.text = '%s/%s' % (remote, shortref)  # :todo:
     el.text = shortref
 
-    # Set the branch that git plugin will locally checkout to.
+    # Set the branch that the git plugin will locally checkout to.
     el = scm_el.xpath('//localBranch')
     el = etree.SubElement(scm_el, 'localBranch') if not el else el[0]
 
