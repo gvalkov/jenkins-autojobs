@@ -1,6 +1,18 @@
 Changelog
 ---------
 
+0.14.1 (Nov 23, 2014)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Ignore the 'All' view when adding jobs to views (thanks `@myz`_).
+
+- View creation now respects the dryrun (-n) option (thanks `@aklemp`_).
+
+- Fix reporting of view creation (thanks `@aklemp`_).
+
+- Fix the httpdebug (-t) option on Python 3. The `httpdebug` option is
+  now available in the config file.
+
 0.14.0 (Oct 27, 2014)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -105,3 +117,5 @@ Changelog
 .. _`@traviscosgrave`: https://github.com/traviscosgrave
 .. _`@mrook`:          https://github.com/mrook
 .. _`@ThomasMatern`:   https://github.com/ThomasMatern
+.. _`@aklemp`:         https://github.com/aklemp
+.. _`@myz`:            https://github.com/myz
