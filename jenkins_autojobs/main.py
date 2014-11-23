@@ -146,16 +146,19 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     job_names = {}
     for branch, branch_config in configs:
         tmpl = templates[branch_config['template']]
-        name = create_job(branch, tmpl, config, branch_config)
-        job_names[name] = branch_config
+        job_name = create_job(branch, tmpl, config, branch_config)
+        job_names[job_name] = branch_config
 
-    # Add newly create jobs to views (if any).
-    for job_name, branch_config in job_names.items():
+        # Add newly create jobs to views, if any.
         views = branch_config['view']
         for view_name in views:
-            jenkins.view_add_job(view_name, job_name)
-        if views:
-            print('. job added to view: %s' % ','.join(views))
+            view = jenkins.view(view_name)
+            if job_name in view:
+                print('. job already in view: %s' % view_name)
+            else:
+                if not config['dryrun']:
+                    jenkins.view_add_job(view_name, job_name)
+                print('. job added to view: %s' % view_name)
 
     if config['cleanup']:
         job_names[config['template']] = {}

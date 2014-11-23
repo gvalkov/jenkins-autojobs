@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 requires = [
-    'jenkins-webapi>=0.3.1',
+    'jenkins-webapi>=0.3.2',
     'lxml>=3.2.3',
     'PyYAML>=3.11',
 ]
