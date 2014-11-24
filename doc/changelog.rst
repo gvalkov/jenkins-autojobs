@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+0.14.2 (Nov 24, 2014)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Fix reading of scm-username and scm-password from stdin (thanks `@yamikuronue`_).
+
+- Fix user input on Python 3.
+
+- Fix typo that was preveneting jenkins-autojobs from working on
+  Python 2.6 (thanks `@aklemp`_).
+
 0.14.1 (Nov 23, 2014)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -119,3 +129,4 @@ Changelog
 .. _`@ThomasMatern`:   https://github.com/ThomasMatern
 .. _`@aklemp`:         https://github.com/aklemp
 .. _`@myz`:            https://github.com/myz
+.. _`@yamikuronue`:    https://github.com/yamikuronue
