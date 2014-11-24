@@ -52,7 +52,7 @@ Repository Options:
   -y <arg> scm username
   -o <arg> scm password
   -Y scm username (read from stdin)
-  -P scm password (read from stdin)
+  -O scm password (read from stdin)
 
 Jenkins Options:
   -j <arg> jenkins url
@@ -221,6 +221,8 @@ def get_default_config(config, opts):
     c['cleanup']   = config.get('cleanup', False)
     c['username']  = config.get('username', None)
     c['password']  = config.get('password', None)
+    c['scm-username'] = config.get('scm-username', None)
+    c['scm-password'] = config.get('scm-password', None)
 
     # Default settings for each git ref/branch/ config.
     c['defaults'] = {
@@ -248,12 +250,14 @@ def get_default_config(config, opts):
     # Jenkins authentication options.
     if '-u' in o: c['username'] = o['-u']
     if '-p' in o: c['password'] = o['-p']
+    if '-U' in o: c['username'] = input('Jenkins User: ')
+    if '-P' in o: c['password'] = getpass('Jenkins Password: ')
 
-    c['scm-username'] = c.get('scm-username', None) #:todo
-    c['scm-password'] = c.get('scm-password', None) #:todo
-
-    if '-U' in o: c['username'] = input('User: ')
-    if '-P' in o: c['password'] = getpass()
+    # SCM authentication options.
+    if '-y' in o: c['scm-username'] = o['-y']
+    if '-o' in o: c['scm-password'] = o['-o']
+    if '-Y' in o: c['scm-username'] = input('SCM User: ')
+    if '-O' in o: c['scm-password'] = getpass('SCM Password: ')
 
     # Compile ignore regexes.
     c.setdefault('ignore', {})
