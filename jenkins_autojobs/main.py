@@ -31,6 +31,11 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 
 #-----------------------------------------------------------------------------
 usage = '''\
@@ -247,7 +252,7 @@ def get_default_config(config, opts):
     c['scm-username'] = c.get('scm-username', None) #:todo
     c['scm-password'] = c.get('scm-password', None) #:todo
 
-    if '-U' in o: c['username'] = raw_input('User: ')
+    if '-U' in o: c['username'] = input('User: ')
     if '-P' in o: c['password'] = getpass()
 
     # Compile ignore regexes.
