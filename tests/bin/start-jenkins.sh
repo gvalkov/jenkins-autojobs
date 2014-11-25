@@ -1,5 +1,6 @@
-#!/bin/bash -ux
+#!/usr/bin/env bash
 
+set -ux
 here=$(readlink -f $(dirname $0))
 
 jenkins_war_url="http://mirrors.jenkins-ci.org/war/latest/jenkins.war"

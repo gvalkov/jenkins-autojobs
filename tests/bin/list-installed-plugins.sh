@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 java -jar jenkins-cli.jar -s "http://localhost:60888" groovy = <<EOF
 for(plugin in hudson.model.Hudson.instance.pluginManager.plugins) {
