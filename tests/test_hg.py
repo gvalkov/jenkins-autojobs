@@ -37,7 +37,7 @@ def jenkins():
 
 @fixture(scope='function')
 def config(jenkins, repo):
-    base = '''
+    base = u'''
     jenkins: %s
     repo: %s
 
