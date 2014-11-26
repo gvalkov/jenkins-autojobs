@@ -1,0 +1,94 @@
+{% macro jenkins() %}
+#-----------------------------------------------------------------------------
+# Jenkins location and login credentials.
+jenkins:  http://jenkins.yourdomain.com
+username: None  # optional
+password: None  # optional
+{% endmacro %}
+
+{% macro scmlogin() %}
+#-----------------------------------------------------------------------------
+# Repository login credentials.
+scm-username: None  # optional
+scm-password: None  # optional
+{% endmacro %}
+
+{% macro namesep() %}
+#-----------------------------------------------------------------------------
+# Character with which to replace '/' in branch names.
+namesep: '-'
+{% endmacro %}
+
+{% macro template() %}
+#-----------------------------------------------------------------------------
+# Job to use as a template for new jobs.
+template: new-job-template
+{% endmacro %}
+
+{% macro overwrite() %}
+#-----------------------------------------------------------------------------
+# If false, a job will never be overwritten if it exists.
+# If true, a job will be overwritten if the new configration differs from the
+# old one (the default).
+overwrite: true
+{% endmacro %}
+
+{% macro enable() %}
+#-----------------------------------------------------------------------------
+# State of newly created or overwritten jobs. Default is 'sticky'. One of:
+#   true       -> Jobs will be enabled.
+#   false      -> Jobs will be disabled.
+#   'template' -> Jobs will inherit the state of their template job.
+#   'sticky'   -> New jobs inherit the state of the template job -
+#                 overwritten jobs keep their most recernt state.
+enable: 'sticky'
+{% endmacro %}
+
+
+{% macro substitute() %}
+#-----------------------------------------------------------------------------
+# Makes text substitutions throughout all text elements of a job’s config.xml.
+# This includes the body of all commands that you may have defined. This option
+# is useful for plugins that cannot introspect the name of the branch or job
+# themselves (e.g. Sidebar-Link). All placeholders available to the namefmt
+# option are also available here.
+substitute:
+  '@@JOB_NAME@@': '{branch}'
+  '@@REF_NAME@@': 'ref-{shortref}'
+  '@@STORAGE@@':  '/storage/builds/'
+{% endmacro %}
+
+{% macro sanitize() %}
+#-----------------------------------------------------------------------------
+# Substitutions to perform on the ref and shortref.
+# The default is '@!?#&|\^_$%*': '_', which substitutes the characters
+# that cannot be in a Jenkins job name with '_'.
+sanitize:
+  '@!?#&|\^_$%*': '_'    # replace any of @!?#&|\^_$%* with _
+  're:colou?r': 'color'  # replace regex 'colou?r' with 'color'
+{% endmacro %}
+
+{% macro tag() %}
+#-----------------------------------------------------------------------------
+# Tag jobs with this string. The tag will be placed inside the config.xml of
+# new or updated jobs under the 'createByJenkinsAutojobs/tag' element.
+tag: 'throw-away-jobs'
+{% endmacro %}
+
+{% macro view() %}
+#-----------------------------------------------------------------------------
+# View to which new jobs should be added. Cannot be 'All'.
+view: 'view-name'
+{% endmacro %}
+
+{% macro cleanup() %}
+#-----------------------------------------------------------------------------
+# If set to true, jenkins-autojobs will remove jobs for branches that were
+# deleted. It uses a special property in the job’s config.xml to determine if
+# the job was created by jenkins-autojobs.
+#
+# If set to a tag name, only jobs with that name will be cleaned. This is
+# useful if you have more than one instance of jenkins-autojobs running and you
+# don’t want them to mutually cleanup each others jobs.
+cleanup: true  # or 'throw-away-jobs'
+{% endmacro %}

@@ -1,6 +1,3 @@
-Development
-===========
-
 Testing
 -------
 
@@ -8,8 +5,7 @@ The *jenkins-autojobs* test suite needs a running Jenkins instance,
 pre-configured with the git, hg and svn plugins. To save you some of
 the trouble of doing that, there is an `all-in-one script`_ that will
 download `jenkins.war`_, bundle all necessary plugins and start a
-local server. The test suite and the helper script will start a
-Jenkins CI server on ``localhost:60888``.
+local server on ``http://localhost:60888``.
 
 .. code-block:: bash
 
@@ -48,12 +44,7 @@ Jenkins CI server on ``localhost:60888``.
 Todo
 ----
 
-* Support more scm plugins.
-
-* Add Jenkins/SCM authentication tests.
-
-* Handle deleted branches that have been fully merged (this just
-  hasn't been a priority for me).
+- The documentation still needs a lot of work.
 
 .. _python-jenkins:    http://pypi.python.org/pypi/python-jenkins
 .. _`all-in-one script`:  https://github.com/gvalkov/jenkins-autojobs/blob/master/tests/bin/start-jenkins.sh

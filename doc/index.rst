@@ -1,90 +1,99 @@
+.. image:: img/autojobs-logo-expanded.png
+   :align: center
+
+
 Introduction
 ============
 
-.. image:: img/explanation-figure.png
-   :align: center
-   :width: 680
+Jenkins-autojobs is a set of scripts that automatically create Jenkins
+jobs from template jobs and the branches in an SCM repository.
+Jenkins-autojobs supports Git_, Mercurial_ and Subversion_.
 
+A routine run goes through the following steps:
 
-This package provides a set of scripts that automatically create
-Jenkins_ jobs from template jobs and the branches in a SCM repository.
+- Read settings from a configuration file.
+- List branches or refs from SCM.
+- Creates or updates jobs as configured.
 
-The modus operandi of *jenkins-autojobs* is simple:
-
-- Read :ref:`yaml configuration <gityamlconfig>` file.
-- List branches from git, mercurial or subversion.
-- Create or update jobs as specified in the config file. Jobs are
-  updated whenever their template jobs change.
-- Delete jobs for branches that were removed
-
-In a nutshell, the configuration file specifies:
+In its most basic form, the configuration file specifies:
 
 - How to access Jenkins and the SCM repository.
-- Which template job to use for which branch.
 - Which branches to process and which to ignore.
+- Which template job to use for which branches.
 - How new jobs should be named.
 
-A non-exclusive list of other configuration options:
+Autojobs can also;
 
-- The enabled/disabled state of new jobs. For example, we might want
-  new jobs to inherit the state of their template jobs, but updated
-  jobs to keep their most recent state.
+- Add newly created jobs to Jenkins views.
+- Cleanup jobs for which a branch no longer exists.
+- Perform text substitutions on all text elements of a job's ``config.xml``.
+- Update jobs when their template job is updated.
+- Set the enabled/disabled state of new jobs. A new job can inherit
+  the state of its template job, but an updated job can keep its most
+  recent state.
 
-- Perform text substitutions throughout all text elements of a job's
-  ``config.xml``. This is useful for plugins that cannot introspect
-  the name of the current branch or job (eg. `Sidebar-Link`_).
+Please refer to the :doc:`tutorial <tutorial>` and the :doc:`example
+output <exampleoutput>` to get started. You may also have a look at
+the annotated :ref:`git <gityamlconfig>`, :ref:`svn <svnyamlconfig>`
+and :ref:`hg <hgyamlconfig>` config files.
 
-See example :ref:`git configuration file <gityamlconfig>` and the
-corresponding :ref:`example output <exampleoutput>`
-
-Supported SCMs
---------------
-
-===============  =============================
- scm             script name
-===============  =============================
- git_            ``jenkins-makejobs-git``
- subversion_     ``jenkins-makejobs-svn``
- mercurial_      ``jenkins-makejobs-hg``
-===============  =============================
-
-All scripts accept the same command-line options and arguments::
-
-    Usage: jenkins-makejobs-git [-rvdtjnyoupUYOP] <config.yaml>
-
-    General Options:
-      -n dry run
-      -v show version and exit
-      -d debug config inheritance
-      -t debug http requests
-
-    Repository Options:
-      -r <arg> repository url
-      -y <arg> scm username
-      -o <arg> scm password
-      -Y scm username (read from stdin)
-      -P scm password (read from stdin)
-
-    Jenkins Options:
-      -j <arg> jenkins url
-      -u <arg> jenkins username
-      -p <arg> jenkins password
-      -U jenkins username (read from stdin)
-      -P jenkins password (read from stdin)
+**Notice**: The documentation is in the process of being completely
+rewritten. Things may seem incomplete and out of place.
 
 
-Contents
---------
+Installing
+----------
+
+The latest stable version of jenkins-autojobs can be installed from pypi_
+using pip.
+
+.. code-block:: bash
+
+    $ pip install jenkins-autojobs
+
+Jenkins-autojobs depends on a version of lxml with support for XML
+canonicalization (c14n). Setup will attempt to install one if it is not
+present on your systemi. You might have to install the ``libxml`` and
+``libxslt`` development headers if you haven't already done so:
+
+On a Debian compatible OS:
+
+.. code-block:: bash
+
+    $ apt-get install libxml2-dev libxslt1-dev
+
+On a Redhat compatible OS:
+
+.. code-block:: bash
+
+    $ yum install libxml2-devel libxslt-devel
+
+On Arch Linux or derivatives:
+
+.. code-block:: bash
+
+    $ pacman -S libxslt libxml2
+
+
+Changes
+-------
 
 .. toctree::
-   :maxdepth: 2
-
-   install
-   git
-   subversion
-   mercurial
-   devel
    changelog
+
+.. toctree::
+   :hidden:
+
+   tutorial
+   usecases
+   exampleoutput
+
+
+Development
+-----------
+
+.. toctree::
+   devel
 
 
 Similar Projects
@@ -97,13 +106,14 @@ Similar Projects
 License
 -------
 
-*Jenkins-autojobs* is released under the terms of the `Revised BSD License`_.
+Jenkins-autojobs is released under the terms of the `Revised BSD
+License`_. All figures are derived from the Jenkins logo and are
+released under the `CC BY-SA 3.0`_ license.
 
 
+.. _pypi: http://pypi.python.org/pypi/jenkins-autojobs
 .. _github:            https://github.com/gvalkov/jenkins-autojobs
-.. _Jenkins:           http://jenkins-ci.org/
 .. _`Revised BSD License`: https://raw.github.com/gvalkov/jenkins-autojobs/master/LICENSE
-.. _lxml:              http://lxml.de/
 .. _`Sidebar-Link`:    https://wiki.jenkins-ci.org/display/JENKINS/Sidebar-Link+Plugin
 .. _python-jenkins:    http://pypi.python.org/pypi/python-jenkins
 .. _jenkins-build-per-branch: http://entagen.github.com/jenkins-build-per-branch/
@@ -111,3 +121,4 @@ License
 .. _git:               https://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin
 .. _subversion:        https://wiki.jenkins-ci.org/display/JENKINS/Subversion+Plugin
 .. _mercurial:         https://wiki.jenkins-ci.org/display/JENKINS/Mercurial+Plugin
+.. _`CC BY-SA 3.0`:    http://creativecommons.org/licenses/by-sa/3.0/

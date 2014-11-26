@@ -1,0 +1,70 @@
+{% import 'shared-config.jinja2' as m %}
+
+{{- m.jenkins()|trim }}
+
+#-----------------------------------------------------------------------------
+# Svn base url (not necessarily the repository root).
+repo: file:///tmp/repo/
+
+#-----------------------------------------------------------------------------
+# Urls to list for branches that will be matchable by the refs option.
+# Autojobs will 'svn ls' each of these and strip the value of 'repo'.
+branches:
+  - file:///tmp/repo/branches/
+  - file:///tmp/repo/experimental/
+  - file:///tmp/repo/releases/
+
+{{ m.scmlogin()|trim }}
+
+{{ m.template()|trim }}
+
+{{ m.namesep()|trim }}
+
+#-----------------------------------------------------------------------------
+# Template string to use for new job names. Several placeholder variables as
+# well as regex capture groups and backreferences from the 'refs' match are
+# available. Given a branch 'branches/svn-bisect' and a regex
+# 'branches/(.*)-(.*)', the following placeholders will be available:
+#
+#   {path}       branches-svn-bisect
+#   {path-orig}  branches/svn-bisect
+#   {branch}     svn-bisect
+#   {0}          svn
+#   {1}          bisect
+#
+# The default is '{path}'.
+namefmt: '{path}'
+
+
+{{ m.overwrite()|trim }}
+
+{{ m.enable()|trim }}
+
+{{ m.substitute()|trim }}
+
+{{ m.sanitize()|trim }}
+
+#-----------------------------------------------------------------------------
+# List of branches to ignore (regular expressions).
+ignore:
+  - 'branches/.*-nobuild'
+  - 'experimental/john/.*'
+
+#-----------------------------------------------------------------------------
+# A list of regular expressions that specify which refs to process.
+# Global settings can be overwritten on a per-branch basis.
+# Defaults to all branches ('refs: ".*"').
+refs:
+  - 'branches/(.*)'
+  - 'releases/(.*)':
+      'template': 'release-template'
+      'namefmt':  'release-{short}'
+      'enable':   false
+      'view':     'release-view'
+      'tag':      'group-1'
+
+{{ m.view()|trim }}
+
+{{ m.tag()|trim }}
+
+{{ m.cleanup()|trim }}

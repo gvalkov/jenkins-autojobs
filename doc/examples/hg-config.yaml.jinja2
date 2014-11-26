@@ -1,0 +1,77 @@
+{% import 'shared-config.jinja2' as m %}
+
+{{- m.jenkins()|trim }}
+
+#-----------------------------------------------------------------------------
+# Mercurial repository url.
+repo: file:///tmp/repo/
+
+#-----------------------------------------------------------------------------
+# The Python binary to use when calling mercurial. Defaults to 'python'.
+python: python2
+
+{{ m.scmlogin()|trim }}
+
+{{ m.template()|trim }}
+
+{{ m.namesep()|trim }}
+#-----------------------------------------------------------------------------
+# Template string to use for new job names. Several placeholder variables as
+# well as regex capture groups and backreferences from the 'refs' match are
+# available. Given a ref 'refs/heads/feature/one/two.three' and a regex
+# 'refs/heads/feature/(.*)/(.*)', the following placeholders are available:
+#
+#   {branch}       feature-one.two.three
+#   {branch-orig}  feature/one/two.three
+#   {0}            one
+#   {1}            two.three
+#
+#
+# The default is '{branch}'.
+namefmt: '{branch}'
+
+#-----------------------------------------------------------------------------
+# Template string to use for new job names. Several placeholder variables as
+# well as regex capture groups and backreferences from the 'refs' match are
+# available. Given a ref 'refs/heads/feature/one/two.three' and a regex
+# 'refs/heads/feature/(.*)/(.*)', the following placeholders are available:
+
+# Template string for new job names
+# The following placeholders are available:
+# Given a branch feature/one
+#   {branch} -> expands to the name of the branch (feature-one)
+#   {n}      -> nth backreference of the branch regex
+namefmt: '{branch}'
+
+{{ m.overwrite()|trim }}
+
+{{ m.enable()|trim }}
+
+{{ m.substitute()|trim }}
+
+{{ m.sanitize()|trim }}
+
+#-----------------------------------------------------------------------------
+# List of branches to ignore (regular expressions)
+ignore:
+  - '.*-nobuild'
+  - 'scratch/.*'
+
+#-----------------------------------------------------------------------------
+# A list of regular expressions that specify which branches to process.
+# Global settings can be overwritten on a per-ref basis.
+# Defaults to all refs ('refs: ".*"').
+refs:
+  - 'feature-(.*)'
+  - 'release-(.*)':
+      'template': 'release-template'
+      'namefmt':  'rel-{1}'
+      'enable':   false
+      'view':     'release-view'
+      'tag':      'group-1'
+
+{{ m.view()|trim }}
+
+{{ m.tag()|trim }}
+
+{{ m.cleanup()|trim }}

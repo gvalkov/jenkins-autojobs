@@ -1,0 +1,129 @@
+#-----------------------------------------------------------------------------
+# Jenkins location and login credentials.
+jenkins:  http://jenkins.yourdomain.com
+username: None  # optional
+password: None  # optional
+
+#-----------------------------------------------------------------------------
+# Git repository location. This can be a local filesystem directory or an url.
+# If location is local, 'git show-ref' is used. If it is an url, 'git ls-remote'
+# is used. Keep in mind that these commands return ref names differently, which
+# is relevant for setting the 'repo' configuration key.
+repo: file:///tmp/project-repo/  # or /tmp/project-repo
+
+#-----------------------------------------------------------------------------
+# Repository login credentials.
+scm-username: None  # optional
+scm-password: None  # optional
+
+#-----------------------------------------------------------------------------
+# Job to use as a template for new jobs.
+template: new-job-template
+
+#-----------------------------------------------------------------------------
+# Character with which to replace '/' in ref names.
+namesep: '-'
+
+#-----------------------------------------------------------------------------
+# Template string to use for new job names. Several placeholder variables as
+# well as regex capture groups and backreferences from the 'refs' match are
+# available. Given a ref 'refs/heads/feature/one/two.three' and a regex
+# 'refs/heads/feature/(.*)/(.*)', the following placeholders are available:
+#
+#   {shortref}       feature-one.two.three
+#   {shortref-orig}  feature/one/two.three
+#   {ref}            refs-heads-feature-one-two.three
+#   {ref-orig}       refs/heads/feature/one/two.three
+#   {0}              one
+#   {1}              two.three
+#
+#
+# It’s also possible to refer to regex capture groups. Given the same ref
+# and a regex 'refs/heads/(?P<type>(?:feature|release))/(.*)/(.*)', we we
+# can refer to following placeholders:
+#
+#   {0}       feature
+#   {1}       one
+#   {2}       two.three
+#   {type}    feature
+#
+# The default is '{shortref}'.
+namefmt: '{shortref}'
+
+#-----------------------------------------------------------------------------
+# If false, a job will never be overwritten if it exists.
+# If true, a job will be overwritten if the new configration differs from the
+# old one (the default).
+overwrite: true
+
+#-----------------------------------------------------------------------------
+# State of newly created or overwritten jobs. Default is 'sticky'. One of:
+#   true       -> Jobs will be enabled.
+#   false      -> Jobs will be disabled.
+#   'template' -> Jobs will inherit the state of their template job.
+#   'sticky'   -> New jobs inherit the state of the template job -
+#                 overwritten jobs keep their most recernt state.
+enable: 'sticky'
+
+#-----------------------------------------------------------------------------
+# Makes text substitutions throughout all text elements of a job’s config.xml.
+# This includes the body of all commands that you may have defined. This option
+# is useful for plugins that cannot introspect the name of the branch or job
+# themselves (e.g. Sidebar-Link). All placeholders available to the namefmt
+# option are also available here.
+substitute:
+  '@@JOB_NAME@@': '{branch}'
+  '@@REF_NAME@@': 'ref-{shortref}'
+  '@@STORAGE@@':  '/storage/builds/'
+
+#-----------------------------------------------------------------------------
+# Substitutions to perform on the ref and shortref.
+# The default is '@!?#&|\^_$%*': '_', which substitutes the characters
+# that cannot be in a Jenkins job name with '_'.
+sanitize:
+  '@!?#&|\^_$%*': '_'    # replace any of @!?#&|\^_$%* with _
+  're:colou?r': 'color'  # replace regex 'colou?r' with 'color'
+
+#-----------------------------------------------------------------------------
+# List of refs to ignore (regular expressions).
+ignore:
+  - 'refs/heads/feature/.*-nobuild'
+  - 'refs/heads/scratch/.*'
+
+#-----------------------------------------------------------------------------
+# A list of regular expressions that specify which refs to process.
+# Global settings can be overwritten on a per-ref basis.
+# Defaults to all refs ('refs: ".*"').
+refs:
+  - 'refs/heads/release/(.*)'
+  - 'refs/heads/feature/(.*)'
+  - 'refs/heads/scratch/(.*)':
+      'template': 'scratch-template'
+      'namefmt':  'wip-{shortref}'
+      'enable':   false
+      'view':     'scratch-view'
+      'tag':      'group-1'
+
+# Although you can match any ref returned by 'git show-ref' or 'git ls-remote'
+# (depending on whether the repo is local or remote), only refs under
+# 'refs/heads' can be safely used for the branchspec field of the Jenkins Git
+# plugin. You can still use the substitute option for such setups.
+
+#-----------------------------------------------------------------------------
+# View to which new jobs should be added. Cannot be 'All'.
+view: 'view-name'
+
+#-----------------------------------------------------------------------------
+# Tag jobs with this string. The tag will be placed inside the config.xml of
+# new or updated jobs under the 'createByJenkinsAutojobs/tag' element.
+tag: 'throw-away-jobs'
+
+#-----------------------------------------------------------------------------
+# If set to true, jenkins-autojobs will remove jobs for branches that were
+# deleted. It uses a special property in the job’s config.xml to determine if
+# the job was created by jenkins-autojobs.
+#
+# If set to a tag name, only jobs with that name will be cleaned. This is
+# useful if you have more than one instance of jenkins-autojobs running and you
+# don’t want them to mutually cleanup each others jobs.
+cleanup: true  # or 'throw-away-jobs'

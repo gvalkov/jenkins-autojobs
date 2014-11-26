@@ -1,0 +1,81 @@
+{% import 'shared-config.jinja2' as m %}
+
+{{- m.jenkins()|trim }}
+
+#-----------------------------------------------------------------------------
+# Git repository location. This can be a local filesystem directory or an url.
+# If location is local, 'git show-ref' is used. If it is an url, 'git ls-remote'
+# is used. Keep in mind that these commands return ref names differently, which
+# is relevant for setting the 'repo' configuration key.
+repo: file:///tmp/project-repo/  # or /tmp/project-repo
+
+{{ m.scmlogin()|trim }}
+
+{{ m.template()|trim }}
+
+{{ m.namesep()|trim|replace("branch", "ref") }}
+
+#-----------------------------------------------------------------------------
+# Template string to use for new job names. Several placeholder variables as
+# well as regex capture groups and backreferences from the 'refs' match are
+# available. Given a ref 'refs/heads/feature/one/two.three' and a regex
+# 'refs/heads/feature/(.*)/(.*)', the following placeholders are available:
+#
+#   {shortref}       feature-one.two.three
+#   {shortref-orig}  feature/one/two.three
+#   {ref}            refs-heads-feature-one-two.three
+#   {ref-orig}       refs/heads/feature/one/two.three
+#   {0}              one
+#   {1}              two.three
+#
+#
+# It’s also possible to refer to regex capture groups. Given the same ref
+# and a regex 'refs/heads/(?P<type>(?:feature|release))/(.*)/(.*)', we we
+# can refer to following placeholders:
+#
+#   {0}       feature
+#   {1}       one
+#   {2}       two.three
+#   {type}    feature
+#
+# The default is '{shortref}'.
+namefmt: '{shortref}'
+
+{{ m.overwrite()|trim }}
+
+{{ m.enable()|trim }}
+
+{{ m.substitute()|trim }}
+
+{{ m.sanitize()|trim }}
+
+#-----------------------------------------------------------------------------
+# List of refs to ignore (regular expressions).
+ignore:
+  - 'refs/heads/feature/.*-nobuild'
+  - 'refs/heads/scratch/.*'
+
+#-----------------------------------------------------------------------------
+# A list of regular expressions that specify which refs to process.
+# Global settings can be overwritten on a per-ref basis.
+# Defaults to all refs ('refs: ".*"').
+refs:
+  - 'refs/heads/release/(.*)'
+  - 'refs/heads/feature/(.*)'
+  - 'refs/heads/scratch/(.*)':
+      'template': 'scratch-template'
+      'namefmt':  'wip-{shortref}'
+      'enable':   false
+      'view':     'scratch-view'
+      'tag':      'group-1'
+
+# Although you can match any ref returned by 'git show-ref' or 'git ls-remote'
+# (depending on whether the repo is local or remote), only refs under
+# 'refs/heads' can be safely used for the branchspec field of the Jenkins Git
+# plugin. You can still use the substitute option for such setups.
+
+{{ m.view()|trim }}
+
+{{ m.tag()|trim }}
+
+{{ m.cleanup()|trim }}

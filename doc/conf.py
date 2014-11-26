@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import sys, os, re
+import alabaster
 
-# Check if readthedocs is building us
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
-# read version from setup.py
+# Read version from setup.py
 for line in open('../jenkins_autojobs/__init__.py'):
     m = re.search("version.*=.*'(.*)'", line)
     if m:
@@ -19,7 +17,7 @@ for line in open('../jenkins_autojobs/__init__.py'):
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.intersphinx']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.intersphinx', 'alabaster']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -76,7 +74,7 @@ exclude_patterns = ['_build']
 #show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+# pygments_style = 'tango'
 
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
@@ -87,12 +85,14 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-if not on_rtd:
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-else:
-    html_theme = 'default'
+html_theme_path = [alabaster.get_path()]
+html_theme = 'alabaster'
+# html_sidebars = {
+#    '**': ['navigation.html', 'searchbox.html']
+# }
+html_sidebars = {
+'**': []
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -110,7 +110,7 @@ else:
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = 'img/logo.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
