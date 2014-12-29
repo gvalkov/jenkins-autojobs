@@ -40,6 +40,8 @@ class Job(object):
         elif value == 'sticky' and self.config:
             if '<disabled>false</disabled>' in self.config:
                 el.text = 'false'
+            if '<disabled>true</disabled>' in self.config:
+                el.text = 'true'
 
     def substitute(self, items, fmtdict, groups, groupdict):
         for el in self.xml.xpath("//text()"):
