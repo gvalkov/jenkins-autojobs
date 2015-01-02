@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.14.3 (Jan 02, 2015)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Fix sticky state when template job is enabled (thanks `@d-a-n`_ and
+  `@sustmi`_).
+
+
 0.14.2 (Nov 24, 2014)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -130,3 +137,5 @@ Changelog
 .. _`@aklemp`:         https://github.com/aklemp
 .. _`@myz`:            https://github.com/myz
 .. _`@yamikuronue`:    https://github.com/yamikuronue
+.. _`@d-a-n`:          https://github.com/d-a-n
+.. _`@sustmi`:         https://github.com/sustmi
