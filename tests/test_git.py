@@ -321,24 +321,39 @@ def test_enable_template(config, jenkins, repo,):
 
 
 #-----------------------------------------------------------------------------
-def test_enable_sticky(config, jenkins, repo,):
+def test_enable_sticky(config, jenkins, repo):
     config['enable'] = 'sticky'
     config['overwrite'] = True
 
+    # First run inherits the enabled state of the template job.
     jenkins.job_disable('master-job-git')
     with repo.branch('feature/enable-sticky-one'):
         cmd(config)
-        assert jenkins.job_exists('feature-enable-sticky-one')
         assert not jenkins.job_enabled('feature-enable-sticky-one')
 
+    # If child job is enabled, it will remain enabled.
     jenkins.job_enable('feature-enable-sticky-one')
-    with repo.branch('feature/enable-sticky-one'):
+    cmd(config)
+    assert jenkins.job_enabled('feature-enable-sticky-one')
+
+    jenkins.job_disable('feature-enable-sticky-one')
+    cmd(config)
+    assert not jenkins.job_enabled('feature-enable-sticky-one')
+
+    #-------------------------------------------------------------------------
+    jenkins.job_enable('master-job-git')
+    with repo.branch('feature/enable-sticky-two'):
         cmd(config)
-        assert jenkins.job_enabled('feature-enable-sticky-one')
+        assert jenkins.job_enabled('feature-enable-sticky-two')
+
+    # If child job is disabled, it will remain disabled.
+    jenkins.job_disable('feature-enable-sticky-two')
+    cmd(config)
+    assert not jenkins.job_enabled('feature-enable-sticky-two')
 
 
 #-----------------------------------------------------------------------------
-def test_inheritance_order(config, jenkins, repo,):
+def test_inheritance_order(config, jenkins, repo):
     config['refs'] = [
         { 'refs/heads/feature/bravo/(.*)' : {'namefmt' : 'one-{shortref}'} },
         { 'refs/heads/feature/(.*)'       : {'namefmt' : 'two-{shortref}'} },
@@ -350,14 +365,14 @@ def test_inheritance_order(config, jenkins, repo,):
 
 
 #-----------------------------------------------------------------------------
-def test_missing_template(config, jenkins, repo,):
+def test_missing_template(config, jenkins, repo):
     config['template'] = 'does-not-exist'
     with pytest.raises(SystemExit):
         cmd(config)
 
 
 #-----------------------------------------------------------------------------
-def test_cleanup(config, jenkins, repo,):
+def test_cleanup(config, jenkins, repo):
     config['cleanup'] = True
 
     with repo.branches('feature/one', 'feature/two'):
@@ -372,7 +387,7 @@ def test_cleanup(config, jenkins, repo,):
 
 
 #-----------------------------------------------------------------------------
-def test_failing_git_cleanup(config, jenkins, repo,):
+def test_failing_git_cleanup(config, jenkins, repo):
     config['cleanup'] = True
 
     with repo.branches('feature/one', 'feature/two'):
