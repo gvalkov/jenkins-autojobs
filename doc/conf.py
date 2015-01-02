@@ -5,7 +5,7 @@ import alabaster
 
 # Read version from setup.py
 for line in open('../jenkins_autojobs/__init__.py'):
-    m = re.search("version.*=.*'(.*)'", line)
+    m = re.search("__version__.*=.*'(.*)'", line)
     if m:
         _release = m.group(1)
         break

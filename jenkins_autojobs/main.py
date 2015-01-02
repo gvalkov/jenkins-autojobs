@@ -15,7 +15,7 @@ from lxml import etree
 from jenkins import Jenkins, JenkinsError
 from requests.exceptions import RequestException
 
-from jenkins_autojobs import version
+from jenkins_autojobs import __version__
 from jenkins_autojobs.util import *
 
 
@@ -203,7 +203,7 @@ def parse_args(argv, fmt):
     opts = dict(opts)
 
     if '-v' in opts:
-        print('jenkins-autojobs version %s' % version)
+        print('jenkins-autojobs version %s' % __version__)
         exit(0)
 
     return opts, args
