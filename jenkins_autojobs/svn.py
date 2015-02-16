@@ -8,6 +8,7 @@ Documentation: https://github.com/gvalkov/jenkins-autojobs/
 
 from os import linesep, path
 from sys import exit, argv
+from subprocess import CalledProcessError
 
 from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
@@ -30,14 +31,36 @@ def svn_ls(url, username=None, password=None, dirsonly=True):
 
     return out
 
+def svn_wildcard_ls(url, repo, username=None, password=None, dirsonly=True):
+    left, wcard, right = url.partition('*')
+    right = right.lstrip('/')
+    branches = []
+
+    if not wcard:
+        try:
+            return svn_ls(left, username, password, True)
+        except CalledProcessError:
+            return []
+    else:
+        for dirname in svn_ls(left, username, password, True):
+            url = path.join(left, dirname, right)
+            res = svn_wildcard_ls(url, repo, username, password, True)
+            rel = url.replace(repo, '')
+            branches.extend(path.join(rel, i) for i in res)
+        return branches
+
 def list_branches(config):
     c = config
     branches = []
 
     for url in c['branches']:
-        res = svn_ls(url, c['scm-username'], c['scm-password'])
-        rel = url.replace(c['repo'], '').lstrip('/')
-        res = [path.join(rel, i) for i in res]
+        if '*' in url:
+            res = svn_wildcard_ls(url, c['repo'], c['scm-username'], c['scm-password'])
+            res = [i.lstrip('/') for i in res]
+        else:
+            res = svn_ls(url, c['scm-username'], c['scm-password'])
+            rel = url.replace(c['repo'], '').lstrip('/')
+            res = [path.join(rel, i) for i in res]
         branches.extend(res)
     return branches
 

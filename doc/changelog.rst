@@ -1,12 +1,17 @@
 Changelog
 ---------
 
+0.15.0 (Feb 16, 2015)
+^^^^^^^^^^^^^^^^^^^^^
+
+- The ``*`` wildcard can now be used in the ``branches`` config key of
+  ``jeknins-makejobs-svn``. Example usage: ``file:///repo/projects/*/branches``.
+
 0.14.3 (Jan 02, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
 
 - Fix sticky state when template job is enabled (thanks `@d-a-n`_ and
   `@sustmi`_).
-
 
 0.14.2 (Nov 24, 2014)
 ^^^^^^^^^^^^^^^^^^^^^
@@ -33,7 +38,7 @@ Changelog
 0.14.0 (Oct 27, 2014)
 ^^^^^^^^^^^^^^^^^^^^^
 
-- Learned the ability to add generated jobs to specific views.
+- Learn the ability to add generated jobs to specific views.
 
 - Fix compatiblity with newer version of the Jenkins Mercurial plugin (thanks `@ThomasMatern`_).
 
