@@ -7,6 +7,7 @@ from os.path import join as pjoin, abspath, dirname
 from tempfile import mkdtemp, mkstemp
 from contextlib import contextmanager
 from subprocess import check_call
+from itertools import product
 
 
 here = abspath(dirname(__file__))
@@ -16,6 +17,7 @@ def repo_fixture(repo_type):
         'git': GitRepo,
         'hg':  HgRepo,
         'svn': SvnRepo,
+        'svn-nested': SvnNestedRepo,
     }
     repo = types[repo_type]()
     print('Creating temporary %s repo: %s' % (repo_type, repo.dir))
@@ -94,6 +96,25 @@ class SvnRepo(TmpRepo):
 
     def rmbranch(self, name):
         cmd = ('svn', 'rm', '%s/%s' % (self.url, name), '-m', '++')
+        check_call(cmd)
+
+
+class SvnNestedRepo(TmpRepo):
+    def init(self):
+        cmd = ('svnadmin', 'create', self.dir)
+        check_call(cmd)
+
+        dirs = product(
+            [self.url],
+            ['', 'sub1', 'sub2'],
+            'ABCD',
+            ['trunk', 'tags', 'branches/1', 'branches/2', 'branches/3'],
+        )
+        urls = map('/'.join, dirs)
+
+        cmd = ['svn', 'mkdir', '-m', '++', '--parents']
+        cmd += urls
+
         check_call(cmd)
 
 

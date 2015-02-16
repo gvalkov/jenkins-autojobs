@@ -3,7 +3,7 @@
 import io, os, yaml, pytest
 
 from pytest import mark
-from pytest import fixture
+from pytest import fixture, yield_fixture
 from textwrap import dedent
 from functools import partial
 
@@ -15,9 +15,17 @@ from jenkins import Jenkins
 # Fixtures and shortcuts.
 cmd = partial(svn.main, ['jenkins-makejobs-svn'])
 
-@fixture(scope='module')
+@yield_fixture(scope='module')
 def repo():
-    return repo_fixture('svn')
+    r = repo_fixture('svn')
+    yield r
+    r.clean()
+
+@yield_fixture(scope='module')
+def repo_nested():
+    r = repo_fixture('svn-nested')
+    yield r
+    r.clean()
 
 @fixture(scope='module')
 def jenkins():
@@ -188,3 +196,38 @@ def test_make_trunk(jenkins, repo, config):
 
     cmd(config)
     assert jenkins.job_exists('trunktest')
+
+
+#------------------------------------------------------------------------------
+def test_nested_svnls(repo_nested):
+    config = {
+        'repo': repo_nested.url,
+        'branches': [],
+        'scm-username': None,
+        'scm-password': None,
+    }
+
+    config['branches'] = [repo_nested.url + '/A/branches']
+    assert svn.list_branches(config) == [
+        'A/branches/1', 'A/branches/2', 'A/branches/3'
+    ]
+
+    config['branches'] = [repo_nested.url + '/*/branches']
+    assert svn.list_branches(config) == [
+        'A/branches/1', 'A/branches/2', 'A/branches/3',
+        'B/branches/1', 'B/branches/2', 'B/branches/3',
+        'C/branches/1', 'C/branches/2', 'C/branches/3',
+        'D/branches/1', 'D/branches/2', 'D/branches/3',
+    ]
+
+    config['branches'] = [repo_nested.url + '/*/*/branches/']
+    assert svn.list_branches(config) == [
+        'sub1/A/branches/1', 'sub1/A/branches/2', 'sub1/A/branches/3',
+        'sub1/B/branches/1', 'sub1/B/branches/2', 'sub1/B/branches/3',
+        'sub1/C/branches/1', 'sub1/C/branches/2', 'sub1/C/branches/3',
+        'sub1/D/branches/1', 'sub1/D/branches/2', 'sub1/D/branches/3',
+        'sub2/A/branches/1', 'sub2/A/branches/2', 'sub2/A/branches/3',
+        'sub2/B/branches/1', 'sub2/B/branches/2', 'sub2/B/branches/3',
+        'sub2/C/branches/1', 'sub2/C/branches/2', 'sub2/C/branches/3',
+        'sub2/D/branches/1', 'sub2/D/branches/2', 'sub2/D/branches/3'
+    ]
