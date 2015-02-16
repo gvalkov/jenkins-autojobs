@@ -15,6 +15,7 @@ branches:
   - file:///tmp/repo/branches/
   - file:///tmp/repo/experimental/
   - file:///tmp/repo/releases/
+  - file:///tmp/repo/projects/*/branches
 
 #-----------------------------------------------------------------------------
 # Repository login credentials.
