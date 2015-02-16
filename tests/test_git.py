@@ -3,7 +3,7 @@
 import io, yaml, pytest
 
 from pytest import mark
-from pytest import fixture
+from pytest import fixture, yield_fixture
 from textwrap import dedent
 from functools import partial
 
@@ -16,9 +16,11 @@ from jenkins import Jenkins
 # Fixtures and shortcuts.
 cmd = partial(git.main, ['jenkins-makejobs-git'])
 
-@fixture(scope='module')
+@yield_fixture(scope='module')
 def repo():
-    return repo_fixture('git')
+    r = repo_fixture('git')
+    yield r
+    r.clean()
 
 @fixture(scope='module')
 def jenkins():
