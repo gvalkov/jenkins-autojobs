@@ -17,7 +17,7 @@ using pip.
 
 Jenkins-autojobs depends on a version of lxml with support for XML
 canonicalization (c14n). Setup will attempt to install one if it is not
-present on your systemi. You might have to install the ``libxml`` and
+present on your system. You might have to install the ``libxml`` and
 ``libxslt`` development headers if you haven't already done so:
 
 On a Debian compatible OS:
