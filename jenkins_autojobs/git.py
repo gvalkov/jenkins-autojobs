@@ -71,7 +71,9 @@ def create_job(ref, template, config, ref_config):
     fmtdict = {
         'ref':      sanitized_ref,
         'shortref': sanitized_shortref,
+        'repo':     sanitize(config['repo'], ref_config['sanitize']),
         'ref-orig': ref,
+        'repo-orig': config['repo'],
         'shortref-orig': shortref,
     }
 

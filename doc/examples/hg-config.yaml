@@ -32,6 +32,8 @@ namesep: '-'
 #
 #   {branch}       feature-one.two.three
 #   {branch-orig}  feature/one/two.three
+#   {repo}         sanitized value of 'repo' config key
+#   {repo-orig}    value of 'repo' config key
 #   {0}            one
 #   {1}            two.three
 #

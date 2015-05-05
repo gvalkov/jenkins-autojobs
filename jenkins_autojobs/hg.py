@@ -76,7 +76,9 @@ def create_job(ref, template, config, ref_config):
 
     # Placeholders available to the 'substitute' and 'namefmt' options.
     fmtdict = {
+        'repo':   sanitize(config['repo'], ref_config['sanitize']),
         'branch': sanitized_ref,
+        'repo-orig': config['repo'],
         'branch-orig': ref,
     }
 

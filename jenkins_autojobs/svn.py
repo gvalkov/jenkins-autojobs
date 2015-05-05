@@ -84,7 +84,9 @@ def create_job(branch, template, config, branch_config):
     fmtdict = {
         'branch': branch.split('/')[-1],
         'path': branch.replace('/', branch_config['namesep']),
+        'repo': sanitize(config['repo'], branch_config['sanitize']),
         'path-orig': branch,
+        'repo-orig': config['repo'],
     }
 
     job_name = branch_config['namefmt'].format(*groups, **merge(groupdict, fmtdict))

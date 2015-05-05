@@ -34,6 +34,8 @@ namesep: '-'
 #   {shortref-orig}  feature/one/two.three
 #   {ref}            refs-heads-feature-one-two.three
 #   {ref-orig}       refs/heads/feature/one/two.three
+#   {repo}           sanitized value of 'repo' config key
+#   {repo-orig}      value of 'repo' config key
 #   {0}              one
 #   {1}              two.three
 #

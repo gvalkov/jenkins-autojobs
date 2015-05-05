@@ -196,7 +196,7 @@ def test_namefmt_groups_inherit(config, jenkins, repo, branch, regex, namefmt, e
 
 #-----------------------------------------------------------------------------
 params = [
-    ['feature/one/two', {'@@JOB_NAME@@' : '{shortref}'}, 'feature-one-two', 'feature-one-two'],
+    ['feature/one/two',   {'@@JOB_NAME@@' : '{shortref}'}, 'feature-one-two', 'feature-one-two'],
     ['feature/two/three', {'@@JOB_NAME@@' : 'one-{ref}'},  'feature-two-three', 'one-refs-heads-feature-two-three'],
 ]
 @mark.parametrize(['branch', 'sub', 'ejob', 'expected'], params)
@@ -209,6 +209,12 @@ def test_substitute(config, jenkins, repo, branch, sub, ejob, expected):
         assert jenkins.job_exists(ejob)
         assert jenkins.job_info(ejob)['description'] == expected
 
+def test_substitute_reposub(config, jenkins, repo):
+    config['substitute'] = {'@@JOB_NAME@@': '{repo-orig}'}
+    with repo.branch('feature/reposub'):
+        cmd(config)
+        assert jenkins.job_exists('feature-reposub')
+        assert jenkins.job_info('feature-reposub')['description'] == config['repo']
 
 #-----------------------------------------------------------------------------
 def test_substitute_groups(config, jenkins, repo):
