@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.15.1 (May 05, 2015)
+^^^^^^^^^^^^^^^^^^^^^
+
+- The ``repo`` and ``repo-orig`` keys are now available to the
+  ``namefmt`` and ``substitute`` options. They hold the sanitized and
+  raw value of the ``repo`` top-level config key.
+
 0.15.0 (Feb 16, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
 
