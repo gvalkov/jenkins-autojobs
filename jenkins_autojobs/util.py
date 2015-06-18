@@ -79,7 +79,9 @@ def check_output(*popenargs, **kwargs):
         cmd = kwargs.get("args")
         if cmd is None:
             cmd = popenargs[0]
-        raise sub.CalledProcessError(retcode, cmd, output=output)
+        error = sub.CalledProcessError(retcode, cmd)
+        error.output = output  # Compatibility with Python 2.6.
+        raise error
     return output
 
 
