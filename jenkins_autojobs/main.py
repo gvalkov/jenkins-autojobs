@@ -226,15 +226,16 @@ def get_default_config(config, opts):
 
     # Default settings for each git ref/branch/ config.
     c['defaults'] = {
-        'namesep':    c.get('namesep', '-'),
-        'namefmt':    c.get('namefmt', '{shortref}'),
-        'overwrite':  c.get('overwrite', True),
-        'enable':     c.get('enable', 'sticky'),
-        'substitute': c.get('substitute', {}),
-        'template':   c.get('template'),
-        'sanitize':   c.get('sanitize', {'@!?#&|\^_$%*': '_'}),
-        'tag':        c.get('tag', []),
-        'view':       c.get('view', [])
+        'namesep':         c.get('namesep', '-'),
+        'namefmt':         c.get('namefmt', '{shortref}'),
+        'overwrite':       c.get('overwrite', True),
+        'enable':          c.get('enable', 'sticky'),
+        'substitute':      c.get('substitute', {}),
+        'template':        c.get('template'),
+        'sanitize':        c.get('sanitize', {'@!?#&|\^_$%*': '_'}),
+        'tag':             c.get('tag', []),
+        'view':            c.get('view', []),
+        'build-on-create': c.get('build-on-create', False)
     }
 
     # Make sure some options are always lists.
