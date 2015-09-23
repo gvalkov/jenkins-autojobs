@@ -118,7 +118,12 @@ def create_job(branch, template, config, branch_config):
     # job name, we do it for them.
     job.substitute(list(branch_config['substitute'].items()), fmtdict, groups, groupdict)
 
-    job.create(branch_config['overwrite'], branch_config['build-on-create'], config['dryrun'], tag=branch_config['tag'])
+    job.create(
+        branch_config['overwrite'],
+        branch_config['build-on-create'],
+        config['dryrun'],
+        tag=branch_config['tag']
+    )
 
     if config['debug']:
         debug_refconfig(branch_config)

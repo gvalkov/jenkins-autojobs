@@ -96,7 +96,7 @@ class Job(object):
             if build_on_create:
                 if not dryrun:
                     self.jenkins.job_build(self.name)
-                print('. job ')
+                print('. build triggered')
 
         elif not overwrite:
             print('. overwrite disabled - skipping job')
