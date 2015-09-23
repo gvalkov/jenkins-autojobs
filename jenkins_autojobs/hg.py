@@ -6,53 +6,40 @@ Automatically create jenkins jobs for the branches in a mercurial repository.
 Documentation: https://github.com/gvalkov/jenkins-autojobs/
 '''
 
+import os
 import re
+import sys
+import ast
 
-from os import linesep, path
-from sys import exit, argv
-from ast import literal_eval
-from tempfile import NamedTemporaryFile
-
-from lxml import etree
 from jenkins_autojobs.main import main as _main, debug_refconfig
 from jenkins_autojobs.util import sanitize, check_output, merge
 from jenkins_autojobs.job import Job
 
 
-# Decouple the current interpreter version from the mercurial
-# interpreter version.
-hg_list_remote_py = '''
-from mercurial import ui, hg, node
-
-res = []
-peer = hg.peer(ui.ui(), {}, %(repo)r)
-for name, rev in peer.branchmap().items():
-    res.append((name, node.short(rev[0])))
-
-print(repr(res))
-'''
-
+# We do this to decouple the current interpreter version from the
+# mercurial interpreter version. The mercurial helper script is called
+# with the python version specified in the config file.
+hg_remote_helper_path = os.path.join(
+    os.path.split(__file__)[0],
+    'hg_remote_helper.py'
+)
 
 def hg_branch_iter_remote(repo, python):
-    with NamedTemporaryFile() as fh:
-        cmd = (hg_list_remote_py % {'repo': repo}).encode('utf8')
-        fh.write(cmd)
-        fh.flush()
-        out = check_output((python, fh.name))
-
-    out = literal_eval(out.decode('utf8'))
+    cmd = [python, hg_remote_helper_path, '-r', repo]
+    out = check_output(cmd)
+    out = ast.literal_eval(out.decode('utf8'))
     return [i[0] for i in out]
 
 def hg_branch_iter_local(repo):
-    cmd = ('hg', '-y', 'branches', '-c', '-R', repo)
-    out = check_output(cmd).decode('utf8').split(linesep)
+    cmd = ['hg', '-y', 'branches', '-c', '-R', repo]
+    out = check_output(cmd).decode('utf8').split(os.linesep)
 
     out = (re.split('\s+', i, 1) for i in out if i)
     return (name for name, rev in out)
 
 def list_branches(config):
     # Should 'hg branches' or peer.branchmap be used.
-    islocal = path.isdir(config['repo'])
+    islocal = os.path.isdir(config['repo'])
     branch_iter = hg_branch_iter_local if islocal else hg_branch_iter_remote
     python = config.get('python', 'python')
 
@@ -122,7 +109,7 @@ def create_job(ref, template, config, ref_config):
         debug_refconfig(ref_config)
     return job_name
 
-def main(argv=argv, config=None):
+def main(argv=sys.argv, config=None):
     _main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)
 
 if __name__ == '__main__':
