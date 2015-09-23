@@ -30,7 +30,7 @@ def hg_branch_iter_remote(repo, python):
     out = ast.literal_eval(out.decode('utf8'))
     return [i[0] for i in out]
 
-def hg_branch_iter_local(repo):
+def hg_branch_iter_local(repo, python=None):
     cmd = ['hg', '-y', 'branches', '-c', '-R', repo]
     out = check_output(cmd).decode('utf8').split(os.linesep)
 
