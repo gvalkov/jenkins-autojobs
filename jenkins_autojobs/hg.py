@@ -24,13 +24,13 @@ hg_remote_helper_path = os.path.join(
     'hg_remote_helper.py'
 )
 
-def hg_branch_iter_remote(repo, python):
-    cmd = [python, hg_remote_helper_path, '-r', repo]
+def hg_branch_iter_remote(repo, python, max_branch_age):
+    cmd = [python, hg_remote_helper_path, '-r', repo, '-m', str(max_branch_age)]
     out = check_output(cmd)
     out = ast.literal_eval(out.decode('utf8'))
     return [i[0] for i in out]
 
-def hg_branch_iter_local(repo):
+def hg_branch_iter_local(repo, python=None, max_branch_age=0):
     cmd = ['hg', '-y', 'branches', '-c', '-R', repo]
     out = check_output(cmd).decode('utf8').split(os.linesep)
 
@@ -41,9 +41,11 @@ def list_branches(config):
     # Should 'hg branches' or peer.branchmap be used.
     islocal = os.path.isdir(config['repo'])
     branch_iter = hg_branch_iter_local if islocal else hg_branch_iter_remote
-    python = config.get('python', 'python')
 
-    return branch_iter(config['repo'], python)
+    python = config.get('python', 'python')
+    max_branch_age = config.get('max-branch-age', 0)
+
+    return branch_iter(config['repo'], python, max_branch_age)
 
 def create_job(ref, template, config, ref_config):
     '''Create a jenkins job.
