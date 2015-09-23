@@ -13,7 +13,7 @@ from subprocess import CalledProcessError
 
 from lxml import etree
 from jenkins import Jenkins, JenkinsError
-from requests.exceptions import RequestException
+from requests.exceptions import RequestException, HTTPError
 
 from jenkins_autojobs import __version__
 from jenkins_autojobs.util import *
@@ -180,7 +180,7 @@ def cleanup(config, job_names, jenkins, verbose=True):
     removed_jobs = []
 
     for job in managed_jobs:
-        if job.name not in job_names and job.exists:
+        if (job.name not in job_names) and job.exists:
             # If cleanup is a tag name, only cleanup builds with that tag.
             if isinstance(config['cleanup'], str):
                 xml = etree.fromstring(job.config.encode('utf8'))
@@ -190,11 +190,26 @@ def cleanup(config, job_names, jenkins, verbose=True):
 
             removed_jobs.append(job)
             if not config['dryrun']:
-                job.delete()
-            print(' - %s' % job.name)
+                job_removed = safe_job_delete(job)
+            else:
+                job_removed = True
+
+            if job_removed:
+                print(' - %s' % job.name)
+            else:
+                print(' ! permission denied for %s' % job.name)
 
     if not removed_jobs:
         print('. nothing to do')
+
+def safe_job_delete(job, safe_codes=(403,)):
+    try:
+        job.delete()
+        return True
+    except HTTPError as error:
+        if error.status_code not in safe_codes:
+            raise
+        return False
 
 #-----------------------------------------------------------------------------
 def parse_args(argv, fmt):
