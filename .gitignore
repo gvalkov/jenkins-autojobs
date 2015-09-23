@@ -16,4 +16,5 @@ pip-log.txt
 tags
 doc/_build
 tests/tmp/*
+.cache/
 .tox/
