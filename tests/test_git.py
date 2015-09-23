@@ -1,5 +1,6 @@
 # -*- coding: utf-8; -*-
 
+import time
 import io, yaml, pytest
 
 from pytest import mark
@@ -471,3 +472,14 @@ def test_views_nonexist(config, jenkins, repo):
 
     with pytest.raises(SystemExit):
         cmd(config)
+
+
+#-----------------------------------------------------------------------------
+@mark.slow
+def test_build_on_create(config, jenkins, repo):
+    config['build-on-create'] = True
+
+    with repo.branches('feature/one'):
+        cmd(config)
+        time.sleep(10)
+        assert len(jenkins.job('feature-one').builds) == 1
