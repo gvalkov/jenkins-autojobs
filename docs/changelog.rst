@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+0.16.0 (Sep 23, 2015)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Add the ``build-on-create`` option, which triggers a build when the job is
+  created (thanks `@bartoszj`_).
+
+- Ignore permission denied errors during job cleanup (thanks `@bartoszj`_).
+
+- Fix issue with listing local mercurial branches (thanks `@Myz`_).
+
 0.15.1 (May 05, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -151,3 +161,5 @@ Changelog
 .. _`@yamikuronue`:    https://github.com/yamikuronue
 .. _`@d-a-n`:          https://github.com/d-a-n
 .. _`@sustmi`:         https://github.com/sustmi
+.. _`@bartoszj`:       https://github.com/bartoszj
+.. _`@Myz`:            https://github.com/Myz

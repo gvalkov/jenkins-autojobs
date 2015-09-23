@@ -33,7 +33,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'jenkins-autojobs'
-copyright = u'2012-2014, Georgi Valkov'
+copyright = u'2012-2015, Georgi Valkov'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

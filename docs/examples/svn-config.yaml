@@ -56,7 +56,7 @@ overwrite: true
 
 #-----------------------------------------------------------------------------
 # If true, a job will be added to build queue when it is created.
-# If false, a job will be only created (the default).
+# If false, a job will be only created (this is the default).
 build-on-create: false
 
 #-----------------------------------------------------------------------------
