@@ -33,6 +33,13 @@ template: new-job-template
 overwrite: true
 {% endmacro %}
 
+{% macro build_on_create() %}
+#-----------------------------------------------------------------------------
+# If true, a job will be added to build queue when it is created.
+# If false, a job will be only created (the default).
+build-on-create: false
+{% endmacro %}
+
 {% macro enable() %}
 #-----------------------------------------------------------------------------
 # State of newly created or overwritten jobs. Default is 'sticky'. One of:

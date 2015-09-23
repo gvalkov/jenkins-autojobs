@@ -59,6 +59,11 @@ namefmt: '{shortref}'
 overwrite: true
 
 #-----------------------------------------------------------------------------
+# If true, a job will be added to build queue when it is created.
+# If false, a job will be only created (the default).
+build-on-create: false
+
+#-----------------------------------------------------------------------------
 # State of newly created or overwritten jobs. Default is 'sticky'. One of:
 #   true       -> Jobs will be enabled.
 #   false      -> Jobs will be disabled.

@@ -61,7 +61,7 @@ class Job(object):
             # nobody makes a non-semantic change ...
             return etree.tostring(xml)
 
-    def create(self, overwrite, dryrun, tag=None):
+    def create(self, overwrite, build_on_create, dryrun, tag=None):
         # Append autojobs-information.
         info_el = etree.SubElement(self.xml, 'createdByJenkinsAutojobs')
         ref_el  = etree.SubElement(info_el, 'ref')
@@ -91,6 +91,12 @@ class Job(object):
             if not dryrun:
                 self.jenkins.job_create(self.name, self.xml)
             print('. job created')
+
+            # Build newly created job.
+            if build_on_create:
+                if not dryrun:
+                    self.jenkins.job_build(self.name)
+                print('. job ')
 
         elif not overwrite:
             print('. overwrite disabled - skipping job')

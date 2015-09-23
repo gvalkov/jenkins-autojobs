@@ -12,7 +12,7 @@ Changelog
 ^^^^^^^^^^^^^^^^^^^^^
 
 - The ``*`` wildcard can now be used in the ``branches`` config key of
-  ``jeknins-makejobs-svn``. Example usage: ``file:///repo/projects/*/branches``.
+  ``jenkins-makejobs-svn``. Example usage: ``file:///repo/projects/*/branches``.
 
 0.14.3 (Jan 02, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
