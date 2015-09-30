@@ -8,27 +8,24 @@ Documentation: http://gvalkov.github.com/jenkins-autojobs/
 
 from __future__ import absolute_import
 
+import os
 import re
+import sys
+import lxml.etree
 
-from os import linesep, path
-from sys import exit, argv
-from lxml import etree
-
-from . main import main as _main, debug_refconfig
-from . utils import sanitize, check_output, merge
-from . job import Job
+from . import job, main, utils
 
 
 #-----------------------------------------------------------------------------
 def git_refs_iter_local(repo):
     cmd = ('git', 'show-ref')
-    out = check_output(cmd, cwd=repo).split(linesep)
+    out = utils.check_output(cmd, cwd=repo).split(os.linesep)
 
     return (ref for sha, ref in [i.split() for i in out if i])
 
 def git_refs_iter_remote(repo):
     cmd = ('git', 'ls-remote', repo)
-    out = check_output(cmd).decode('utf8').split(linesep)
+    out = utils.check_output(cmd).decode('utf8').split(os.linesep)
 
     for sha, ref in (i.split() for i in out if i):
         if not ref.startswith('refs/'):
@@ -41,7 +38,7 @@ def git_refs_iter_remote(repo):
 
 def list_branches(config):
     # should ls-remote or git show-ref be used
-    islocal = path.isdir(config['repo'])
+    islocal = os.path.isdir(config['repo'])
     refs_iter = git_refs_iter_local if islocal else git_refs_iter_remote
 
     return refs_iter(config['repo'])
@@ -59,8 +56,8 @@ def create_job(ref, template, config, ref_config):
     print('\nprocessing ref: %s' % ref)
     shortref = re.sub('^refs/(heads|tags|remotes)/', '', ref)
 
-    sanitized_ref = sanitize(ref, ref_config['sanitize'])
-    sanitized_shortref = sanitize(shortref, ref_config['sanitize'])
+    sanitized_ref = utils.sanitize(ref, ref_config['sanitize'])
+    sanitized_shortref = utils.sanitize(shortref, ref_config['sanitize'])
 
     # Job names with '/' in them are problematic (todo: consolidate with sanitize()).
     sanitized_ref = sanitized_ref.replace('/', ref_config['namesep'])
@@ -73,22 +70,22 @@ def create_job(ref, template, config, ref_config):
     fmtdict = {
         'ref':      sanitized_ref,
         'shortref': sanitized_shortref,
-        'repo':     sanitize(config['repo'], ref_config['sanitize']),
+        'repo':     utils.sanitize(config['repo'], ref_config['sanitize']),
         'ref-orig': ref,
         'repo-orig': config['repo'],
         'shortref-orig': shortref,
     }
 
-    job_name = ref_config['namefmt'].format(*groups, **merge(groupdict, fmtdict))
-    job = Job(job_name, ref, template, _main.jenkins)
+    job_name = ref_config['namefmt'].format(*groups, **utils.merge(groupdict, fmtdict))
+    job_obj  = job.Job(job_name, ref, template, main.jenkins)
 
     fmtdict['job_name'] = job_name
 
-    print('. job name: %s' % job.name)
-    print('. job exists: %s' % job.exists)
+    print('. job name: %s' % job_obj.name)
+    print('. job exists: %s' % job_obj.exists)
 
     try:
-        scm_el = job.xml.xpath('scm[@class="hudson.plugins.git.GitSCM"]')[0]
+        scm_el = job_obj.xml.xpath('scm[@class="hudson.plugins.git.GitSCM"]')[0]
     except IndexError:
         msg = 'Template job %s is not configured to use Git as an SCM'
         raise RuntimeError(msg % template)  # :bug:
@@ -105,18 +102,18 @@ def create_job(ref, template, config, ref_config):
 
     # Set the branch that the git plugin will locally checkout to.
     el = scm_el.xpath('//localBranch')
-    el = etree.SubElement(scm_el, 'localBranch') if not el else el[0]
+    el = lxml.etree.SubElement(scm_el, 'localBranch') if not el else el[0]
 
     el.text = shortref  # the original shortref (with '/')
 
     # Set the state of the newly created job.
-    job.set_state(ref_config['enable'])
+    job_obj.set_state(ref_config['enable'])
 
     # Since some plugins (such as sidebar links) can't interpolate the
     # job name, we do it for them.
-    job.substitute(list(ref_config['substitute'].items()), fmtdict, groups, groupdict)
+    job_obj.substitute(list(ref_config['substitute'].items()), fmtdict, groups, groupdict)
 
-    job.create(
+    job_obj.create(
         ref_config['overwrite'],
         ref_config['build-on-create'],
         config['dryrun'],
@@ -124,12 +121,12 @@ def create_job(ref, template, config, ref_config):
     )
 
     if config['debug']:
-        debug_refconfig(ref_config)
+        main.debug_refconfig(ref_config)
 
     return job_name
 
-def main(argv=argv, config=None):
-    _main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)
+def _main(argv=sys.argv, config=None):
+    main.main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)
 
 if __name__ == '__main__':
-    main()
+    _main()

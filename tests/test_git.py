@@ -15,7 +15,7 @@ from jenkins import Jenkins
 
 #-----------------------------------------------------------------------------
 # Fixtures and shortcuts.
-cmd = partial(git.main, ['jenkins-makejobs-git'])
+cmd = partial(git._main, ['jenkins-makejobs-git'])
 
 @yield_fixture(scope='module')
 def repo():

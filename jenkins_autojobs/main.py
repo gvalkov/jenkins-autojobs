@@ -2,23 +2,23 @@
 
 from __future__ import absolute_import
 
+import os
 import re
+import sys
+import copy
 import yaml
+import getopt
+import getpass
+import subprocess
 
-from os.path import basename, abspath
-from sys import exit, argv
-from copy import deepcopy
-from getopt import getopt
-from getpass import getpass
 from functools import partial
-from subprocess import CalledProcessError
 
-from lxml import etree
+import lxml.etree
 from jenkins import Jenkins, JenkinsError
 from requests.exceptions import RequestException, HTTPError
 
 from . import __version__
-from . utils import *
+from . import utils
 
 
 #-----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ Jenkins Options:
   -p <arg> jenkins password
   -U jenkins username (read from stdin)
   -P jenkins password (read from stdin)\
-''' % basename(argv[0])
+''' % os.path.basename(sys.argv[0])
 
 
 #-----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
         exit(1)
 
     # Load config, set default values and compile regexes.
-    if not config :
+    if not config:
         yamlfn = args[-1]
         print('loading config from "%s"' % abspath(yamlfn))
         config = yaml.load(open(yamlfn))
@@ -105,7 +105,8 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
         global jenkins
         jenkins = main.jenkins = Jenkins(c['jenkins'], c['username'], c['password'])
     except (RequestException, JenkinsError) as e:
-        print(e); exit(1)
+        print(e)
+        sys.exit(1)
 
     #-------------------------------------------------------------------------
     # Get all the template names that the config references.
@@ -115,7 +116,8 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     missing = list(filterfalse(jenkins.job_exists, templates))
     if missing:
         missing.insert(0, '\nconfig references non-existent template jobs:')
-        print('\n - '.join(missing)); exit(1)
+        print('\n - '.join(missing))
+        sys.exit(1)
 
     # Convert them to etree objects of the templates' config xmls.
     templates = dict((i, get_job_etree(i)) for i in templates)
@@ -126,13 +128,14 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     missing = list(filterfalse(jenkins.view_exists, view_names))
     if missing:
         missing.insert(0, '\nconfig references non-existent views:')
-        print('\n - '.join(missing)); exit(1)
+        print('\n - '.join(missing))
+        sys.exit(1)
 
     #-------------------------------------------------------------------------
     # List all git refs, svn branches etc (implemented by child classes).
     try:
         branches = list(list_branches(config))
-    except CalledProcessError as e:
+    except subprocess.CalledProcessError as e:
         print('! cannot list branches')
         print('! command %s failed' % ' '.join(e.cmd))
         exit(1)
@@ -181,7 +184,7 @@ def cleanup(config, created_job_names, jenkins, verbose=True):
     for job, job_config in get_managed_jobs(created_job_names, jenkins):
         # If cleanup is a tag name, only cleanup builds with that tag.
         if isinstance(config['cleanup'], str):
-            xml = etree.fromstring(job_config.encode('utf8'))
+            xml = lxml.etree.fromstring(job_config.encode('utf8'))
             clean_tag = xml.xpath(tagxpath)
             if not config['cleanup'] in clean_tag:
                 continue
@@ -226,7 +229,7 @@ def safe_job_delete(job, safe_codes=(403,)):
 #-----------------------------------------------------------------------------
 def parse_args(argv, fmt):
     '''Parse getopt arguments as a dictionary.'''
-    opts, args = getopt(argv, fmt)
+    opts, args = getopt.getopt(argv, fmt)
     opts = dict(opts)
 
     if '-v' in opts:
@@ -239,7 +242,7 @@ def parse_args(argv, fmt):
 def get_default_config(config, opts):
     '''Set default config values and compile regexes.'''
 
-    c, o = deepcopy(config), opts
+    c, o = copy.deepcopy(config), opts
 
     # Default global settings (not inheritable).
     c['dryrun'] = False
@@ -266,7 +269,7 @@ def get_default_config(config, opts):
     }
 
     # Make sure some options are always lists.
-    c['defaults']['view'] = pluralize(c['defaults']['view'])
+    c['defaults']['view'] = utils.pluralize(c['defaults']['view'])
 
     # Some options can be overwritten on the command line.
     if '-r' in o: c['repo'] = o['-r']
@@ -279,19 +282,19 @@ def get_default_config(config, opts):
     if '-u' in o: c['username'] = o['-u']
     if '-p' in o: c['password'] = o['-p']
     if '-U' in o: c['username'] = input('Jenkins User: ')
-    if '-P' in o: c['password'] = getpass('Jenkins Password: ')
+    if '-P' in o: c['password'] = getpass.getpass('Jenkins Password: ')
 
     # SCM authentication options.
     if '-y' in o: c['scm-username'] = o['-y']
     if '-o' in o: c['scm-password'] = o['-o']
     if '-Y' in o: c['scm-username'] = input('SCM User: ')
-    if '-O' in o: c['scm-password'] = getpass('SCM Password: ')
+    if '-O' in o: c['scm-password'] = getpass.getpass('SCM Password: ')
 
     # Compile ignore regexes.
     c.setdefault('ignore', {})
     c['ignore'] = [re.compile(i) for i in c['ignore']]
 
-    if not 'refs' in c:
+    if 'refs' not in c:
         c['refs'] = ['.*']
 
     # Get the effective (accounting for inheritance) config for all refs.
@@ -328,8 +331,8 @@ def get_effective_branch_config(branches, defaults):
 def get_ignored(branches, regexes):
     '''Get refs, excluding ignored.'''
 
-    isignored = partial(anymatch, regexes)
-    ignored, branches = filtersplit(isignored, branches)
+    isignored = partial(utils.anymatch, regexes)
+    ignored, branches = utils.filtersplit(isignored, branches)
 
     return ignored, branches
 
@@ -343,16 +346,17 @@ def resolveconfig(effective_config, branch):
 
 def get_job_etree(job):
     res = jenkins.job(job).config
-    res = etree.fromstring(res.encode('utf8'))
+    res = lxml.etree.fromstring(res.encode('utf8'))
     return res
 
 def debug_refconfig(ref_config):
     print('. config:')
-    for k,v in ref_config.items():
+    for k, v in ref_config.items():
         if k == 're':
             print('  . %s: %s' % (k, v.pattern))
             continue
-        if v: print('  . %s: %s' % (k, v))
+        if v:
+            print('  . %s: %s' % (k, v))
 
 def enable_http_logging():
     import logging

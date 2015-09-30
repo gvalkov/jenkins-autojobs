@@ -13,9 +13,7 @@ import re
 import sys
 import ast
 
-from . main import main as _main, debug_refconfig
-from . utils import sanitize, check_output, merge
-from . job import Job
+from . import job, main, utils
 
 
 # We do this to decouple the current interpreter version from the
@@ -28,13 +26,13 @@ hg_remote_helper_path = os.path.join(
 
 def hg_branch_iter_remote(repo, python):
     cmd = [python, hg_remote_helper_path, '-r', repo]
-    out = check_output(cmd)
+    out = utils.check_output(cmd)
     out = ast.literal_eval(out.decode('utf8'))
     return [i[0] for i in out]
 
 def hg_branch_iter_local(repo, python=None):
     cmd = ['hg', '-y', 'branches', '-c', '-R', repo]
-    out = check_output(cmd).decode('utf8').split(os.linesep)
+    out = utils.check_output(cmd).decode('utf8').split(os.linesep)
 
     out = (re.split('\s+', i, 1) for i in out if i)
     return (name for name, rev in out)
@@ -57,7 +55,7 @@ def create_job(ref, template, config, ref_config):
 
     print('\nprocessing branch: %s' % ref)
 
-    sanitized_ref = sanitize(ref, ref_config['sanitize'])
+    sanitized_ref = utils.sanitize(ref, ref_config['sanitize'])
     sanitized_ref = sanitized_ref.replace('/', ref_config['namesep'])
 
     match = ref_config['re'].match(ref)
@@ -65,22 +63,22 @@ def create_job(ref, template, config, ref_config):
 
     # Placeholders available to the 'substitute' and 'namefmt' options.
     fmtdict = {
-        'repo':   sanitize(config['repo'], ref_config['sanitize']),
+        'repo':   utils.sanitize(config['repo'], ref_config['sanitize']),
         'branch': sanitized_ref,
         'repo-orig': config['repo'],
         'branch-orig': ref,
     }
 
-    job_name = ref_config['namefmt'].format(*groups, **merge(groupdict, fmtdict))
-    job = Job(job_name, ref, template, _main.jenkins)
+    job_name = ref_config['namefmt'].format(*groups, **utils.merge(groupdict, fmtdict))
+    job_obj = job.Job(job_name, ref, template, main.jenkins)
 
     fmtdict['job_name'] = job_name
 
-    print('. job name: %s' % job.name)
-    print('. job exists: %s' % job.exists)
+    print('. job name: %s' % job_obj.name)
+    print('. job exists: %s' % job_obj.exists)
 
     try:
-        scm_el = job.xml.xpath('scm[@class="hudson.plugins.mercurial.MercurialSCM"]')[0]
+        scm_el = job_obj.xml.xpath('scm[@class="hudson.plugins.mercurial.MercurialSCM"]')[0]
     except IndexError:
         msg = 'Template job %s is not configured to use Mercurial as an SCM'
         raise RuntimeError(msg % template)  # :bug:
@@ -95,24 +93,24 @@ def create_job(ref, template, config, ref_config):
     el[0].text = ref
 
     # Set the state of the newly created job.
-    job.set_state(ref_config['enable'])
+    job_obj.set_state(ref_config['enable'])
 
     # Since some plugins (such as sidebar links) can't interpolate the
     # job name, we do it for them.
-    job.substitute(list(ref_config['substitute'].items()), fmtdict, groups, groupdict)
+    job_obj.substitute(list(ref_config['substitute'].items()), fmtdict, groups, groupdict)
 
-    job.create(
+    job_obj.create(
         ref_config['overwrite'],
         ref_config['build-on-create'],
         config['dryrun']
     )
 
     if config['debug']:
-        debug_refconfig(ref_config)
+        main.debug_refconfig(ref_config)
     return job_name
 
-def main(argv=sys.argv, config=None):
-    _main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)
+def _main(argv=sys.argv, config=None):
+    main.main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)
 
 if __name__ == '__main__':
-    main()
+    _main()

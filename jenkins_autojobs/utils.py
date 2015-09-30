@@ -20,8 +20,10 @@ def filtersplit(p, iterable):
         p = bool
 
     for i in iterable:
-        if p(i): t.append(i)
-        else: f.append(i)
+        if p(i):
+            t.append(i)
+        else:
+            f.append(i)
 
     return t, f
 
@@ -35,7 +37,8 @@ def pluralize(value):
 def anymatch(regexes, s):
     '''Return True if any of the regexes match the string.'''
     for r in regexes:
-        if r.match(s): return True
+        if r.match(s):
+            return True
     return False
 
 #-----------------------------------------------------------------------------

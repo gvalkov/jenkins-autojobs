@@ -29,9 +29,9 @@ if version_info <= (2, 7):
     requires.append('ordereddict>=1.1')
 
 scripts = [
-    'jenkins-makejobs-git = jenkins_autojobs.git:main',
-    'jenkins-makejobs-svn = jenkins_autojobs.svn:main',
-    'jenkins-makejobs-hg  = jenkins_autojobs.hg:main',
+    'jenkins-makejobs-git = jenkins_autojobs.git:_main',
+    'jenkins-makejobs-svn = jenkins_autojobs.svn:_main',
+    'jenkins-makejobs-hg  = jenkins_autojobs.hg:_main',
 ]
 
 kw = {

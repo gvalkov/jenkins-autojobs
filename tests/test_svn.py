@@ -13,7 +13,7 @@ from jenkins import Jenkins
 
 #-----------------------------------------------------------------------------
 # Fixtures and shortcuts.
-cmd = partial(svn.main, ['jenkins-makejobs-svn'])
+cmd = partial(svn._main, ['jenkins-makejobs-svn'])
 
 @yield_fixture(scope='module')
 def repo():

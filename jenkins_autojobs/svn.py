@@ -8,25 +8,24 @@ Documentation: https://github.com/gvalkov/jenkins-autojobs/
 
 from __future__ import absolute_import
 
-from os import linesep, path
-from sys import exit, argv
-from subprocess import CalledProcessError
-from lxml import etree
+import os
+import sys
+import subprocess
 
-from . main import main as _main, debug_refconfig
-from . utils import sanitize, check_output, merge
-from . job import Job
+from . import job, main, utils
 
 
 def svn_ls(url, username=None, password=None, dirsonly=True):
     cmd = ['svn', 'ls', '--trust-server-cert', '--non-interactive']
 
     # :todo: plaintext (will probably have to use the bindings).
-    if username: cmd += ['--username', username]
-    if password: cmd += ['--password', password]
+    if username:
+        cmd += ['--username', username]
+    if password:
+        cmd += ['--password', password]
 
     cmd.append(url)
-    out = check_output(cmd).decode('utf8').split(linesep)
+    out = utils.check_output(cmd).decode('utf8').split(os.linesep)
 
     if dirsonly:
         out = [i.rstrip('/') for i in out if i.endswith('/')]
@@ -41,14 +40,14 @@ def svn_wildcard_ls(url, repo, username=None, password=None, dirsonly=True):
     if not wcard:
         try:
             return svn_ls(left, username, password, True)
-        except CalledProcessError:
+        except subprocess.CalledProcessError:
             return []
     else:
         for dirname in svn_ls(left, username, password, True):
-            url = path.join(left, dirname, right)
+            url = os.path.join(left, dirname, right)
             res = svn_wildcard_ls(url, repo, username, password, True)
             rel = url.replace(repo, '')
-            branches.extend(path.join(rel, i) for i in res)
+            branches.extend(os.path.join(rel, i) for i in res)
         return branches
 
 def list_branches(config):
@@ -62,7 +61,7 @@ def list_branches(config):
         else:
             res = svn_ls(url, c['scm-username'], c['scm-password'])
             rel = url.replace(c['repo'], '').lstrip('/')
-            res = [path.join(rel, i) for i in res]
+            res = [os.path.join(rel, i) for i in res]
         branches.extend(res)
     return branches
 
@@ -86,41 +85,41 @@ def create_job(branch, template, config, branch_config):
     fmtdict = {
         'branch': branch.split('/')[-1],
         'path': branch.replace('/', branch_config['namesep']),
-        'repo': sanitize(config['repo'], branch_config['sanitize']),
+        'repo': utils.sanitize(config['repo'], branch_config['sanitize']),
         'path-orig': branch,
         'repo-orig': config['repo'],
     }
 
-    job_name = branch_config['namefmt'].format(*groups, **merge(groupdict, fmtdict))
-    job = Job(job_name, branch, template, _main.jenkins)
+    job_name = branch_config['namefmt'].format(*groups, **utils.merge(groupdict, fmtdict))
+    job_obj = job.Job(job_name, branch, template, main.jenkins)
 
     fmtdict['job_name'] = job_name
 
-    print('. job name: %s' % job.name)
-    print('. job exists: %s' % job.exists)
+    print('. job name: %s' % job_obj.name)
+    print('. job exists: %s' % job_obj.exists)
 
     try:
-        scm_el = job.xml.xpath('scm[@class="hudson.scm.SubversionSCM"]')[0]
+        scm_el = job_obj.xml.xpath('scm[@class="hudson.scm.SubversionSCM"]')[0]
     except IndexError:
         msg = 'Template job %s is not configured to use SVN as an SCM'
         raise RuntimeError(msg % template)  # :bug:
 
     # set branch
     el = scm_el.xpath('//remote')[0]
-    el.text = path.join(config['repo'], branch)
+    el.text = os.path.join(config['repo'], branch)
 
     # Set the branch that git plugin will locally checkout to.
     el = scm_el.xpath('//local')[0]
     el.text = '.'
 
     # Set the state of the newly created job.
-    job.set_state(branch_config['enable'])
+    job_obj.set_state(branch_config['enable'])
 
     # Since some plugins (such as sidebar links) can't interpolate the
     # job name, we do it for them.
-    job.substitute(list(branch_config['substitute'].items()), fmtdict, groups, groupdict)
+    job_obj.substitute(list(branch_config['substitute'].items()), fmtdict, groups, groupdict)
 
-    job.create(
+    job_obj.create(
         branch_config['overwrite'],
         branch_config['build-on-create'],
         config['dryrun'],
@@ -128,11 +127,11 @@ def create_job(branch, template, config, branch_config):
     )
 
     if config['debug']:
-        debug_refconfig(branch_config)
+        main.debug_refconfig(branch_config)
     return job_name
 
-def main(argv=argv, config=None):
-    _main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)
+def _main(argv=sys.argv, config=None):
+    main.main(argv[1:], config=config, create_job=create_job, list_branches=list_branches)
 
 if __name__ == '__main__':
-    main()
+    _main()
