@@ -170,13 +170,13 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
         cleanup(config, job_names, jenkins)
 
 #-----------------------------------------------------------------------------
-def cleanup(config, job_names, jenkins, verbose=True):
+def cleanup(config, created_job_names, jenkins, verbose=True):
     print('\ncleaning up old jobs:')
 
     tagxpath = 'createdByJenkinsAutojobs/tag/text()'
     removed_jobs = []
 
-    for job, job_config in get_managed_jobs(job_names, jenkins):
+    for job, job_config in get_managed_jobs(created_job_names, jenkins):
         # If cleanup is a tag name, only cleanup builds with that tag.
         if isinstance(config['cleanup'], str):
             xml = etree.fromstring(job_config.encode('utf8'))
@@ -198,18 +198,19 @@ def cleanup(config, job_names, jenkins, verbose=True):
     if not removed_jobs:
         print('. nothing to do')
 
-def get_managed_jobs(job_names, jenkins, safe_codes=(403,)):
+def get_managed_jobs(created_job_names, jenkins, safe_codes=(403,)):
     tag = '</createdByJenkinsAutojobs>'
 
     for job in jenkins.jobs:
-        if job.name not in job_names:
-            try:
-                job_config = job.config
-                if tag in job_config:
-                    yield job, job_config
-            except HTTPError as error:
-                if error.response.status_code  not in safe_codes:
-                    raise
+        if job.name in created_job_names:
+            continue
+        try:
+            job_config = job.config
+            if tag in job_config:
+                yield job, job_config
+        except HTTPError as error:
+            if error.response.status_code not in safe_codes:
+                raise
 
 def safe_job_delete(job, safe_codes=(403,)):
     try:
