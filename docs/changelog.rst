@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.16.1 (Sep 30, 2015)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Fix cleanup functionality and improve performance (thanks `@bartoszj`_).
+
 0.16.0 (Sep 23, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
 

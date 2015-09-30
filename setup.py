@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 requires = [
-    'jenkins-webapi>=0.3.2',
+    'jenkins-webapi>=0.5.0',
     'lxml>=3.2.3',
     'PyYAML>=3.11',
 ]
@@ -37,7 +37,7 @@ scripts = [
 kw = {
     'name':             'jenkins-autojobs',
     'version':          __version__,
-    'description':      'Scripts for automatically creating Jenkins jobs from scm branches',
+    'description':      'Scripts for automatically creating Jenkins jobs from SCM branches',
     'long_description': open('README.rst').read(),
     'author':           'Georgi Valkov',
     'author_email':     'georgi.t.valkov@gmail.com',
