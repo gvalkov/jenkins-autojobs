@@ -173,41 +173,50 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
 def cleanup(config, job_names, jenkins, verbose=True):
     print('\ncleaning up old jobs:')
 
-    tag = '</createdByJenkinsAutojobs>'
     tagxpath = 'createdByJenkinsAutojobs/tag/text()'
-
-    managed_jobs = (job for job in jenkins.jobs if tag in job.config)
     removed_jobs = []
 
-    for job in managed_jobs:
-        if (job.name not in job_names) and job.exists:
-            # If cleanup is a tag name, only cleanup builds with that tag.
-            if isinstance(config['cleanup'], str):
-                xml = etree.fromstring(job.config.encode('utf8'))
-                clean_tag = xml.xpath(tagxpath)
-                if not config['cleanup'] in clean_tag:
-                    continue
+    for job, job_config in get_managed_jobs(job_names, jenkins):
+        # If cleanup is a tag name, only cleanup builds with that tag.
+        if isinstance(config['cleanup'], str):
+            xml = etree.fromstring(job_config.encode('utf8'))
+            clean_tag = xml.xpath(tagxpath)
+            if not config['cleanup'] in clean_tag:
+                continue
 
-            removed_jobs.append(job)
-            if not config['dryrun']:
-                job_removed = safe_job_delete(job)
-            else:
-                job_removed = True
+        removed_jobs.append(job)
+        if not config['dryrun']:
+            job_removed = safe_job_delete(job)
+        else:
+            job_removed = True
 
-            if job_removed:
-                print(' - %s' % job.name)
-            else:
-                print(' ! permission denied for %s' % job.name)
+        if job_removed:
+            print(' - %s' % job.name)
+        else:
+            print(' ! permission denied for %s' % job.name)
 
     if not removed_jobs:
         print('. nothing to do')
+
+def get_managed_jobs(job_names, jenkins, safe_codes=(403,)):
+    tag = '</createdByJenkinsAutojobs>'
+
+    for job in jenkins.jobs:
+        if job.name not in job_names:
+            try:
+                job_config = job.config
+                if tag in job_config:
+                    yield job, job_config
+            except HTTPError as error:
+                if error.response.status_code  not in safe_codes:
+                    raise
 
 def safe_job_delete(job, safe_codes=(403,)):
     try:
         job.delete()
         return True
     except HTTPError as error:
-        if error.status_code not in safe_codes:
+        if error.response.status_code not in safe_codes:
             raise
         return False
 
