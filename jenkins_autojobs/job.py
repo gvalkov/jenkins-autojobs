@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 
-from .util import merge
+from .utils import merge
 
 from copy import deepcopy
 from xml.sax.saxutils import escape as xmlescape

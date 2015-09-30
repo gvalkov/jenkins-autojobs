@@ -13,9 +13,9 @@ from sys import exit, argv
 from subprocess import CalledProcessError
 from lxml import etree
 
-from .main import main as _main, debug_refconfig
-from .util import sanitize, check_output, merge
-from .job import Job
+from . main import main as _main, debug_refconfig
+from . utils import sanitize, check_output, merge
+from . job import Job
 
 
 def svn_ls(url, username=None, password=None, dirsonly=True):

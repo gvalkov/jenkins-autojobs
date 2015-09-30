@@ -18,7 +18,7 @@ from jenkins import Jenkins, JenkinsError
 from requests.exceptions import RequestException, HTTPError
 
 from . import __version__
-from . util import *
+from . utils import *
 
 
 #-----------------------------------------------------------------------------

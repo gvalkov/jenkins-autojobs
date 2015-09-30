@@ -14,7 +14,7 @@ import sys
 import ast
 
 from . main import main as _main, debug_refconfig
-from . util import sanitize, check_output, merge
+from . utils import sanitize, check_output, merge
 from . job import Job
 
 
