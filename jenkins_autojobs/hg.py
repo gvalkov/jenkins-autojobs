@@ -6,14 +6,16 @@ Automatically create jenkins jobs for the branches in a mercurial repository.
 Documentation: https://github.com/gvalkov/jenkins-autojobs/
 '''
 
+from __future__ import absolute_import
+
 import os
 import re
 import sys
 import ast
 
-from jenkins_autojobs.main import main as _main, debug_refconfig
-from jenkins_autojobs.util import sanitize, check_output, merge
-from jenkins_autojobs.job import Job
+from . main import main as _main, debug_refconfig
+from . util import sanitize, check_output, merge
+from . job import Job
 
 
 # We do this to decouple the current interpreter version from the

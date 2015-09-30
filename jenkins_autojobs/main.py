@@ -1,5 +1,7 @@
 # -*- coding: utf-8; -*-
 
+from __future__ import absolute_import
+
 import re
 import yaml
 
@@ -15,8 +17,8 @@ from lxml import etree
 from jenkins import Jenkins, JenkinsError
 from requests.exceptions import RequestException, HTTPError
 
-from jenkins_autojobs import __version__
-from jenkins_autojobs.util import *
+from . import __version__
+from . util import *
 
 
 #-----------------------------------------------------------------------------

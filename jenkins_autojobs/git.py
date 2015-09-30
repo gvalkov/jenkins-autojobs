@@ -6,15 +6,17 @@ Automatically create jenkins jobs for the refs in a git repository.
 Documentation: http://gvalkov.github.com/jenkins-autojobs/
 '''
 
+from __future__ import absolute_import
+
 import re
 
 from os import linesep, path
 from sys import exit, argv
-
 from lxml import etree
-from jenkins_autojobs.main import main as _main, debug_refconfig
-from jenkins_autojobs.util import sanitize, check_output, merge
-from jenkins_autojobs.job import Job
+
+from . main import main as _main, debug_refconfig
+from . util import sanitize, check_output, merge
+from . job import Job
 
 
 #-----------------------------------------------------------------------------

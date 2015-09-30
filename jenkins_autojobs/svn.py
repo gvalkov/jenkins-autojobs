@@ -6,14 +6,16 @@ Automatically create jenkins jobs for the branches in a svn repository.
 Documentation: https://github.com/gvalkov/jenkins-autojobs/
 '''
 
+from __future__ import absolute_import
+
 from os import linesep, path
 from sys import exit, argv
 from subprocess import CalledProcessError
-
 from lxml import etree
-from jenkins_autojobs.main import main as _main, debug_refconfig
-from jenkins_autojobs.util import sanitize, check_output, merge
-from jenkins_autojobs.job import Job
+
+from .main import main as _main, debug_refconfig
+from .util import sanitize, check_output, merge
+from .job import Job
 
 
 def svn_ls(url, username=None, password=None, dirsonly=True):

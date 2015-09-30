@@ -1,6 +1,8 @@
 # -*- coding: utf-8; -*-
 
-from jenkins_autojobs.util import merge
+from __future__ import absolute_import
+
+from .util import merge
 
 from copy import deepcopy
 from xml.sax.saxutils import escape as xmlescape
