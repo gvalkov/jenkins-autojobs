@@ -92,7 +92,7 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     # Load config, set default values and compile regexes.
     if not config:
         yamlfn = args[-1]
-        print('loading config from "%s"' % abspath(yamlfn))
+        print('loading config from "%s"' % os.path.abspath(yamlfn))
         config = yaml.load(open(yamlfn))
 
     config = c = get_default_config(config, opts)
