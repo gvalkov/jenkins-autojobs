@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.16.2 (Oct 02, 2015)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Fix accidentally introduced import error (thanks `@bartoszj`_).
+
 0.16.1 (Sep 30, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
 
