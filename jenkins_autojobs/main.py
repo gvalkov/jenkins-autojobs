@@ -178,15 +178,13 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
 def cleanup(config, created_job_names, jenkins, verbose=True):
     print('\ncleaning up old jobs:')
 
-    tagxpath = 'createdByJenkinsAutojobs/tag/text()'
     removed_jobs = []
 
     for job, job_config in get_managed_jobs(created_job_names, jenkins):
         # If cleanup is a tag name, only cleanup builds with that tag.
         if isinstance(config['cleanup'], str):
-            xml = lxml.etree.fromstring(job_config.encode('utf8'))
-            clean_tag = xml.xpath(tagxpath)
-            if not config['cleanup'] in clean_tag:
+            clean_tags = get_autojobs_tags(job_config, config['tag-method'])
+            if not config['cleanup'] in clean_tags:
                 continue
 
         removed_jobs.append(job)
@@ -203,15 +201,30 @@ def cleanup(config, created_job_names, jenkins, verbose=True):
     if not removed_jobs:
         print('. nothing to do')
 
+def get_autojobs_tags(job_config, method):
+    xml = lxml.etree.fromstring(job_config.encode('utf8'))
+    if method == 'element':
+        tag_xpath = 'createdByJenkinsAutojobs/tag/text()'
+        tags = xml.xpath(tag_xpath)
+
+    elif method == 'description':
+        description = xml.xpath('/project/description/text()')[0]
+        tags = re.findall(r'\n\(jenkins-autojobs-tag: (.*)\)', description)
+        if tags:
+            tags = tags[0].split()
+
+    return tags
+
 def get_managed_jobs(created_job_names, jenkins, safe_codes=(403,)):
-    tag = '</createdByJenkinsAutojobs>'
+    tag_el = '</createdByJenkinsAutojobs>'
+    tag_desc = '(created by jenkins-autojobs)'
 
     for job in jenkins.jobs:
         if job.name in created_job_names:
             continue
         try:
             job_config = job.config
-            if tag in job_config:
+            if (tag_desc in job_config) or (tag_el in job_config):
                 yield job, job_config
         except HTTPError as error:
             if error.response.status_code not in safe_codes:
@@ -253,8 +266,9 @@ def get_default_config(config, opts):
     c['password']  = config.get('password', None)
     c['scm-username'] = config.get('scm-username', None)
     c['scm-password'] = config.get('scm-password', None)
+    c['tag-method'] = config.get('tag-method', 'element')
 
-    # Default settings for each git ref/branch/ config.
+    # Default settings for each git ref/branch config.
     c['defaults'] = {
         'namesep':         c.get('namesep', '-'),
         'namefmt':         c.get('namefmt', '{shortref}'),

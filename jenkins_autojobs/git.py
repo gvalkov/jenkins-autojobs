@@ -114,10 +114,11 @@ def create_job(ref, template, config, ref_config):
     job_obj.substitute(list(ref_config['substitute'].items()), fmtdict, groups, groupdict)
 
     job_obj.create(
-        ref_config['overwrite'],
-        ref_config['build-on-create'],
-        config['dryrun'],
-        tag=ref_config['tag']
+        overwrite=ref_config['overwrite'],
+        build_on_create=ref_config['build-on-create'],
+        dryrun=config['dryrun'],
+        tag=ref_config['tag'],
+        tag_method=config['tag-method']
     )
 
     if config['debug']:

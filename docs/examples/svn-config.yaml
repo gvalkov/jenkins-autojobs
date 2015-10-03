@@ -124,3 +124,9 @@ tag: 'throw-away-jobs'
 # useful if you have more than one instance of jenkins-autojobs running and you
 # don’t want them to mutually cleanup each others jobs.
 cleanup: true  # or 'throw-away-jobs'
+
+#-----------------------------------------------------------------------------
+# Method for writing tags and marking the build as created by jenkins-autojobs.
+#   'description' -> add special strings to the job's description (default).
+#   'element'     -> add new xml elements to the job's config.xml.
+tag-method: 'description'

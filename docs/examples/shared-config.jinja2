@@ -40,6 +40,14 @@ overwrite: true
 build-on-create: false
 {% endmacro %}
 
+{% macro tag_method() %}
+#-----------------------------------------------------------------------------
+# Method for writing tags and marking the build as created by jenkins-autojobs.
+#   'description' -> add special strings to the job's description (default).
+#   'element'     -> add new xml elements to the job's config.xml.
+tag-method: 'description'
+{% endmacro %}
+
 {% macro enable() %}
 #-----------------------------------------------------------------------------
 # State of newly created or overwritten jobs. Default is 'sticky'. One of:
@@ -50,7 +58,6 @@ build-on-create: false
 #                 overwritten jobs keep their most recent state.
 enable: 'sticky'
 {% endmacro %}
-
 
 {% macro substitute() %}
 #-----------------------------------------------------------------------------

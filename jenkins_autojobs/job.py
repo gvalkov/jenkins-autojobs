@@ -58,21 +58,36 @@ class Job(object):
         try:
             return lxml.etree.tostring(xml, method='c14n')
         except ValueError:
-            # Guess the installed lxml is too old to support c14n.
-            # Drat. Unable to canonicalize the xml, so hopefully
-            # nobody makes a non-semantic change ...
+            # Installed lxml does not support c14n.
             return lxml.etree.tostring(xml)
 
-    def create(self, overwrite, build_on_create, dryrun, tag=None):
-        # Append autojobs-information.
-        info_el = lxml.etree.SubElement(self.xml, 'createdByJenkinsAutojobs')
-        ref_el  = lxml.etree.SubElement(info_el, 'ref')
-        ref_el.text = xmlescape(self.branch)
+    def tag_config(self, tag=None, method='description'):
+        if method == 'description':
+            mark = '\n(created by jenkins-autojobs)'
+            tag = ('\n(jenkins-autojobs-tag: %s)' % tag) if tag else ''
 
-        # Tag builds (this will be reworked in the future).
-        if tag:
-            tag_el = lxml.etree.SubElement(info_el, 'tag')
-            tag_el.text = xmlescape(tag)
+            mark = xmlescape(mark)
+            tag  = xmlescape(tag)
+
+            desc_el = self.xml.xpath('/project/description')[0]
+            if mark not in desc_el.text:
+                desc_el.text += mark
+            if tag not in desc_el.text:
+                desc_el.text += tag
+
+        elif method == 'element':
+            info_el = lxml.etree.SubElement(self.xml, 'createdByJenkinsAutojobs')
+            ref_el  = lxml.etree.SubElement(info_el, 'ref')
+            ref_el.text = xmlescape(self.branch)
+
+            # Tag builds.
+            if tag:
+                tag_el = lxml.etree.SubElement(info_el, 'tag')
+                tag_el.text = xmlescape(tag)
+
+    def create(self, overwrite, build_on_create, dryrun, tag=None, tag_method='description'):
+        # Mark build as created by jenkins-autojobs and add tags.
+        self.tag_config(tag, tag_method)
 
         # method='c14n' is only available in more recent versions of lxml
         self.xml = self.canonicalize(self.xml)

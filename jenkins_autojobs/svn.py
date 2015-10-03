@@ -120,10 +120,11 @@ def create_job(branch, template, config, branch_config):
     job_obj.substitute(list(branch_config['substitute'].items()), fmtdict, groups, groupdict)
 
     job_obj.create(
-        branch_config['overwrite'],
-        branch_config['build-on-create'],
-        config['dryrun'],
-        tag=branch_config['tag']
+        overwrite=branch_config['overwrite'],
+        build_on_create=branch_config['build-on-create'],
+        dryrun=config['dryrun'],
+        tag=branch_config['tag'],
+        tag_method=config['tag-method']
     )
 
     if config['debug']:

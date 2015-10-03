@@ -9,7 +9,7 @@ from textwrap import dedent
 from functools import partial
 
 from repo_fixture import repo_fixture
-from jenkins_autojobs import git
+from jenkins_autojobs import git, main
 from jenkins import Jenkins
 
 
@@ -414,8 +414,9 @@ def test_failing_git_cleanup(config, jenkins, repo):
 
 
 #-----------------------------------------------------------------------------
-def test_tag(config, jenkins, repo):
+def test_tag_element(config, jenkins, repo):
     config['tag'] = 'group1'
+    config['tag-method'] = 'element'
     config['refs'] = [
         {'refs/heads/feature/(.*)': {'namefmt': '{shortref}'}},
         {'refs/heads/test': {'tag': 'group2'}},
@@ -423,16 +424,40 @@ def test_tag(config, jenkins, repo):
 
     with repo.branch('feature/one'):
         cmd(config)
-        assert '<tag>group1</tag>' in jenkins.job('feature-one').config
+        jobc = jenkins.job('feature-one').config
+        assert main.get_autojobs_tags(jobc, 'element') == ['group1']
+        assert '<tag>group1</tag>' in jobc
 
     with repo.branch('test'):
         cmd(config)
         assert '<tag>group2</tag>' in jenkins.job('test').config
 
+def test_tag_description(config, jenkins, repo):
+    config['tag'] = 'group1'
+    config['tag-method'] = 'description'
+    config['refs'] = [
+        {'refs/heads/feature/(.*)': {'namefmt': '{shortref}'}},
+        {'refs/heads/test': {'tag': 'group2'}},
+    ]
+
+    with repo.branch('feature/one'):
+        cmd(config)
+        job = jenkins.job('feature-one')
+        desc = job.config_etree.xpath('/project/description/text()')[0]
+        assert '\n(created by jenkins-autojobs)' in desc
+        assert '\n(jenkins-autojobs-tag: group1)' in desc
+        assert main.get_autojobs_tags(job.config, 'description') == ['group1']
+
+    with repo.branch('feature/one'):
+        cmd(config)
+        job = jenkins.job('feature-one')
+        main.get_autojobs_tags(jenkins.job('feature-one').config, 'description')
 
 #-----------------------------------------------------------------------------
-def test_cleanup_tags(config, jenkins, repo):
+@mark.parametrize('tag_method', ['element', 'description'])
+def test_cleanup_tags(config, jenkins, repo, tag_method):
     config['cleanup'] = 'group1'
+    config['tag-method'] = tag_method
     config['refs'] = [
         {'refs/heads/group1/(.*)': {'tag': 'group1'}},
         {'refs/heads/group2/(.*)': {'tag': 'group2'}},

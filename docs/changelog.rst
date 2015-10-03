@@ -1,6 +1,20 @@
 Changelog
 ---------
 
+0.17.0 (Not released)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Jenkins-autojobs will now use the job description field to store its metadata.
+  Expect to see ``(created by jenkins-autojobs)`` and ``(jenkins-autojobs-tag:
+  $tagname [...])`` lines appended to the description of all managed jobs.
+
+  This metadata was previously stored as elements in the job's ``config.xml``.
+  Unfortunately, any manual reconfiguration of the job would cause Jenkins to
+  remove these extra elements. This issue is described in greater detail in
+  `issue #28`_. The old behavior can be kept by setting the ``tag-method``
+  option to ``element``.
+
+
 0.16.2 (Oct 02, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -173,3 +187,5 @@ Changelog
 .. _`@sustmi`:         https://github.com/sustmi
 .. _`@bartoszj`:       https://github.com/bartoszj
 .. _`@Myz`:            https://github.com/Myz
+
+.. _`issue #28`:       https://github.com/gvalkov/jenkins-autojobs/issues/28
