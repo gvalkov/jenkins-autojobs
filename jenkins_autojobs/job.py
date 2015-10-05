@@ -70,6 +70,8 @@ class Job(object):
             tag  = xmlescape(tag)
 
             desc_el = self.xml.xpath('/project/description')[0]
+            if desc_el.text is None:
+                desc_el.text = ''
             if mark not in desc_el.text:
                 desc_el.text += mark
             if tag not in desc_el.text:

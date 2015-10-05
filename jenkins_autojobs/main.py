@@ -204,15 +204,14 @@ def cleanup(config, created_job_names, jenkins, verbose=True):
 def get_autojobs_tags(job_config, method):
     xml = lxml.etree.fromstring(job_config.encode('utf8'))
     if method == 'element':
-        tag_xpath = 'createdByJenkinsAutojobs/tag/text()'
-        tags = xml.xpath(tag_xpath)
+        tags = xml.xpath('createdByJenkinsAutojobs/tag/text()')
 
     elif method == 'description':
-        description = xml.xpath('/project/description/text()')[0]
+        description = xml.xpath('/project/description/text()')
+        description = description[0] if description else ''
         tags = re.findall(r'\n\(jenkins-autojobs-tag: (.*)\)', description)
-        if tags:
-            tags = tags[0].split()
 
+    tags = tags[0].split() if tags else []
     return tags
 
 def get_managed_jobs(created_job_names, jenkins, safe_codes=(403,)):
