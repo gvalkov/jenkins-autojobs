@@ -106,3 +106,18 @@ view: 'view-name'
 # don’t want them to mutually cleanup each others jobs.
 cleanup: true  # or 'throw-away-jobs'
 {% endmacro %}
+
+{% macro cleanup_filter() %}
+#-----------------------------------------------------------------------------
+# Filter jobs by views and job names. By default all jobs are checked if they
+# should be removed. To reduce time you can filter which jobs should be
+# checked. You can use:
+# 1. List of views, by default jobs from all views are taken.
+# 2. List of job names as regular expressions, by default all jobs will be
+# taken.
+cleanup-filters:
+  views:
+    - 'My View'
+  jobs:
+    - '.*'
+{% endmacro %}

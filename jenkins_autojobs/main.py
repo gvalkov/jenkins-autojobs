@@ -185,6 +185,8 @@ def cleanup(config, created_job_names, jenkins, verbose=True):
         if isinstance(config['cleanup'], str):
             clean_tags = get_autojobs_tags(job_config, config['tag-method'])
             if not config['cleanup'] in clean_tags:
+                if config['debug']:
+                    print('. skipping %s' % job.name)
                 continue
 
         removed_jobs.append(job)
@@ -237,10 +239,12 @@ def get_managed_jobs(config, created_job_names, jenkins, safe_codes=(403,)):
         jobs = filtrated_jobs
 
     # Returns managed jobs to remove.
-    # It returns jobs which were not created or updated
+    # It returns jobs which were not just created or updated
     # and have 'tag' in configuration.
     for job in jobs:
         if job.name in created_job_names:
+            if config['debug']:
+                print('. skipping %s' % job.name)
             continue
         try:
             job_config = job.config
