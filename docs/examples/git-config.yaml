@@ -136,6 +136,19 @@ tag: 'throw-away-jobs'
 cleanup: true  # or 'throw-away-jobs'
 
 #-----------------------------------------------------------------------------
+# Filter jobs by views and job names. By default all jobs are checked if they
+# should be removed. To reduce time you can filter which jobs should be
+# checked. You can use:
+# 1. List of views, by default jobs from all views are taken.
+# 2. List of job names as regular expressions, by default all jobs will be
+# taken.
+cleanup-filters:
+  views:
+    - 'My View'
+  jobs:
+    - '.*'
+
+#-----------------------------------------------------------------------------
 # Method for writing tags and marking the build as created by jenkins-autojobs.
 #   'description' -> add special strings to the job's description (default).
 #   'element'     -> add new xml elements to the job's config.xml.

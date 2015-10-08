@@ -180,11 +180,13 @@ def cleanup(config, created_job_names, jenkins, verbose=True):
 
     removed_jobs = []
 
-    for job, job_config in get_managed_jobs(created_job_names, jenkins):
+    for job, job_config in get_managed_jobs(config, created_job_names, jenkins):
         # If cleanup is a tag name, only cleanup builds with that tag.
         if isinstance(config['cleanup'], str):
             clean_tags = get_autojobs_tags(job_config, config['tag-method'])
             if not config['cleanup'] in clean_tags:
+                if config['debug']:
+                    print('. skipping %s' % job.name)
                 continue
 
         removed_jobs.append(job)
@@ -214,12 +216,35 @@ def get_autojobs_tags(job_config, method):
     tags = tags[0].split() if tags else []
     return tags
 
-def get_managed_jobs(created_job_names, jenkins, safe_codes=(403,)):
+def get_managed_jobs(config, created_job_names, jenkins, safe_codes=(403,)):
     tag_el = '</createdByJenkinsAutojobs>'
     tag_desc = '(created by jenkins-autojobs)'
 
-    for job in jenkins.jobs:
+    # Get only jobs only from filtrated views.
+    if len(config['cleanup-filters']['views']) == 0:
+        jobs = set(jenkins.jobs)
+    else:
+        jobs = set()
+        for v in config['cleanup-filters']['views']:
+            jobs = jobs.union(set(jenkins.view(v).jobs))
+
+    # Filter jobs by regular expressions.
+    if len(config['cleanup-filters']['jobs']) != 0:
+        filtrated_jobs = set()
+        for j in jobs:
+            for r in config['cleanup-filters']['jobs']:
+                if r.match(j.name):
+                    filtrated_jobs.add(j)
+                    break
+        jobs = filtrated_jobs
+
+    # Returns managed jobs to remove.
+    # It returns jobs which were not just created or updated
+    # and have 'tag' in configuration.
+    for job in jobs:
         if job.name in created_job_names:
+            if config['debug']:
+                print('. skipping %s' % job.name)
             continue
         try:
             job_config = job.config
@@ -266,6 +291,7 @@ def get_default_config(config, opts):
     c['scm-username'] = config.get('scm-username', None)
     c['scm-password'] = config.get('scm-password', None)
     c['tag-method'] = config.get('tag-method', 'element')
+    c['cleanup-filters'] = config.get('cleanup-filters', {})
 
     # Default settings for each git ref/branch config.
     c['defaults'] = {
@@ -280,6 +306,10 @@ def get_default_config(config, opts):
         'view':            c.get('view', []),
         'build-on-create': c.get('build-on-create', False)
     }
+
+    # Defaults settings for cleanup filters.
+    c['cleanup-filters']['views'] = c['cleanup-filters'].get('views', [])
+    c['cleanup-filters']['jobs'] = c['cleanup-filters'].get('jobs', [])
 
     # Make sure some options are always lists.
     c['defaults']['view'] = utils.pluralize(c['defaults']['view'])
@@ -306,6 +336,14 @@ def get_default_config(config, opts):
     # Compile ignore regexes.
     c.setdefault('ignore', {})
     c['ignore'] = [re.compile(i) for i in c['ignore']]
+
+    # Compile cleanup filters jobs regexes.
+    c['cleanup-filters']['jobs'] = [re.compile(i) for i in c['cleanup-filters']['jobs']]
+
+    # The 'All' view doesn't have an API endpoint (i.e. no /view/All/api).
+    # Since all jobs are added to it by default, we can ignore all other views.
+    if 'All' in c['cleanup-filters']['views']:
+        c['cleanup-filters']['views'] = []
 
     if 'refs' not in c:
         c['refs'] = ['.*']
