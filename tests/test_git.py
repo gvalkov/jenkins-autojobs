@@ -1,6 +1,6 @@
 # -*- coding: utf-8; -*-
 
-import time
+import time, copy
 import io, yaml, pytest
 
 from pytest import mark
@@ -452,6 +452,44 @@ def test_tag_description(config, jenkins, repo):
         cmd(config)
         job = jenkins.job('feature-one')
         main.get_autojobs_tags(jenkins.job('feature-one').config, 'description')
+
+
+#-----------------------------------------------------------------------------
+def test_cleanup_filter_regex(config, jenkins, repo):
+    config['cleanup'] = True
+
+    config['cleanup-filters'] = {
+        'jobs': ['.*one']
+    }
+
+    with repo.branches('feature/one', 'feature/one1', 'feature/two'):
+        cmd(copy.deepcopy(config))
+
+    with repo.branch('feature/one'):
+        cmd(copy.deepcopy(config))
+        assert not jenkins.job_exists('feature-one1')
+        assert jenkins.job_exists('feature-two')
+
+def test_cleanup_filter_view(config, jenkins, view, repo):
+    config['cleanup'] = True
+
+    with repo.branches('feature/three'):
+        cmd(copy.deepcopy(config))
+
+    config['view'] = [view]
+    config['cleanup-filters'] = {
+        'views': [view]
+    }
+
+    with repo.branches('feature/one', 'feature/one1', 'feature/two'):
+        cmd(copy.deepcopy(config))
+
+    with repo.branch('feature/one'):
+        cmd(copy.deepcopy(config))
+        assert not jenkins.job_exists('feature-one1')
+        assert not jenkins.job_exists('feature-two')
+        assert jenkins.job_exists('feature-three')
+
 
 #-----------------------------------------------------------------------------
 @mark.parametrize('tag_method', ['element', 'description'])

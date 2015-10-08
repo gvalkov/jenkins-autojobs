@@ -178,9 +178,16 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
 def cleanup(config, created_job_names, jenkins, verbose=True):
     print('\ncleaning up old jobs:')
 
-    removed_jobs = []
+    filter_function = partial(
+        filter_jobs,
+        by_views=config['cleanup-filters']['views'],
+        by_name_regex=config['cleanup-filters']['jobs']
+    )
 
-    for job, job_config in get_managed_jobs(config, created_job_names, jenkins):
+    removed_jobs = []
+    managed_jobs = get_managed_jobs(created_job_names, jenkins, filter_function)
+
+    for job, job_config in managed_jobs:
         # If cleanup is a tag name, only cleanup builds with that tag.
         if isinstance(config['cleanup'], str):
             clean_tags = get_autojobs_tags(job_config, config['tag-method'])
@@ -216,35 +223,41 @@ def get_autojobs_tags(job_config, method):
     tags = tags[0].split() if tags else []
     return tags
 
-def get_managed_jobs(config, created_job_names, jenkins, safe_codes=(403,)):
+def filter_jobs(jenkins, by_views=(), by_name_regex=()):
+    '''Select only jobs that belong to a given view or the names of which match a regex.'''
+    jobs = set()
+
+    if not by_views and not by_name_regex:
+        return jenkins.jobs
+
+    # Select jobs in the by_views list.
+    for view_name in by_views:
+        view_jobs = jenkins.view_jobs(view_name)
+        jobs.update(view_jobs)  # set.update() is a union operation.
+
+    # Select jobs names that match the by_name_regex list.
+    for job in jenkins.jobs:
+        if utils.anymatch(by_name_regex, job.name):
+            jobs.add(job)
+
+    return jobs
+
+def get_managed_jobs(created_job_names, jenkins, filter_function=None, safe_codes=(403,)):
+    '''
+    Returns jobs which were created by jenkins-autojobs. This is determined by
+    looking for a special string or element in the job's config.xml.
+    '''
+
     tag_el = '</createdByJenkinsAutojobs>'
     tag_desc = '(created by jenkins-autojobs)'
 
-    # Get only jobs only from filtrated views.
-    if len(config['cleanup-filters']['views']) == 0:
-        jobs = set(jenkins.jobs)
+    if callable(filter_function):
+        jobs = filter_function(jenkins)
     else:
-        jobs = set()
-        for v in config['cleanup-filters']['views']:
-            jobs = jobs.union(set(jenkins.view(v).jobs))
+        jobs = jenkins.jobs
 
-    # Filter jobs by regular expressions.
-    if len(config['cleanup-filters']['jobs']) != 0:
-        filtrated_jobs = set()
-        for j in jobs:
-            for r in config['cleanup-filters']['jobs']:
-                if r.match(j.name):
-                    filtrated_jobs.add(j)
-                    break
-        jobs = filtrated_jobs
-
-    # Returns managed jobs to remove.
-    # It returns jobs which were not just created or updated
-    # and have 'tag' in configuration.
     for job in jobs:
         if job.name in created_job_names:
-            if config['debug']:
-                print('. skipping %s' % job.name)
             continue
         try:
             job_config = job.config
@@ -307,9 +320,9 @@ def get_default_config(config, opts):
         'build-on-create': c.get('build-on-create', False)
     }
 
-    # Defaults settings for cleanup filters.
+    # Default cleanup filters.
     c['cleanup-filters']['views'] = c['cleanup-filters'].get('views', [])
-    c['cleanup-filters']['jobs'] = c['cleanup-filters'].get('jobs', [])
+    c['cleanup-filters']['jobs']  = c['cleanup-filters'].get('jobs', [])
 
     # Make sure some options are always lists.
     c['defaults']['view'] = utils.pluralize(c['defaults']['view'])
@@ -337,7 +350,7 @@ def get_default_config(config, opts):
     c.setdefault('ignore', {})
     c['ignore'] = [re.compile(i) for i in c['ignore']]
 
-    # Compile cleanup filters jobs regexes.
+    # Compile cleanup-filters job name regexes.
     c['cleanup-filters']['jobs'] = [re.compile(i) for i in c['cleanup-filters']['jobs']]
 
     # The 'All' view doesn't have an API endpoint (i.e. no /view/All/api).
