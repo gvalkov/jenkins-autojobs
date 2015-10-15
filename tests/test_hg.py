@@ -159,3 +159,21 @@ def test_cleanup(config, jenkins, repo):
     with repo.branch('branches/one'):
         cmd(config)
         assert not jenkins.job_exists('branches-two')
+
+#------------------------------------------------------------------------------
+def test_list_closed(config, jenkins, repo):
+    config['repo'] = repo.url.replace('file://', '', 1)
+    config['namefmt'] = '{branch}'
+    config['namesep'] = '-'
+    config['list-closed'] = False
+
+    with repo.branches('branches/one', 'branches/two'):
+        repo.close_branch('branches/two')
+        cmd(config)
+
+        assert jenkins.job_exists('branches-one')
+        assert not jenkins.job_exists('branches-two')
+
+        config['list-closed'] = True
+        cmd(config)
+        assert jenkins.job_exists('branches-two')

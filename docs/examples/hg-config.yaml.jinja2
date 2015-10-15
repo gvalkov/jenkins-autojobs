@@ -10,6 +10,11 @@ repo: file:///tmp/repo/
 # The Python binary to use when calling mercurial. Defaults to 'python'.
 python: python2
 
+#-----------------------------------------------------------------------------
+# Include closed branches. Note that this works only for local repositories at
+# the moment. Defaults to 'true'.
+list-closed: true
+
 {{ m.scmlogin()|trim }}
 
 {{ m.template()|trim }}

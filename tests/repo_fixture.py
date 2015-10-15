@@ -143,3 +143,9 @@ class HgRepo(TmpRepo):
     def rmbranch(self, name):
         shutil.rmtree(self.dir)
         self.init()
+
+    def close_branch(self, name):
+        cmd = 'hg', 'branch', name
+        check_call(cmd, cwd=self.dir)
+        cmd = 'hg', 'commit', '-A', '-m', '++', '--close-branch'
+        check_call(cmd, cwd=self.dir)

@@ -12,6 +12,7 @@ import os
 import re
 import sys
 import ast
+import warnings
 
 from . import job, main, utils
 
@@ -24,14 +25,19 @@ hg_remote_helper_path = os.path.join(
     'hg_remote_helper.py'
 )
 
-def hg_branch_iter_remote(repo, python):
+def hg_branch_iter_remote(repo, python, include_closed=True):
+    if not include_closed:
+        msg = 'Closed branches cannot be excluded when listing remote repositories.'
+        warnings.warn(msg)
     cmd = [python, hg_remote_helper_path, '-r', repo]
     out = utils.check_output(cmd)
     out = ast.literal_eval(out.decode('utf8'))
     return [i[0] for i in out]
 
-def hg_branch_iter_local(repo, python=None):
-    cmd = ['hg', '-y', 'branches', '-c', '-R', repo]
+def hg_branch_iter_local(repo, python=None, include_closed=True):
+    cmd = ['hg', '-y', 'branches', '-R', repo]
+    if include_closed:
+        cmd.append('-c')
     out = utils.check_output(cmd).decode('utf8').split(os.linesep)
 
     out = (re.split('\s+', i, 1) for i in out if i)
@@ -42,8 +48,9 @@ def list_branches(config):
     islocal = os.path.isdir(config['repo'])
     branch_iter = hg_branch_iter_local if islocal else hg_branch_iter_remote
     python = config.get('python', 'python')
+    include_closed = config.get('list-closed', True)
 
-    return branch_iter(config['repo'], python)
+    return branch_iter(config['repo'], python, include_closed)
 
 def create_job(ref, template, config, ref_config):
     '''Create a jenkins job.
