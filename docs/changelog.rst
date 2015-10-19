@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-0.17.0 (Not released)
+0.17.0 (Oct 19, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
 
 - Jenkins-autojobs will now use the job description field to store its metadata.
