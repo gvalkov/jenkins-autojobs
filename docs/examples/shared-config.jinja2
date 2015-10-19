@@ -104,12 +104,11 @@ view: 'view-name'
 # If set to a tag name, only jobs with that name will be cleaned. This is
 # useful if you have more than one instance of jenkins-autojobs running and you
 # don’t want them to mutually cleanup each others jobs.
-
 cleanup: true  # or 'throw-away-jobs'
 {% endmacro %}
 
 {% macro cleanup_filter() %}
-#----------------------------------------------------------------------------- #
+#-----------------------------------------------------------------------------
 # Limit the number of jobs to consider for cleanup by view or job name regex.
 # This can be used to reduce the time needed to remove jobs with the cleanup
 # feature. The default is to process all jobs.

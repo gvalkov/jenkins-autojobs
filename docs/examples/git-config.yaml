@@ -136,12 +136,10 @@ tag: 'throw-away-jobs'
 cleanup: true  # or 'throw-away-jobs'
 
 #-----------------------------------------------------------------------------
-# Filter jobs by views and job names. By default all jobs are checked if they
-# should be removed. To reduce time you can filter which jobs should be
-# checked. You can use:
-# 1. List of views, by default jobs from all views are taken.
-# 2. List of job names as regular expressions, by default all jobs will be
-# taken.
+# Limit the number of jobs to consider for cleanup by view or job name regex.
+# This can be used to reduce the time needed to remove jobs with the cleanup
+# feature. The default is to process all jobs.
+
 cleanup-filters:
   views:
     - 'My View'

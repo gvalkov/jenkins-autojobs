@@ -14,6 +14,26 @@ Changelog
   `issue #28`_. The old behavior can be kept by setting the ``tag-method``
   option to ``element``.
 
+- Added the ``cleanup-filters`` configuration option, which filters the list of
+  jobs that jenkins-autojobs considers for cleanup by view name or regular
+  expression (thanks `@bartoszj`_). Example usage:
+
+  .. code-block:: yaml
+
+      # Cleanup only jobs in the 'Feature' and 'Release' views as well as all
+      jobs that start with 'scratch'.
+      cleanup-filters:
+        - views:
+          - Feature
+          - Release
+        - name:
+          - '^scratch-.*'
+
+- Added the ``list-closed`` option to the mercurial plugin, which controls the
+  listing of closed branches. The old behaviour and current default value is
+  ``true``. Note that this feature currently works only for local mercurial
+  repositories.
+
 
 0.16.2 (Oct 02, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
