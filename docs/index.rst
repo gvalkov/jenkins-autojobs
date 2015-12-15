@@ -22,7 +22,7 @@ In its most basic form, the configuration file specifies:
 - Which template job to use for which branches.
 - How new jobs should be named.
 
-Autojobs can also;
+Autojobs can also:
 
 - Add newly created jobs to Jenkins views.
 - Cleanup jobs for which a branch no longer exists.

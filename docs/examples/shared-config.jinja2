@@ -35,8 +35,7 @@ overwrite: true
 
 {% macro build_on_create() %}
 #-----------------------------------------------------------------------------
-# If true, a job will be added to build queue when it is created.
-# If false, a job will be only created (this is the default).
+# If true, new jobs will be added to the build queue after creation.
 build-on-create: false
 {% endmacro %}
 
