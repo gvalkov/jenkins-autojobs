@@ -11,6 +11,7 @@ from functools import partial
 from repo_fixture import repo_fixture
 from jenkins_autojobs import hg
 from jenkins import Jenkins
+from utils import is_created_by_jenkinsautojobs
 
 
 #-----------------------------------------------------------------------------
@@ -155,7 +156,7 @@ def test_cleanup(config, jenkins, repo):
 
         assert jenkins.job_exists('branches-one')
         assert jenkins.job_exists('branches-two')
-        assert 'createdByJenkinsAutojobs' in jenkins.job('branches-one').config
+        assert is_created_by_jenkinsautojobs(jenkins.job('branches-one'))
 
     with repo.branch('branches/one'):
         cmd(config)

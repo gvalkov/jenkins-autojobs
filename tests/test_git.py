@@ -10,6 +10,7 @@ from textwrap import dedent
 from functools import partial
 
 from repo_fixture import repo_fixture
+from utils import is_created_by_jenkinsautojobs
 from jenkins_autojobs import git, main
 from jenkins import Jenkins
 
@@ -382,14 +383,16 @@ def test_missing_template(config, jenkins, repo):
 
 
 #-----------------------------------------------------------------------------
-def test_cleanup(config, jenkins, repo):
+@mark.parametrize('tag_method', ['element', 'description'])
+def test_cleanup(config, jenkins, repo, tag_method):
     config['cleanup'] = True
+    config['tag-method'] = tag_method
 
     with repo.branches('feature/one', 'feature/two'):
         cmd(config)
         assert jenkins.job_exists('feature-one')
         assert jenkins.job_exists('feature-two')
-        assert 'createdByJenkinsAutojobs' in jenkins.job('feature-one').config
+        assert is_created_by_jenkinsautojobs(jenkins.job('feature-one'), tag_method)
 
     with repo.branch('feature/one'):
         cmd(config)
@@ -397,14 +400,17 @@ def test_cleanup(config, jenkins, repo):
 
 
 #-----------------------------------------------------------------------------
-def test_failing_git_cleanup(config, jenkins, repo):
+@mark.parametrize('tag_method', ['element', 'description'])
+def test_failing_git_cleanup(config, jenkins, repo, tag_method):
     config['cleanup'] = True
+    config['tag-method'] = tag_method
 
     with repo.branches('feature/one', 'feature/two'):
         cmd(config)
         assert jenkins.job_exists('feature-one')
         assert jenkins.job_exists('feature-two')
-        assert 'createdByJenkinsAutojobs' in jenkins.job('feature-one').config
+
+        assert is_created_by_jenkinsautojobs(jenkins.job('feature-one'), tag_method)
 
         config['repo'] = '/tmp/should-never-exist-zxcv-123-zxcv-1asfmn'
         with pytest.raises(SystemExit):
