@@ -303,7 +303,7 @@ def get_default_config(config, opts):
     c['password']  = config.get('password', None)
     c['scm-username'] = config.get('scm-username', None)
     c['scm-password'] = config.get('scm-password', None)
-    c['tag-method'] = config.get('tag-method', 'element')
+    c['tag-method'] = config.get('tag-method', 'description')
     c['cleanup-filters'] = config.get('cleanup-filters', {})
 
     # Default settings for each git ref/branch config.

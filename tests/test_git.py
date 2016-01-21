@@ -208,14 +208,14 @@ def test_substitute(config, jenkins, repo, branch, sub, ejob, expected):
     with repo.branch(branch):
         cmd(config)
         assert jenkins.job_exists(ejob)
-        assert jenkins.job_info(ejob)['description'] == expected
+        assert expected in jenkins.job_info(ejob)['description'].splitlines()
 
 def test_substitute_reposub(config, jenkins, repo):
     config['substitute'] = {'@@JOB_NAME@@': '{repo-orig}'}
     with repo.branch('feature/reposub'):
         cmd(config)
         assert jenkins.job_exists('feature-reposub')
-        assert jenkins.job_info('feature-reposub')['description'] == config['repo']
+        assert config['repo'] in jenkins.job_info('feature-reposub')['description'].splitlines()
 
 #-----------------------------------------------------------------------------
 def test_substitute_groups(config, jenkins, repo):
@@ -228,13 +228,13 @@ def test_substitute_groups(config, jenkins, repo):
     config['refs'] = ['refs/heads/release-((?:(\d+\.){1,2})[1-9]+\d*)-(.*)']
     with repo.branch('release-0.7.4-wheezy') as name:
         cmd(config)
-        assert jenkins.job_info(name)['description'] == 'wheezy'
+        assert 'wheezy' in jenkins.job_info(name)['description'].splitlines()
 
     config['refs'] = ['refs/heads/feature-(\d\d)-(?P<name>\w+)-(\d)']
     config['substitute'] = {'@@JOB_NAME@@' : '{0}-{name}-{2}'}
     with repo.branch('feature-55-random-1') as name:
         cmd(config)
-        assert jenkins.job_info(name)['description'] == '55-random-1'
+        assert '55-random-1' in jenkins.job_info(name)['description'].splitlines()
 
 
 #-----------------------------------------------------------------------------
