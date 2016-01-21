@@ -1,6 +1,7 @@
 # -*- coding: utf-8; -*-
 
-import io, os, yaml, pytest
+import io, os, pytest
+import ruamel.yaml as yaml
 
 from pytest import mark
 from pytest import fixture, yield_fixture

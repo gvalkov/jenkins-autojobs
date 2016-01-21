@@ -23,7 +23,7 @@ classifiers = [
 requires = [
     'jenkins-webapi>=0.5.0',
     'lxml>=3.2.3',
-    'PyYAML>=3.11',
+    'ruamel.yaml>=0.10.15',
 ]
 
 if version_info <= (2, 7):

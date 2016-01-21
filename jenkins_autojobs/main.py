@@ -6,7 +6,6 @@ import os
 import re
 import sys
 import copy
-import yaml
 import getopt
 import getpass
 import subprocess
@@ -14,6 +13,8 @@ import subprocess
 from functools import partial
 
 import lxml.etree
+import ruamel.yaml as yaml
+
 from jenkins import Jenkins, JenkinsError
 from requests.exceptions import RequestException, HTTPError
 
