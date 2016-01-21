@@ -11,7 +11,12 @@ def test_filter_jobs():
             self.name = name
 
     class jenkins:
-        pass
+        @staticmethod
+        def view_jobs(x):
+            return {
+                'v1': [Job('scratch-one'), Job('scratch-two')],
+                'v2': [Job('release-one'), Job('maintenance-three')]
+            }[x]
 
     names = ['feature-one', 'feature-two', 'release-one', 'release-two']
     jenkins.jobs = [Job(i) for i in names]
@@ -27,12 +32,6 @@ def test_filter_jobs():
     assert res == {'feature-one', 'feature-two', 'release-one', 'release-two'}
 
     #-------------------------------------------------------------------------
-    view_jobs = {
-        'v1': [Job('scratch-one'), Job('scratch-two')],
-        'v2': [Job('release-one'), Job('maintenance-three')]
-    }
-    jenkins.view_jobs = lambda x: view_jobs[x]
-
     res = filter_jobs(by_views=['v1'])
     assert res == {'scratch-one', 'scratch-two'}
 
