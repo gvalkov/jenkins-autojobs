@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.17.2 (Jan 21, 2016)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Actually change the default tag method to ``description``. This was announced
+  as the default behaviour in 0.17.0, but was accidentally omitted from that
+  release (`issue #50`_).
+
+Version 0.17.1 was skipped because of a failed upload to PyPi (see `issue #74`_).
+
 0.17.0 (Oct 19, 2015)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -209,3 +218,6 @@ Changelog
 .. _`@Myz`:            https://github.com/Myz
 
 .. _`issue #28`:       https://github.com/gvalkov/jenkins-autojobs/issues/28
+.. _`issue #50`:       https://github.com/gvalkov/jenkins-autojobs/issues/50
+
+.. _`issue #74`:       https://github.com/pypa/packaging-problems/issues/74
