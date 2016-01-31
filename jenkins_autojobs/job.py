@@ -69,7 +69,13 @@ class Job(object):
             mark = xmlescape(mark)
             tag  = xmlescape(tag)
 
-            desc_el = self.xml.xpath('/project/description')[0]
+            desc_el = self.xml.xpath('//project/description')
+            if not desc_el:
+                desc_el = lxml.etree.Element('description')
+                self.xml.insert(1, desc_el)
+            else:
+                desc_el = desc_el[0]
+
             if desc_el.text is None:
                 desc_el.text = ''
             if mark not in desc_el.text:
