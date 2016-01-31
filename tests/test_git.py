@@ -455,10 +455,12 @@ def test_tag_description(config, jenkins, repo):
         assert '\n(jenkins-autojobs-tag: group1)' in desc
         assert main.get_autojobs_tags(job.config, 'description') == ['group1']
 
-    with repo.branch('feature/one'):
+    with repo.branch('test'):
         cmd(config)
-        job = jenkins.job('feature-one')
-        main.get_autojobs_tags(jenkins.job('feature-one').config, 'description')
+        job = jenkins.job('test')
+        desc = job.config_etree.xpath('/project/description/text()')[0]
+        assert '\n(jenkins-autojobs-tag: group2)' in desc
+        assert main.get_autojobs_tags(job.config, 'description') == ['group2']
 
 
 #-----------------------------------------------------------------------------
