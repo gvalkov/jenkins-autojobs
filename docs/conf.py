@@ -3,13 +3,6 @@
 import sys, os, re
 import alabaster
 
-# Read version from setup.py
-for line in open('../jenkins_autojobs/__init__.py'):
-    m = re.search("__version__.*=.*'(.*)'", line)
-    if m:
-        _release = m.group(1)
-        break
-
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -33,14 +26,14 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'jenkins-autojobs'
-copyright = u'2012-2015, Georgi Valkov'
+copyright = u'2012-2016, Georgi Valkov'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = _release
+release = '0.17.2'
 
 # The short X.Y version.
 version = release

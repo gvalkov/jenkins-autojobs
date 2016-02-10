@@ -3,7 +3,6 @@
 
 from sys import version_info
 from setuptools import setup
-from jenkins_autojobs import __version__
 
 
 classifiers = [
@@ -37,7 +36,7 @@ scripts = [
 
 kw = {
     'name':             'jenkins-autojobs',
-    'version':          __version__,
+    'version':          '0.17.2',
     'description':      'Scripts for automatically creating Jenkins jobs from SCM branches',
     'long_description': open('README.rst').read(),
     'author':           'Georgi Valkov',
