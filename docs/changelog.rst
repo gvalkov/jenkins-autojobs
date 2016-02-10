@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.17.3 (Feb 10, 2016)
+^^^^^^^^^^^^^^^^^^^^^
+
+- Fix error-prone handling of the ``//project/description`` config.xml element
+  (see `issue #54`_).
+
 0.17.2 (Jan 21, 2016)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -219,5 +225,6 @@ Version 0.17.1 was skipped because of a failed upload to PyPi (see `issue #74`_)
 
 .. _`issue #28`:       https://github.com/gvalkov/jenkins-autojobs/issues/28
 .. _`issue #50`:       https://github.com/gvalkov/jenkins-autojobs/issues/50
+.. _`issue #54`:       https://github.com/gvalkov/jenkins-autojobs/issues/54
 
 .. _`issue #74`:       https://github.com/pypa/packaging-problems/issues/74

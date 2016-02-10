@@ -36,7 +36,7 @@ scripts = [
 
 kw = {
     'name':             'jenkins-autojobs',
-    'version':          '0.17.2',
+    'version':          '0.17.3',
     'description':      'Scripts for automatically creating Jenkins jobs from SCM branches',
     'long_description': open('README.rst').read(),
     'author':           'Georgi Valkov',
