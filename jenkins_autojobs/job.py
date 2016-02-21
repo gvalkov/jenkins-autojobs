@@ -68,13 +68,7 @@ class Job(object):
 
             mark = xmlescape(mark)
             tag  = xmlescape(tag)
-
-            desc_el = self.xml.xpath('//project/description')
-            if not desc_el:
-                desc_el = lxml.etree.Element('description')
-                self.xml.insert(1, desc_el)
-            else:
-                desc_el = desc_el[0]
+            desc_el = Job.find_or_create_description_el(self.xml)
 
             if desc_el.text is None:
                 desc_el.text = ''
@@ -125,3 +119,30 @@ class Job(object):
 
         elif not overwrite:
             print('. overwrite disabled - skipping job')
+
+    @staticmethod
+    def find_or_create_description_el(xml):
+        parent, description = Job.find_description_el(xml)
+
+        if parent is None:
+            msg = 'cannot determine project type and the location of the description element'
+            raise RuntimeError(msg)
+
+        if not description:
+            description = lxml.etree.Element('description')
+            parent.insert(1, description)
+        else:
+            description = description[0]
+        return description
+
+    @staticmethod
+    def find_description_el(xml):
+        # The location of the project description element depends on the type of project.
+        # TODO: Need to find a more generic solution to this problem.
+        for parent_xpath in '//maven2-moduleset', '//project':
+            parent = xml.xpath(parent_xpath)
+            if not parent:
+                continue
+            desc_xpath = parent_xpath + '/description'
+            return parent[0], xml.xpath(desc_xpath)
+        return None, None

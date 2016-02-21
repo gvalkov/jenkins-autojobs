@@ -20,7 +20,7 @@ from jenkins import Jenkins, JenkinsError
 from requests.exceptions import RequestException, HTTPError
 
 from . import __version__
-from . import utils
+from . import utils, job
 
 
 #-----------------------------------------------------------------------------
@@ -246,8 +246,8 @@ def get_autojobs_tags(job_config, method):
         tags = xml.xpath('createdByJenkinsAutojobs/tag/text()')
 
     elif method == 'description':
-        description = xml.xpath('/project/description/text()')
-        description = description[0] if description else ''
+        _, description = job.Job.find_description_el(xml)
+        description = description[0].text if description else ''
         tags = re.findall(r'\n\(jenkins-autojobs-tag: (.*)\)', description)
 
     tags = tags[0].split() if tags else []
