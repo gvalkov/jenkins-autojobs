@@ -1,16 +1,26 @@
 #-----------------------------------------------------------------------------
-# Jenkins location and login credentials.
-jenkins:  http://jenkins.yourdomain.com
-username: None  # optional
-password: None  # optional
+# Jenkins location, login credentials and SSL config.
+jenkins:  'https://jenkins.yourdomain.com'
+username: 'change-me'
+password: 'change-me'
+
+# Verify the SSL certificate of the Jenkins server (default: true).
+verify-ssl: true  # optional
+
+# A client certificate can be specified as a single file, containing the
+# private key and certificate) or as 'path/to/client.cert:path/to/client.key'.
+client-cert: 'path/to/client.cert'  # optional
+
+# Path to a CA_BUNDLE file or a directory with certificates of trusted CAs.
+cert-bundle: 'path/to/certs/'  # optional
 
 #-----------------------------------------------------------------------------
 # Mercurial repository url.
-repo: file:///tmp/repo/
+repo: 'file:///tmp/repo/'
 
 #-----------------------------------------------------------------------------
 # The Python binary to use when calling mercurial. Defaults to 'python'.
-python: python2
+python: 'python2'
 
 #-----------------------------------------------------------------------------
 # Process closed branches. Note that this works only for local repositories at
@@ -19,12 +29,12 @@ list-closed: true
 
 #-----------------------------------------------------------------------------
 # Repository login credentials.
-scm-username: None  # optional
-scm-password: None  # optional
+scm-username: 'change-me'
+scm-password: 'change-me'
 
 #-----------------------------------------------------------------------------
 # Job to use as a template for new jobs.
-template: new-job-template
+template: 'new-job-template'
 
 #-----------------------------------------------------------------------------
 # Character with which to replace '/' in branch names.
@@ -66,8 +76,7 @@ namefmt: '{branch}'
 overwrite: true
 
 #-----------------------------------------------------------------------------
-# If true, a job will be added to build queue when it is created.
-# If false, a job will be only created (this is the default).
+# If true, new jobs will be added to the build queue after creation.
 build-on-create: false
 
 #-----------------------------------------------------------------------------

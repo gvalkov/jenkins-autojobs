@@ -4,16 +4,16 @@
 
 #-----------------------------------------------------------------------------
 # Svn base url (not necessarily the repository root).
-repo: file:///tmp/repo/
+repo: 'file:///tmp/repo/'
 
 #-----------------------------------------------------------------------------
 # Urls to list for branches that will be matchable by the refs option.
 # Autojobs will 'svn ls' each of these and strip the value of 'repo'.
 branches:
-  - file:///tmp/repo/branches/
-  - file:///tmp/repo/experimental/
-  - file:///tmp/repo/releases/
-  - file:///tmp/repo/projects/*/branches
+  - 'file:///tmp/repo/branches/'
+  - 'file:///tmp/repo/experimental/'
+  - 'file:///tmp/repo/releases/'
+  - 'file:///tmp/repo/projects/*/branches'
 
 {{ m.scmlogin()|trim }}
 

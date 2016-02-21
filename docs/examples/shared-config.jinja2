@@ -1,16 +1,26 @@
 {% macro jenkins() %}
 #-----------------------------------------------------------------------------
-# Jenkins location and login credentials.
-jenkins:  http://jenkins.yourdomain.com
-username: None  # optional
-password: None  # optional
+# Jenkins location, login credentials and SSL config.
+jenkins:  'https://jenkins.yourdomain.com'
+username: 'change-me'
+password: 'change-me'
+
+# Verify the SSL certificate of the Jenkins server (default: true).
+verify-ssl: true  # optional
+
+# A client certificate can be specified as a single file, containing the
+# private key and certificate) or as 'path/to/client.cert:path/to/client.key'.
+client-cert: 'path/to/client.cert'  # optional
+
+# Path to a CA_BUNDLE file or a directory with certificates of trusted CAs.
+cert-bundle: 'path/to/certs/'  # optional
 {% endmacro %}
 
 {% macro scmlogin() %}
 #-----------------------------------------------------------------------------
 # Repository login credentials.
-scm-username: None  # optional
-scm-password: None  # optional
+scm-username: 'change-me'
+scm-password: 'change-me'
 {% endmacro %}
 
 {% macro namesep() %}
@@ -22,7 +32,7 @@ namesep: '-'
 {% macro template() %}
 #-----------------------------------------------------------------------------
 # Job to use as a template for new jobs.
-template: new-job-template
+template: 'new-job-template'
 {% endmacro %}
 
 {% macro overwrite() %}

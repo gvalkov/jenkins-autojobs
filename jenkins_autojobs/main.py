@@ -1,15 +1,16 @@
 # -*- coding: utf-8; -*-
 
+from __future__ import print_function
 from __future__ import absolute_import
 
 import os
 import re
 import sys
 import copy
-import getopt
-import getpass
+import argparse
 import subprocess
 
+from getpass import getpass
 from functools import partial
 
 import lxml.etree
@@ -42,27 +43,29 @@ except NameError:
 
 #-----------------------------------------------------------------------------
 usage = '''\
-Usage: %s [-rvdtjnyoupUYOP] <config.yaml>
+Usage: %s [options] <config.yaml>
 
 General Options:
-  -n dry run
-  -v show version and exit
-  -d debug config inheritance
-  -t debug http requests
+  -n, --dry-run             simulate execution
+  -v, --version             show version and exit
+  -d, --debug               debug config inheritance
+  -t, --debug-http          debug http requests
 
 Repository Options:
-  -r <arg> repository url
-  -y <arg> scm username
-  -o <arg> scm password
-  -Y scm username (read from stdin)
-  -O scm password (read from stdin)
+  -r, --repo-url <arg>      repository url
+  -y, --scm-user <arg>      scm username (use '-' to read from stdin)
+  -o, --scm-pass <arg>      scm password (use '-' to read from stdin)
 
 Jenkins Options:
-  -j <arg> jenkins url
-  -u <arg> jenkins username
-  -p <arg> jenkins password
-  -U jenkins username (read from stdin)
-  -P jenkins password (read from stdin)\
+  -j, --jenkins-url <arg>   jenkins server url
+  -u, --jenkins-user <arg>  jenkins username (use '-' to read from stdin)
+  -p, --jenkins-pass <arg>  jenkins password (use '-' to read from stdin)
+  --no-verify-ssl           do not verify jenkins server certificate
+  --cert-bundle <path>      path to CA bundle file or directory
+  --client-cert <path>      path to SSL client certificate
+
+A client certificate can be specified as a single file, containing the
+private key and certificate) or as 'path/to/client.cert:path/to/client.key'.\
 ''' % os.path.basename(sys.argv[0])
 
 
@@ -71,7 +74,30 @@ Jenkins Options:
 jenkins = None
 
 
-def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', config=None):
+def parseopts(args):
+    parser = argparse.ArgumentParser()
+    opt = parser.add_argument
+    opt('-n', '--dry-run',    action='store_true')
+    opt('-v', '--version',    action='version', version='%(prog) version ' + __version__)
+    opt('-d', '--debug',      action='store_true')
+    opt('-t', '--debug-http', action='store_true')
+    opt('--no-verify-ssl',    action='store_false', dest='verify_ssl')
+    opt('--cert-bundle')
+    opt('--client-cert')
+
+    opt('-r', '--repo-url')
+    opt('-y', '--scm-user', type=utils.PromptArgtype(input,   'SCM User: '))
+    opt('-o', '--scm-pass', type=utils.PromptArgtype(getpass, 'SCM Password: '))
+
+    opt('-j', '--jenkins-url')
+    opt('-u', '--jenkins-user', type=utils.PromptArgtype(input,   'Jenkins User: '))
+    opt('-p', '--jenkins-pass', type=utils.PromptArgtype(getpass, 'Jenkins Password: '))
+    opt('yamlconfig', metavar='config.yaml', type=argparse.FileType('r'), nargs="?")
+
+    return parser.parse_args(args)
+
+
+def main(argv, create_job, list_branches, config=None):
     '''
     :param argv: command-line arguments to parse (defaults to sys.argv[1:])
     :param create_job: scm specific function that configures and creates jobs
@@ -83,18 +109,19 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
 
     if '-h' in argv or '--help' in argv:
         print(usage)
-        exit(1)
+        sys.exit(0)
 
-    opts, args = parse_args(argv, getoptfmt)
-    if not args and not config:
-        print(usage)
-        exit(1)
+    opts = parseopts(argv)
+
+    if not opts.yamlconfig and not config:
+        print(usage, file=sys.stderr)
+        print('error: config file not specified', file=sys.stderr)
+        sys.exit(2)
 
     # Load config, set default values and compile regexes.
     if not config:
-        yamlfn = args[-1]
-        print('loading config from "%s"' % os.path.abspath(yamlfn))
-        config = yaml.load(open(yamlfn))
+        print('loading config from "%s"' % os.path.abspath(opts.yamlconfig.name))
+        config = yaml.load(opts.yamlconfig)
 
     config = c = get_default_config(config, opts)
 
@@ -104,7 +131,9 @@ def main(argv, create_job, list_branches, getoptfmt='vdtnr:j:u:p:y:o:UPYO', conf
     # Connect to jenkins.
     try:
         global jenkins
-        jenkins = main.jenkins = Jenkins(c['jenkins'], c['username'], c['password'])
+        verify = c['cert-bundle'] if c['cert-bundle'] else c['verify-ssl']
+        jenkins = main.jenkins = Jenkins(c['jenkins'], c['username'], c['password'],
+                                         verify=verify, cert=c['client-cert'])
     except (RequestException, JenkinsError) as e:
         print(e)
         sys.exit(1)
@@ -278,18 +307,6 @@ def safe_job_delete(job, safe_codes=(403,)):
         return False
 
 #-----------------------------------------------------------------------------
-def parse_args(argv, fmt):
-    '''Parse getopt arguments as a dictionary.'''
-    opts, args = getopt.getopt(argv, fmt)
-    opts = dict(opts)
-
-    if '-v' in opts:
-        print('jenkins-autojobs version %s' % __version__)
-        exit(0)
-
-    return opts, args
-
-#-----------------------------------------------------------------------------
 def get_default_config(config, opts):
     '''Set default config values and compile regexes.'''
 
@@ -304,7 +321,10 @@ def get_default_config(config, opts):
     c['password']  = config.get('password', None)
     c['scm-username'] = config.get('scm-username', None)
     c['scm-password'] = config.get('scm-password', None)
-    c['tag-method'] = config.get('tag-method', 'description')
+    c['verify-ssl']   = config.get('verify-ssl', True)
+    c['cert-bundle']  = config.get('cert-bundle', None)
+    c['client-cert']  = config.get('client-cert', None)
+    c['tag-method']   = config.get('tag-method', 'description')
     c['cleanup-filters'] = config.get('cleanup-filters', {})
 
     # Default settings for each git ref/branch config.
@@ -328,24 +348,23 @@ def get_default_config(config, opts):
     # Make sure some options are always lists.
     c['defaults']['view'] = utils.pluralize(c['defaults']['view'])
 
-    # Some options can be overwritten on the command line.
-    if '-r' in o: c['repo'] = o['-r']
-    if '-j' in o: c['jenkins'] = o['-j']
-    if '-n' in o: c['dryrun'] = True
-    if '-d' in o: c['debug'] = True
-    if '-t' in o: c['debughttp'] = True
+    # Options that can be overwritten from the command-line.
+    if o.repo_url:     c['repo'] = opts.repo_url
+    if o.jenkins_url:  c['jenkins'] = opts.jenkins_url
+    if o.dry_run:      c['dryrun'] = True
+    if o.debug:        c['debug'] = True
+    if o.debug_http:   c['debughttp'] = True
+    if o.cert_bundle:  c['cert-bundle'] = opts.cert_bundle
+    if o.client_cert:  c['client-cert'] = opts.client_cert
+    if not o.verify_ssl:  c['verify-ssl'] = opts.verify_ssl
 
     # Jenkins authentication options.
-    if '-u' in o: c['username'] = o['-u']
-    if '-p' in o: c['password'] = o['-p']
-    if '-U' in o: c['username'] = input('Jenkins User: ')
-    if '-P' in o: c['password'] = getpass.getpass('Jenkins Password: ')
+    if o.jenkins_user: c['username'] = o.jenkins_user
+    if o.jenkins_pass: c['password'] = o.jenkins_pass
 
     # SCM authentication options.
-    if '-y' in o: c['scm-username'] = o['-y']
-    if '-o' in o: c['scm-password'] = o['-o']
-    if '-Y' in o: c['scm-username'] = input('SCM User: ')
-    if '-O' in o: c['scm-password'] = getpass.getpass('SCM Password: ')
+    if o.scm_user: c['scm-username'] = o.scm_user
+    if o.scm_pass: c['scm-password'] = o.scm_pass
 
     # Compile ignore regexes.
     c.setdefault('ignore', {})
@@ -361,6 +380,9 @@ def get_default_config(config, opts):
 
     if 'refs' not in c:
         c['refs'] = ['.*']
+
+    if c['client-cert'] and ':' in c['client-cert']:
+        c['client-cert'] = tuple(c['client-cert'].split(':', 1))
 
     # Get the effective (accounting for inheritance) config for all refs.
     cfg = get_effective_branch_config(c['refs'], c['defaults'])

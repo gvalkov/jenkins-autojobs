@@ -7,7 +7,7 @@
 # If location is local, 'git show-ref' is used. If it is an url, 'git ls-remote'
 # is used. Keep in mind that these commands return ref names differently, which
 # is relevant for setting the 'repo' configuration key.
-repo: file:///tmp/project-repo/  # or /tmp/project-repo
+repo: 'file:///tmp/project-repo/'  # or /tmp/project-repo
 
 {{ m.scmlogin()|trim }}
 

@@ -87,6 +87,13 @@ def check_output(*popenargs, **kwargs):
         raise error
     return output
 
+def PromptArgtype(func, args):
+    def validator(value):
+        if value != '-':
+            return value
+        return func(args)
+    return validator
+
 
 #-----------------------------------------------------------------------------
 if __name__ == "__main__":
