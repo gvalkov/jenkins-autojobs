@@ -124,7 +124,7 @@ class Job(object):
     def find_or_create_description_el(xml):
         parent, description = Job.find_description_el(xml)
 
-        if parent is None:
+        if not description and parent is None:
             msg = 'cannot determine project type and the location of the description element'
             raise RuntimeError(msg)
 
@@ -137,12 +137,16 @@ class Job(object):
 
     @staticmethod
     def find_description_el(xml):
-        # The location of the project description element depends on the type of project.
-        # TODO: Need to find a more generic solution to this problem.
+        # The location of the project description element depends on the type
+        # of project.
         for parent_xpath in '//maven2-moduleset', '//project':
             parent = xml.xpath(parent_xpath)
             if not parent:
                 continue
             desc_xpath = parent_xpath + '/description'
             return parent[0], xml.xpath(desc_xpath)
-        return None, None
+
+        # The next best thing to try is to look for the first description
+        # element in the document.
+        description = xml.xpath('//description')
+        return None, description
