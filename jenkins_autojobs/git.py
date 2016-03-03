@@ -19,13 +19,13 @@ from . import job, main, utils
 #-----------------------------------------------------------------------------
 def git_refs_iter_local(repo):
     cmd = ('git', 'show-ref')
-    out = utils.check_output(cmd, cwd=repo).split(os.linesep)
+    out = utils.check_output(cmd, cwd=repo).split('\n')
 
     return (ref for sha, ref in [i.split() for i in out if i])
 
 def git_refs_iter_remote(repo):
     cmd = ('git', 'ls-remote', repo)
-    out = utils.check_output(cmd).decode('utf8').split(os.linesep)
+    out = utils.check_output(cmd).decode('utf8').split('\n')
 
     for sha, ref in (i.split() for i in out if i):
         if not ref.startswith('refs/'):
