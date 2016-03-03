@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.17.4 (Mar 03, 2016)
+^^^^^^^^^^^^^^^^^^^^^
+
+- More robust handling of the project description element (see `issue 56`_).
+
+- Added the ``verify-ssl``, ``cert-bundle``, and ``client-cert`` config-file
+  options and the command-line switches to match them. These control the SSL
+  certificate verification to the Jenkins server.
+
 0.17.3 (Feb 10, 2016)
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -226,5 +235,6 @@ Version 0.17.1 was skipped because of a failed upload to PyPi (see `issue #74`_)
 .. _`issue #28`:       https://github.com/gvalkov/jenkins-autojobs/issues/28
 .. _`issue #50`:       https://github.com/gvalkov/jenkins-autojobs/issues/50
 .. _`issue #54`:       https://github.com/gvalkov/jenkins-autojobs/issues/54
+.. _`issue #56`:       https://github.com/gvalkov/jenkins-autojobs/issues/56
 
 .. _`issue #74`:       https://github.com/pypa/packaging-problems/issues/74
