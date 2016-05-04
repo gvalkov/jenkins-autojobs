@@ -48,8 +48,8 @@ Version 0.17.1 was skipped because of a failed upload to PyPi (see `issue #74`_)
       jobs that start with 'scratch'.
       cleanup-filters:
         views:
-          - Feature
-          - Release
+          - 'Feature'
+          - 'Release'
         name:
           - '^scratch-.*'
 
