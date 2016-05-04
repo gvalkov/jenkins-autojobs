@@ -47,10 +47,10 @@ Version 0.17.1 was skipped because of a failed upload to PyPi (see `issue #74`_)
       # Cleanup only jobs in the 'Feature' and 'Release' views as well as all
       jobs that start with 'scratch'.
       cleanup-filters:
-        - views:
-          - Feature
-          - Release
-        - name:
+        views:
+          - 'Feature'
+          - 'Release'
+        jobs:
           - '^scratch-.*'
 
 - Added the ``list-closed`` option to the mercurial plugin, which controls the
